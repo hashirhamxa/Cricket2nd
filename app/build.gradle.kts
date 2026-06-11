@@ -1,0 +1,79 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.hilt)
+}
+
+android {
+    namespace = "bicodes.cricket.liveapp"
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = "bicodes.cricket.liveapp"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.incremental"] = "true"
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // Core Android
+    implementation(libs.activity)
+    implementation(libs.appcompat)
+    implementation(libs.material)
+    implementation(libs.constraintlayout)
+    implementation(libs.swiperefreshlayout)
+
+    // Lifecycle + ViewModel (for MVVM)
+    implementation(libs.lifecycle.viewmodel)
+    implementation(libs.lifecycle.livedata)
+
+    // Networking (Retrofit)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+
+    // Dependency Injection (Hilt)
+    implementation(libs.hilt.android)
+    annotationProcessor(libs.hilt.compiler)
+
+    // JSON Parsing (Gson)
+    implementation(libs.gson)
+
+    // Local Database (Room)
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
+    implementation(libs.room.common)
+
+    // Background Tasks (WorkManager)
+    implementation(libs.work.runtime)
+    implementation(libs.hilt.work)
+    annotationProcessor(libs.hilt.work.compiler)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+}

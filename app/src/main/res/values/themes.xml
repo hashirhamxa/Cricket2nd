@@ -1,0 +1,60 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Cricket" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Main colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/on_background</item>
+
+        <!-- Status and Navigation Bars -->
+        <item name="android:statusBarColor">@color/primary_variant</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+    </style>
+
+    <style name="Theme.Cricket" parent="Base.Theme.Cricket" />
+
+    <style name="Theme.Cricket.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
+    <style name="Theme.Cricket.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+
+    <!-- Custom Styles -->
+    <style name="Widget.Cricket.CardView" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">?attr/colorSurfaceVariant</item>
+        <item name="android:layout_margin">8dp</item>
+    </style>
+
+    <style name="TextAppearance.Cricket.MatchTitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+ 
+    <style name="TextAppearance.Cricket.Score" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <style name="BadgeStyle">
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Bottom Navigation Active Indicator -->
+    <style name="Widget.Cricket.ActiveIndicator" parent="">
+        <item name="android:color">?attr/colorSurfaceVariant</item>
+    </style>
+</resources>

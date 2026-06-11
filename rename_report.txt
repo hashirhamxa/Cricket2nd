@@ -1,0 +1,70 @@
+=== Project Rename Report ===
+
+--- Deleted Files ---
+  - app/res/layout/item_date_header.xml
+
+--- Deleted Directories ---
+  - app/res
+  - app\src\androidTest\java\bicodes\criclive\criclive\cricketscorelive
+  - app\src\androidTest\java\bicodes\criclive\criclive
+  - app\src\androidTest\java\bicodes\criclive
+  - app\src\test\java\bicodes\criclive\criclive\cricketscorelive
+  - app\src\test\java\bicodes\criclive\criclive
+  - app\src\test\java\bicodes\criclive
+
+--- Files Moved ---
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\CricketApp.java -> app\src\main\java\bicodes\cricket\liveapp\CricketApp.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\MainActivity.java -> app\src\main\java\bicodes\cricket\liveapp\MainActivity.java
+  - app\src\androidTest\java\bicodes\criclive\criclive\cricketscorelive\ExampleInstrumentedTest.java -> app\src\androidTest\java\bicodes\cricket\liveapp\ExampleInstrumentedTest.java
+  - app\src\test\java\bicodes\criclive\criclive\cricketscorelive\ExampleUnitTest.java -> app\src\test\java\bicodes\cricket\liveapp\ExampleUnitTest.java
+
+--- Files Modified ---
+  - settings.gradle.kts
+  - .idea\.name
+  - .idea\workspace.xml
+  - app\build.gradle.kts
+  - app\src\androidTest\java\bicodes\cricket\liveapp\ExampleInstrumentedTest.java
+  - app\src\main\AndroidManifest.xml
+  - app\src\main\java\bicodes\cricket\liveapp\CricketApp.java
+  - app\src\main\java\bicodes\cricket\liveapp\MainActivity.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\api\ApiService.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\api\RetrofitClient.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\model\CurrentMatchesResponse.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\model\Match.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\model\Score.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\model\Series.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\model\SeriesInfoResponse.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\model\SeriesResponse.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\model\Standing.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\repository\AppDatabase.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\repository\MatchDao.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\repository\MatchRepository.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\repository\SeriesDao.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\data\repository\SeriesRepository.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\di\DatabaseModule.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\di\NetworkModule.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\ui\MatchDetailActivity.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\ui\adapters\MatchesAdapter.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\ui\adapters\RecentAdapter.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\ui\adapters\ScoreAdapter.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\ui\adapters\StandingsAdapter.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\ui\adapters\UpcomingAdapter.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\ui\fragments\MatchesFragment.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\ui\fragments\RecentFragment.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\ui\fragments\StandingsFragment.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\ui\fragments\UpcomingFragment.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\ui\model\MatchListItem.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\viewmodel\MatchDetailViewModel.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\viewmodel\MatchesViewModel.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\viewmodel\RecentViewModel.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\viewmodel\StandingsViewModel.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\presentation\viewmodel\UpcomingViewModel.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\util\Constants.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\util\Converters.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\util\DateTimeUtils.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\util\OnMatchClickListener.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\util\StatusHelper.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\util\SyncWorker.java
+  - app\src\main\java\bicodes\criclive\criclive\cricketscorelive\util\WorkManagerScheduler.java
+  - app\src\main\res\values\strings.xml
+  - app\src\test\java\bicodes\cricket\liveapp\ExampleUnitTest.java

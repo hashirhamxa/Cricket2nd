@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_matches"
+        android:icon="@drawable/ic_matches"
+        android:title="@string/title_matches" />
+    <item
+        android:id="@+id/nav_recent"
+        android:icon="@drawable/ic_recent"
+        android:title="@string/title_recent" />
+    <item
+        android:id="@+id/nav_upcoming"
+        android:icon="@drawable/ic_upcoming"
+        android:title="@string/title_upcoming" />
+    <item
+        android:id="@+id/nav_standings"
+        android:icon="@drawable/ic_standings"
+        android:title="@string/title_standings" />
+</menu>
