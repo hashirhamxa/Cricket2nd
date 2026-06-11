@@ -2,7 +2,7 @@ package bicodes.cricket.liveapp.util;
 
 public class Constants {
     public static final String BASE_URL = "https://api.cricapi.com/v1/";
-    public static final String API_KEY = "410e9874-72aa-4a16-aabe-dad2fa93d9f1"; // Replace with real key
+    public static final String API_KEY = "c6f5c57f-d8ab-4748-96fa-73e86cc37003"; // Replace with real key
     
     // Endpoints
     public static final String CURRENT_MATCHES = "currentMatches";
