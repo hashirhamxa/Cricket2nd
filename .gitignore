@@ -4,3 +4,7 @@
 /build/
 .venv/
 .DS_Store
+/cricket/
+*.iml
+.idea/caches/
+

@@ -1,0 +1,138 @@
+package livecricket.livecrickettv.cricketstreaming.adapters;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
+
+import livecricket.livecrickettv.cricketstreaming.R;
+import livecricket.livecrickettv.cricketstreaming.data.model.Match;
+import livecricket.livecrickettv.cricketstreaming.ui.MatchListItem;
+import livecricket.livecrickettv.cricketstreaming.util.DateTimeUtils;
+import livecricket.livecrickettv.cricketstreaming.util.OnMatchClickListener;
+
+import java.util.List;
+
+public class UpcomingAdapter extends ListAdapter<MatchListItem, RecyclerView.ViewHolder> {
+
+    private final OnMatchClickListener listener;
+
+    public UpcomingAdapter(OnMatchClickListener listener) {
+        super(new DiffUtil.ItemCallback<MatchListItem>() {
+            @Override
+            public boolean areItemsTheSame(@NonNull MatchListItem oldItem, @NonNull MatchListItem newItem) {
+                if (oldItem.getType() != newItem.getType()) return false;
+                if (oldItem instanceof MatchListItem.HeaderItem) {
+                    return ((MatchListItem.HeaderItem) oldItem).getTitle().equals(((MatchListItem.HeaderItem) newItem).getTitle());
+                } else {
+                    return ((MatchListItem.MatchItem) oldItem).getMatch().getId().equals(((MatchListItem.MatchItem) newItem).getMatch().getId());
+                }
+            }
+
+            @Override
+            public boolean areContentsTheSame(@NonNull MatchListItem oldItem, @NonNull MatchListItem newItem) {
+                return oldItem.equals(newItem);
+            }
+        });
+        this.listener = listener;
+    }
+
+    public void setMatches(List<MatchListItem> matches) {
+        submitList(matches);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return getItem(position).getType();
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == MatchListItem.TYPE_HEADER) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_date_header, parent, false);
+            return new HeaderViewHolder(view);
+        } else {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_upcoming, parent, false);
+            return new UpcomingViewHolder(view, listener);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        MatchListItem item = getItem(position);
+        if (holder instanceof HeaderViewHolder) {
+            ((HeaderViewHolder) holder).bind((MatchListItem.HeaderItem) item);
+        } else if (holder instanceof UpcomingViewHolder) {
+            ((UpcomingViewHolder) holder).bind(((MatchListItem.MatchItem) item).getMatch());
+        }
+    }
+
+    static class HeaderViewHolder extends RecyclerView.ViewHolder {
+        private final TextView textHeader;
+        public HeaderViewHolder(@NonNull View itemView) {
+            super(itemView);
+            textHeader = itemView.findViewById(R.id.text_date_header);
+        }
+        public void bind(MatchListItem.HeaderItem header) {
+            textHeader.setText(header.getTitle());
+        }
+    }
+
+    static class UpcomingViewHolder extends RecyclerView.ViewHolder {
+        private final TextView textSeriesName, textTeam1Name, textTeam2Name, textVenue, textDateTime;
+        private final OnMatchClickListener listener;
+
+        public UpcomingViewHolder(@NonNull View itemView, OnMatchClickListener listener) {
+            super(itemView);
+            this.listener = listener;
+            textSeriesName = itemView.findViewById(R.id.text_series_name);
+            textTeam1Name = itemView.findViewById(R.id.text_team1_name);
+            textTeam2Name = itemView.findViewById(R.id.text_team2_name);
+            textVenue = itemView.findViewById(R.id.text_venue);
+            textDateTime = itemView.findViewById(R.id.text_date_time);
+        }
+
+        public void bind(Match match) {
+            // Extracted team names with fallbacks
+            String t1 = match.getTeam1();
+            String t2 = match.getTeam2();
+            if (t1 == null || t2 == null) {
+                String name = match.getName();
+                if (name != null && name.contains(" vs ")) {
+                    String[] parts = name.split(" vs ");
+                    t1 = parts[0].trim();
+                    t2 = parts[1].trim();
+                } else if (name != null && name.contains(" V ")) {
+                    String[] parts = name.split(" V ");
+                    t1 = parts[0].trim();
+                    t2 = parts[1].trim();
+                } else {
+                    t1 = name != null ? name : "TBD";
+                    t2 = "TBD";
+                }
+            }
+
+            textTeam1Name.setText(t1);
+            textTeam2Name.setText(t2);
+            textDateTime.setText(DateTimeUtils.formatMatchDate(match.getDate()));
+            
+            // Set Series name
+            String matchType = match.getMatchType();
+            textSeriesName.setText(matchType != null ? matchType.toUpperCase() + " MATCH" : "CRICKET MATCH");
+
+            // Format venue
+            String venueStr = match.getVenue();
+            textVenue.setText(venueStr != null ? "📍 " + venueStr : "📍 Venue TBD");
+
+            itemView.setOnClickListener(v -> {
+                if (listener != null) listener.onMatchClick(match);
+            });
+        }
+    }
+}

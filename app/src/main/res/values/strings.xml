@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Cricket Live</string>
+    <string name="app_name">Cricket Pulse</string>
     <string name="title_matches">Matches</string>
     <string name="title_recent">Recent</string>
     <string name="title_upcoming">Upcoming</string>
@@ -16,6 +16,7 @@
 
     <string name="menu_privacy">Privacy Policy</string>
     <string name="menu_share">Share</string>
+    <string name="menu_rate_us">Rate Us</string>
     <string name="menu_more_apps">More Apps</string>
     <string name="menu_about">About Us</string>
 </resources>

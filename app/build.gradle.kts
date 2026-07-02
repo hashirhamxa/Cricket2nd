@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "bicodes.cricket.liveapp"
+    namespace = "livecricket.livecrickettv.cricketstreaming"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "bicodes.cricket.liveapp"
+        applicationId = "livecricket.livecrickettv.cricketstreaming"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

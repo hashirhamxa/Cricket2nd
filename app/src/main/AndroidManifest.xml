@@ -6,7 +6,7 @@
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="replace"/>
 
     <application
-        android:name="bicodes.cricket.liveapp.CricketApp"
+        android:name="livecricket.livecrickettv.cricketstreaming.CricketApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -18,7 +18,7 @@
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.Cricket">
         <activity
-            android:name="bicodes.cricket.liveapp.MainActivity"
+            android:name="livecricket.livecrickettv.cricketstreaming.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="bicodes.cricket.liveapp.ui.MatchDetailActivity"
+            android:name="livecricket.livecrickettv.cricketstreaming.ui.MatchDetailActivity"
             android:exported="false"
             android:theme="@style/Theme.Cricket" />
 
