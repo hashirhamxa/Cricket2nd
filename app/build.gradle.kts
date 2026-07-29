@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt)
 }
 
@@ -36,6 +38,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 
 dependencies {
@@ -45,6 +50,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.constraintlayout)
     implementation(libs.swiperefreshlayout)
+    implementation(libs.viewpager2)
 
     // Lifecycle + ViewModel (for MVVM)
     implementation(libs.lifecycle.viewmodel)
@@ -58,20 +64,20 @@ dependencies {
 
     // Dependency Injection (Hilt)
     implementation(libs.hilt.android)
-    annotationProcessor(libs.hilt.compiler)
+    kapt(libs.hilt.compiler)
 
     // JSON Parsing (Gson)
     implementation(libs.gson)
 
     // Local Database (Room)
     implementation(libs.room.runtime)
-    annotationProcessor(libs.room.compiler)
+    kapt(libs.room.compiler)
     implementation(libs.room.common)
 
     // Background Tasks (WorkManager)
     implementation(libs.work.runtime)
     implementation(libs.hilt.work)
-    annotationProcessor(libs.hilt.work.compiler)
+    kapt(libs.hilt.work.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

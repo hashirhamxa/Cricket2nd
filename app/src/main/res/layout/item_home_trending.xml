@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.Cricket.CardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    app:cardCornerRadius="24dp"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="420dp">
+
+        <ImageView
+            android:id="@+id/img_trending_banner"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop"
+            tools:src="@tools:sample/backgrounds/scenic" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/gradient_trending_card" />
+
+        <!-- Badges -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                style="@style/BadgeStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:drawableStartCompat="@android:drawable/presence_online"
+                android:drawablePadding="6dp"
+                app:drawableTint="@color/black"
+                android:text="LIVE" />
+
+            <TextView
+                style="@style/TextAppearance.Cricket.LabelMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:background="@drawable/bg_badge_overlay"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:textColor="@color/white"
+                tools:text="PPV EVENT" />
+
+        </LinearLayout>
+
+        <!-- Content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/text_category"
+                style="@style/TextAppearance.Cricket.LabelLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAllCaps="true"
+                android:textColor="@color/secondary"
+                android:letterSpacing="0.1"
+                tools:text="MIXED MARTIAL ARTS" />
+
+            <TextView
+                android:id="@+id/text_trending_title"
+                style="@style/TextAppearance.Cricket.HeadlineLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/white"
+                android:textSize="42sp"
+                tools:text="UFC 300" />
+
+            <TextView
+                android:id="@+id/text_trending_desc"
+                style="@style/TextAppearance.Cricket.BodyMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:alpha="0.8"
+                android:lineSpacingExtra="4dp"
+                android:textColor="@color/white"
+                tools:text="Pereira vs. Hill - The historic triple-header championship event is underway. Stream the main card live." />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_watch_now"
+                    style="@style/Widget.Cricket.Button.Primary"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_marginEnd="12dp"
+                    android:layout_weight="1"
+                    app:icon="@android:drawable/ic_media_play"
+                    app:iconTint="@color/black"
+                    android:text="WATCH NOW" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_details"
+                    style="@style/Widget.Cricket.Button.Outlined"
+                    android:layout_width="wrap_content"
+                    android:layout_height="56dp"
+                    android:paddingHorizontal="32dp"
+                    android:text="DETAILS" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

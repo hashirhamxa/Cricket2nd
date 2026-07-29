@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:clipToPadding="false"
+    android:paddingBottom="100dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            style="@style/TextAppearance.Cricket.HeadlineLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:text="SETTINGS"
+            android:textColor="@color/white"
+            android:textSize="32sp" />
+
+        <!-- Section 1 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Share App -->
+                <RelativeLayout
+                    android:id="@+id/btn_share"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:id="@+id/icon_share"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/share_icon"
+                        app:tint="@color/secondary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Cricket.BodyLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/icon_share"
+                        android:text="Share App"
+                        android:textColor="@color/white" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:alpha="0.5"
+                        android:src="@drawable/about_icon"
+                        android:rotation="-90"
+                        app:tint="@color/white" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:alpha="0.05"
+                    android:background="@color/white" />
+
+                <!-- Rate App -->
+                <RelativeLayout
+                    android:id="@+id/btn_rate"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:id="@+id/icon_rate"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/rate_icon"
+                        app:tint="@color/secondary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Cricket.BodyLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/icon_rate"
+                        android:text="Rate App"
+                        android:textColor="@color/white" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:alpha="0.5"
+                        android:src="@drawable/about_icon"
+                        android:rotation="-90"
+                        app:tint="@color/white" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:alpha="0.05"
+                    android:background="@color/white" />
+
+                <!-- Privacy Policy -->
+                <RelativeLayout
+                    android:id="@+id/btn_privacy"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:id="@+id/icon_privacy"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/privacy_icon"
+                        app:tint="@color/secondary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Cricket.BodyLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/icon_privacy"
+                        android:text="Privacy Policy"
+                        android:textColor="@color/white" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:alpha="0.5"
+                        android:src="@drawable/about_icon"
+                        android:rotation="-90"
+                        app:tint="@color/white" />
+                </RelativeLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Follow Us Header -->
+        <TextView
+            style="@style/TextAppearance.Cricket.LabelLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="12dp"
+            android:letterSpacing="0.2"
+            android:text="FOLLOW US"
+            android:textColor="@color/secondary" />
+
+        <!-- Section 2 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Facebook -->
+                <RelativeLayout
+                    android:id="@+id/btn_facebook"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:id="@+id/icon_fb"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/facebook_icon"
+                        app:tint="@color/secondary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Cricket.BodyLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/icon_fb"
+                        android:text="Facebook"
+                        android:textColor="@color/white" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:alpha="0.5"
+                        android:src="@drawable/share_icon"
+                        app:tint="@color/white" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:alpha="0.05"
+                    android:background="@color/white" />
+
+                <!-- Instagram -->
+                <RelativeLayout
+                    android:id="@+id/btn_instagram"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:id="@+id/icon_ig"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/instagram_icon"
+                        app:tint="@color/secondary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Cricket.BodyLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/icon_ig"
+                        android:text="Instagram"
+                        android:textColor="@color/white" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:alpha="0.5"
+                        android:src="@drawable/share_icon"
+                        app:tint="@color/white" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:alpha="0.05"
+                    android:background="@color/white" />
+
+                <!-- X (Twitter) -->
+                <RelativeLayout
+                    android:id="@+id/btn_x"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:id="@+id/icon_x"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/x_icon"
+                        app:tint="@color/secondary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Cricket.BodyLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/icon_x"
+                        android:text="X (Twitter)"
+                        android:textColor="@color/white" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:alpha="0.5"
+                        android:src="@drawable/share_icon"
+                        app:tint="@color/white" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:alpha="0.05"
+                    android:background="@color/white" />
+
+                <!-- Telegram -->
+                <RelativeLayout
+                    android:id="@+id/btn_telegram"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:id="@+id/icon_tg"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/telegram_icon"
+                        app:tint="@color/secondary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Cricket.BodyLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/icon_tg"
+                        android:text="Telegram"
+                        android:textColor="@color/white" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:alpha="0.5"
+                        android:src="@drawable/share_icon"
+                        app:tint="@color/white" />
+                </RelativeLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Information Header -->
+        <TextView
+            style="@style/TextAppearance.Cricket.LabelLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="12dp"
+            android:letterSpacing="0.2"
+            android:text="INFORMATION"
+            android:textColor="@color/secondary" />
+
+        <!-- Section 3 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- More Apps -->
+                <RelativeLayout
+                    android:id="@+id/btn_more_apps"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:id="@+id/icon_more"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/more_apps_icon"
+                        app:tint="@color/secondary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Cricket.BodyLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/icon_more"
+                        android:text="More Apps"
+                        android:textColor="@color/white" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:alpha="0.5"
+                        android:src="@drawable/about_icon"
+                        android:rotation="-90"
+                        app:tint="@color/white" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:alpha="0.05"
+                    android:background="@color/white" />
+
+                <!-- About -->
+                <RelativeLayout
+                    android:id="@+id/btn_about"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:id="@+id/icon_about"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/about_icon"
+                        app:tint="@color/secondary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Cricket.BodyLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/icon_about"
+                        android:text="About"
+                        android:textColor="@color/white" />
+
+                    <TextView
+                        style="@style/TextAppearance.Cricket.LabelSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="8dp"
+                        android:layout_toStartOf="@id/chevron_about"
+                        android:alpha="0.5"
+                        android:text="v2.4.0"
+                        android:textColor="@color/white" />
+
+                    <ImageView
+                        android:id="@+id/chevron_about"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:alpha="0.5"
+                        android:src="@drawable/about_icon"
+                        android:rotation="-90"
+                        app:tint="@color/white" />
+                </RelativeLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Footer -->
+        <TextView
+            style="@style/TextAppearance.Cricket.LabelSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dp"
+            android:alpha="0.3"
+            android:gravity="center"
+            android:letterSpacing="0.1"
+            android:text="© 2024 ELITE STREAM GLOBAL"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

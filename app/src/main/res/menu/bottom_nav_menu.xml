@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/nav_matches"
-        android:icon="@drawable/ic_matches"
-        android:title="@string/title_matches" />
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/bottom_nav_home_icon"
+        android:title="Home" />
     <item
-        android:id="@+id/nav_recent"
-        android:icon="@drawable/ic_recent"
-        android:title="@string/title_recent" />
+        android:id="@+id/navigation_highlights"
+        android:icon="@drawable/bottom_nav_highlight_icon"
+        android:title="Highlights" />
     <item
-        android:id="@+id/nav_upcoming"
-        android:icon="@drawable/ic_upcoming"
-        android:title="@string/title_upcoming" />
-    <item
-        android:id="@+id/nav_standings"
-        android:icon="@drawable/ic_standings"
-        android:title="@string/title_standings" />
+        android:id="@+id/navigation_settings"
+        android:icon="@drawable/bottom_nav_setting_icon"
+        android:title="Settings" />
 </menu>

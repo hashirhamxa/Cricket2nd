@@ -1,31 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Colors -->
-    <color name="primary">#2563EB</color>
-    <color name="primary_variant">#1E3A8A</color>
+    <color name="primary">#FF5C00</color>
+    <color name="primary_variant">#CC4A00</color>
     <color name="on_primary">#FFFFFF</color>
+    <color name="secondary">#00F0FF</color>
+    <color name="on_secondary">#000000</color>
+    <color name="tertiary">#00FF41</color>
+    <color name="neutral">#111317</color>
+    <color name="background">#111317</color>
+    <color name="on_background">#FFFFFF</color>
+    <color name="surface">#1A1C20</color>
+    <color name="on_surface">#FFFFFF</color>
+    <color name="surface_variant">#2D2F31</color>
 
-    <color name="secondary">#EC4899</color>
-    <color name="on_secondary">#FFFFFF</color>
-
-    <!-- Background and Surface -->
-    <color name="background">#F8FAFC</color>
-    <color name="on_background">#0F172A</color>
-    <color name="surface">#FFFFFF</color>
-    <color name="on_surface">#0F172A</color>
-    <color name="surface_variant">#E2E8F0</color>
-
-    <!-- Status Colors -->
-    <color name="status_live">#10B981</color>
-    <color name="status_upcoming">#F59E0B</color>
-    <color name="status_finished">#64748B</color>
-    <color name="status_result">#0EA5E9</color>
-
-    <!-- UI Elements -->
-    <color name="divider">#CBD5E1</color>
-    <color name="error">#EF4444</color>
-
-    <!-- Core Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="active_indicator">#4DFF5C00</color>
+
+    <!-- Status Colors -->
+    <color name="status_finished">#4CAF50</color>
+    <color name="status_upcoming">#2196F3</color>
+    <color name="error">#F44336</color>
 </resources>

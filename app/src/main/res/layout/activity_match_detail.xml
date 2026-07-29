@@ -5,22 +5,21 @@
     android:id="@+id/detail_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/windowBackground"
-    tools:context=".ui.MatchDetailActivity">
+    android:background="@color/background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary">
+        android:background="@color/background">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="?attr/homeAsUpIndicator"
-            app:navigationIconTint="@android:color/white"
+            app:navigationIconTint="@color/primary"
             app:title="@string/title_match_detail"
-            app:titleTextColor="@android:color/white" />
+            app:titleTextColor="@color/primary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -33,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="12dp">
 
             <!-- Match Header Card -->
             <com.google.android.material.card.MaterialCardView
@@ -50,10 +49,11 @@
 
                     <TextView
                         android:id="@+id/text_match_name"
-                        style="@style/TextAppearance.Cricket.MatchTitle"
+                        style="@style/TextAppearance.Cricket.HeadlineLarge"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="22sp"
+                        android:textColor="@color/white"
+                        android:textSize="20sp"
                         tools:text="Team A vs Team B" />
 
                     <TextView
@@ -61,17 +61,17 @@
                         style="@style/BadgeStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        tools:text="LIVE" />
+                        android:layout_marginTop="8dp"
+                        android:text="LIVE" />
 
                     <TextView
                         android:id="@+id/text_match_status"
+                        style="@style/TextAppearance.Cricket.BodyLarge"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:textColor="@color/error"
+                        android:layout_marginTop="12dp"
+                        android:textColor="@color/primary"
                         android:textStyle="bold"
-                        android:textSize="16sp"
                         tools:text="Team A won by 5 wickets" />
 
                 </LinearLayout>
@@ -80,23 +80,21 @@
 
             <!-- Score Section -->
             <TextView
+                style="@style/TextAppearance.Cricket.HeadlineSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
                 android:text="@string/label_innings_score"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="?attr/colorOnBackground" />
+                android:textColor="@color/secondary"
+                android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_scores"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:elevation="0dp"
                 android:nestedScrollingEnabled="false"
-                android:background="?attr/colorSurface"
-                android:elevation="1dp"
-                android:padding="8dp"
                 tools:listitem="@layout/item_score_line" />
 
             <!-- Venue & Date Card -->
@@ -104,9 +102,9 @@
                 style="@style/Widget.Cricket.CardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
                 android:layout_marginHorizontal="0dp"
-                app:contentPadding="16dp">
+                android:layout_marginTop="16dp"
+                app:contentPadding="12dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -114,44 +112,45 @@
                     android:orientation="vertical">
 
                     <TextView
+                        style="@style/TextAppearance.Cricket.HeadlineSmall"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/label_match_info"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:textColor="?attr/colorPrimary" />
+                        android:textColor="@color/primary"
+                        android:textStyle="bold" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="12dp"
-                        android:background="?attr/colorSurfaceVariant" />
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:alpha="0.1"
+                        android:background="@color/white" />
 
                     <TextView
                         android:id="@+id/text_venue"
+                        style="@style/TextAppearance.Cricket.BodyMedium"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:textColor="?attr/colorOnSurface"
+                        android:textColor="@color/white"
                         tools:text="Venue: Melbourne Cricket Ground" />
 
                     <TextView
                         android:id="@+id/text_date"
+                        style="@style/TextAppearance.Cricket.BodyMedium"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:textSize="14sp"
-                        android:textColor="?attr/colorOnSurface"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/white"
                         tools:text="Date: May 20, 2026" />
 
                     <TextView
                         android:id="@+id/text_match_type"
+                        style="@style/TextAppearance.Cricket.BodyMedium"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:textSize="14sp"
-                        android:textColor="?attr/colorOnSurface"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/white"
                         tools:text="Type: T20" />
 
                 </LinearLayout>
