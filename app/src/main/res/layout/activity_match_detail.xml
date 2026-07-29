@@ -32,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="@dimen/spacing_medium">
 
             <!-- Match Header Card -->
             <com.google.android.material.card.MaterialCardView
@@ -53,7 +53,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
-                        android:textSize="20sp"
+                        android:textSize="@dimen/text_size_headline_medium"
                         tools:text="Team A vs Team B" />
 
                     <TextView
@@ -61,7 +61,7 @@
                         style="@style/BadgeStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="@dimen/spacing_small"
                         android:text="LIVE" />
 
                     <TextView
@@ -69,7 +69,7 @@
                         style="@style/TextAppearance.Cricket.BodyLarge"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="@dimen/spacing_medium"
                         android:textColor="@color/primary"
                         android:textStyle="bold"
                         tools:text="Team A won by 5 wickets" />
@@ -83,8 +83,8 @@
                 style="@style/TextAppearance.Cricket.HeadlineSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:layout_marginBottom="@dimen/spacing_small"
                 android:text="@string/label_innings_score"
                 android:textColor="@color/secondary"
                 android:textStyle="bold" />
@@ -103,8 +103,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="0dp"
-                android:layout_marginTop="16dp"
-                app:contentPadding="12dp">
+                android:layout_marginTop="@dimen/spacing_large"
+                app:contentPadding="@dimen/spacing_medium">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -122,8 +122,8 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:layout_marginBottom="@dimen/spacing_small"
                         android:alpha="0.1"
                         android:background="@color/white" />
 
@@ -140,7 +140,7 @@
                         style="@style/TextAppearance.Cricket.BodyMedium"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
+                        android:layout_marginTop="@dimen/spacing_tiny"
                         android:textColor="@color/white"
                         tools:text="Date: May 20, 2026" />
 
@@ -149,7 +149,7 @@
                         style="@style/TextAppearance.Cricket.BodyMedium"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
+                        android:layout_marginTop="@dimen/spacing_tiny"
                         android:textColor="@color/white"
                         tools:text="Type: T20" />
 

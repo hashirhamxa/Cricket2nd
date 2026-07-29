@@ -29,7 +29,8 @@
         <!-- Top Badges -->
         <TextView
             android:id="@+id/text_tournament_name"
-            style="@style/TextAppearance.Cricket.LabelMedium"
+            android:fontFamily="@font/jet_brains_mono_regular"
+            android:textSize="12dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
@@ -43,32 +44,32 @@
 
         <TextView
             android:id="@+id/text_live_badge"
-            style="@style/TextAppearance.Cricket.LabelMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_margin="16dp"
+            android:layout_width="65dp"
+            android:layout_height="23dp"
             android:background="@drawable/bg_badge_live_red"
-            app:drawableStartCompat="@android:drawable/presence_online"
-            android:drawablePadding="6dp"
-            app:drawableTint="@color/white"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp"
+            android:drawablePadding="3dp"
+            android:fontFamily="@font/jet_brains_mono_bold"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
             android:text="LIVE"
             android:textColor="@color/white"
-            android:textStyle="bold"
+            android:textSize="12dp"
+            app:drawableStartCompat="@drawable/live_dot"
+            app:drawableTint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Center Match Title -->
         <TextView
             android:id="@+id/text_match_title"
-            style="@style/TextAppearance.Cricket.HeadlineLarge"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
             android:gravity="center"
             android:textColor="@color/white"
-            android:textSize="28sp"
+            android:fontFamily="@font/oswald_regular"
+            android:textSize="28dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -87,16 +88,17 @@
 
             <TextView
                 android:id="@+id/text_status_main"
-                style="@style/TextAppearance.Cricket.LabelLarge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/primary"
-                android:textSize="14sp"
+                android:textSize="14dp"
+                android:fontFamily="@font/jet_brains_mono_semi_bold"
                 tools:text="LIVE NOW" />
 
             <TextView
                 android:id="@+id/text_status_sub"
-                style="@style/TextAppearance.Cricket.BodySmall"
+                android:fontFamily="@font/jet_brains_mono_semi_bold"
+                android:textSize="14dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:alpha="0.7"
@@ -107,11 +109,13 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_action"
-            style="@style/Widget.Cricket.Button.Primary"
+            android:background="@drawable/rounded_rect_bck"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:minHeight="44dp"
+            android:fontFamily="@font/oswald_regular"
+            android:textSize="15dp"
             android:paddingHorizontal="24dp"
             android:text="WATCH NOW"
             app:layout_constraintBottom_toBottomOf="parent"

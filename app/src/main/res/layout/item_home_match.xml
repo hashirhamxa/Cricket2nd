@@ -38,29 +38,30 @@
 
             <TextView
                 android:id="@+id/badge_live"
-                style="@style/TextAppearance.Cricket.LabelSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="23dp"
                 android:background="@drawable/bg_badge_live"
-                app:drawableStartCompat="@android:drawable/presence_online"
-                android:drawablePadding="4dp"
-                app:drawableTint="@color/black"
-                android:paddingHorizontal="10dp"
+                android:drawablePadding="3dp"
+                android:fontFamily="@font/jet_brains_mono_bold"
+                android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
                 android:text="LIVE"
                 android:textColor="@color/black"
-                android:textStyle="bold" />
+                android:textSize="12dp"
+                app:drawableStartCompat="@drawable/live_dot"
+                app:drawableTint="@color/black" />
 
             <TextView
                 android:id="@+id/badge_tournament"
-                style="@style/TextAppearance.Cricket.LabelSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/bg_badge_overlay"
-                android:paddingHorizontal="10dp"
+                android:fontFamily="@font/jet_brains_mono_regular"
+                android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
                 android:textColor="@color/white"
+                android:textSize="12dp"
                 tools:text="ICC T20 WORLD CUP" />
 
         </LinearLayout>
@@ -68,14 +69,13 @@
         <!-- Match Info -->
         <TextView
             android:id="@+id/text_match_title"
-            style="@style/TextAppearance.Cricket.HeadlineSmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="12dp"
             android:layout_marginBottom="4dp"
             android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
+            android:fontFamily="@font/oswald_regular"
+            android:textSize="18dp"
             app:layout_constraintBottom_toTopOf="@id/text_match_status"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -83,32 +83,16 @@
 
         <TextView
             android:id="@+id/text_match_status"
-            style="@style/TextAppearance.Cricket.LabelSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
+            android:textSize="12dp"
             android:layout_marginBottom="12dp"
+            android:fontFamily="@font/jet_brains_mono_semi_bold"
             android:textColor="@color/tertiary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             tools:text="LIVE NOW • 45,000 watching" />
-
-        <TextView
-            android:id="@+id/text_score_overlay"
-            style="@style/TextAppearance.Cricket.LabelMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/bg_badge_overlay"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
-            android:textColor="@color/white"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="2-1"
-            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

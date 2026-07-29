@@ -16,7 +16,6 @@ class HomeMatchAdapter(private val items: List<HomeMatch>) :
         val title: TextView = view.findViewById(R.id.text_match_title)
         val tournament: TextView = view.findViewById(R.id.badge_tournament)
         val status: TextView = view.findViewById(R.id.text_match_status)
-        val score: TextView = view.findViewById(R.id.text_score_overlay)
         val liveBadge: TextView = view.findViewById(R.id.badge_live)
     }
 
@@ -32,13 +31,7 @@ class HomeMatchAdapter(private val items: List<HomeMatch>) :
         holder.tournament.text = item.tournament
         holder.status.text = item.status
         
-        if (item.score != null) {
-            holder.score.text = item.score
-            holder.score.visibility = View.VISIBLE
-        } else {
-            holder.score.visibility = View.GONE
-        }
-        
+
         holder.liveBadge.visibility = if (item.isLive) View.VISIBLE else View.GONE
         
         holder.itemView.setOnClickListener {

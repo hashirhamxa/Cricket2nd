@@ -30,9 +30,10 @@
         <!-- Tournament Badge -->
         <TextView
             android:id="@+id/text_event_count"
-            style="@style/TextAppearance.Cricket.LabelSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/jet_brains_mono_bold"
+            android:textSize="13dp"
             android:layout_margin="16dp"
             android:background="@drawable/bg_badge_overlay"
             android:paddingHorizontal="10dp"
@@ -52,19 +53,20 @@
 
             <TextView
                 android:id="@+id/text_tournament_name"
-                style="@style/TextAppearance.Cricket.HeadlineLarge"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:textSize="26sp"
+                android:fontFamily="@font/oswald_regular"
+                android:textSize="26dp"
                 tools:text="IPL 2026" />
 
             <TextView
                 android:id="@+id/text_subtitle"
-                style="@style/TextAppearance.Cricket.BodySmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:alpha="0.7"
+                android:fontFamily="@font/inter_regular"
+                android:textSize="14dp"
                 android:textColor="@color/white"
                 tools:text="Indian Premier League" />
 

@@ -14,15 +14,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/background"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="@dimen/spacing_extra_large"
+        android:paddingBottom="@dimen/spacing_small"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/img_flag"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="16dp"
+            android:layout_width="@dimen/icon_size_medium"
+            android:layout_height="@dimen/icon_size_medium"
+            android:layout_marginStart="@dimen/spacing_large"
             android:contentDescription="@null"
             android:src="@drawable/top_bar_flag_icon"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -32,13 +32,14 @@
 
         <TextView
             android:id="@+id/text_app_name"
-            style="@style/TextAppearance.Cricket.HeadlineLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/spacing_small"
             android:text="@string/app_name"
+            android:textAllCaps="true"
+            android:fontFamily="@font/oswald_bold"
             android:textColor="@color/primary"
-            android:textSize="18sp"
+            android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/img_flag"
             app:layout_constraintTop_toTopOf="parent" />
@@ -64,10 +65,10 @@
         style="@style/Widget.Cricket.CardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="24dp"
+        android:layout_margin="@dimen/nav_card_margin"
+        app:cardCornerRadius="@dimen/card_corner_radius_large"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:strokeWidth="1dp">
+        app:strokeWidth="@dimen/card_stroke_width">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"

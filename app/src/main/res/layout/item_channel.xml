@@ -11,7 +11,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:padding="12dp">
 
         <FrameLayout
@@ -45,37 +45,37 @@
 
             <TextView
                 android:id="@+id/text_channel_name"
-                style="@style/TextAppearance.Cricket.HeadlineSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:textSize="18sp"
+                android:fontFamily="@font/oswald_regular"
+                android:textSize="18dp"
                 android:textStyle="bold"
                 tools:text="PTV SPORTS HD" />
 
             <TextView
                 android:id="@+id/text_quality"
-                style="@style/TextAppearance.Cricket.LabelSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:background="@drawable/bg_badge_quality"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
+                android:fontFamily="@font/oswald_regular"
                 android:textColor="@color/secondary"
-                android:textSize="10sp"
+                android:textSize="10dp"
                 tools:text="ULTRA HD" />
 
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_play"
-            style="@style/Widget.Cricket.Button.Primary"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:insetLeft="0dp"
             android:insetTop="0dp"
             android:insetRight="0dp"
+            android:background="@drawable/rounded_rect_bck"
             android:insetBottom="0dp"
             app:icon="@android:drawable/ic_media_play"
             app:iconGravity="textStart"

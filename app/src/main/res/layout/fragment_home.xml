@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:clipToPadding="false"
-    android:paddingBottom="100dp">
+    android:paddingBottom="@dimen/fragment_bottom_padding">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -34,22 +34,24 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="12dp"
                 android:layout_toEndOf="@id/indicator_cricket"
+                android:fontFamily="@font/oswald_regular"
                 android:text="CRICKET"
                 android:textColor="@color/white"
-                android:textSize="20sp" />
+                android:textSize="24dp" />
 
             <TextView
                 android:id="@+id/btn_see_all_cricket"
-                style="@style/TextAppearance.Cricket.LabelMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:drawablePadding="4dp"
-                app:drawableEndCompat="@drawable/about_icon"
-                app:drawableTint="@color/secondary"
+                android:fontFamily="@font/jet_brains_mono_regular"
                 android:text="SEE ALL"
-                android:textColor="@color/secondary" />
+                android:textColor="@color/secondary"
+                android:textSize="14dp"
+                app:drawableEndCompat="@drawable/arrow_right_icon"
+                app:drawableTint="@color/secondary" />
         </RelativeLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -80,24 +82,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
+                android:fontFamily="@font/oswald_regular"
                 android:layout_marginStart="12dp"
                 android:layout_toEndOf="@id/indicator_football"
                 android:text="FOOTBALL"
                 android:textColor="@color/white"
-                android:textSize="20sp" />
+                android:textSize="24dp" />
 
             <TextView
                 android:id="@+id/btn_see_all_football"
-                style="@style/TextAppearance.Cricket.LabelMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:drawablePadding="4dp"
-                app:drawableEndCompat="@drawable/about_icon"
-                app:drawableTint="@color/secondary"
+                android:fontFamily="@font/jet_brains_mono_regular"
                 android:text="SEE ALL"
-                android:textColor="@color/secondary" />
+                android:textColor="@color/secondary"
+                android:textSize="14dp"
+                app:drawableEndCompat="@drawable/arrow_right_icon"
+                app:drawableTint="@color/secondary" /> />
         </RelativeLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -129,23 +133,25 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="12dp"
+                android:fontFamily="@font/oswald_regular"
                 android:layout_toEndOf="@id/indicator_trending"
                 android:text="TRENDING NOW"
                 android:textColor="@color/white"
-                android:textSize="20sp" />
+                android:textSize="24dp" />
 
             <TextView
                 android:id="@+id/btn_see_all_trending"
-                style="@style/TextAppearance.Cricket.LabelMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:drawablePadding="4dp"
-                app:drawableEndCompat="@drawable/about_icon"
-                app:drawableTint="@color/secondary"
+                android:fontFamily="@font/jet_brains_mono_regular"
                 android:text="SEE ALL"
-                android:textColor="@color/secondary" />
+                android:textColor="@color/secondary"
+                android:textSize="14dp"
+                app:drawableEndCompat="@drawable/arrow_right_icon"
+                app:drawableTint="@color/secondary" /> />
         </RelativeLayout>
 
         <androidx.recyclerview.widget.RecyclerView

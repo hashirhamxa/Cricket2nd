@@ -11,7 +11,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="420dp">
+        android:layout_height="380dp">
 
         <ImageView
             android:id="@+id/img_trending_banner"
@@ -36,23 +36,30 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                style="@style/BadgeStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:drawableStartCompat="@android:drawable/presence_online"
-                android:drawablePadding="6dp"
-                app:drawableTint="@color/black"
-                android:text="LIVE" />
+                android:layout_width="60dp"
+                android:layout_height="23dp"
+                android:background="@drawable/bg_badge_live"
+                android:drawablePadding="3dp"
+                android:fontFamily="@font/jet_brains_mono_bold"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:text="LIVE"
+                android:textColor="@color/black"
+                android:textSize="12dp"
+                app:drawableStartCompat="@drawable/live_dot"
+                app:drawableTint="@color/black" />
 
             <TextView
                 style="@style/TextAppearance.Cricket.LabelMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="8dp"
                 android:background="@drawable/bg_badge_overlay"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
+                android:fontFamily="@font/jet_brains_mono_regular"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
                 android:textColor="@color/white"
+                android:textSize="12dp"
                 tools:text="PPV EVENT" />
 
         </LinearLayout>
@@ -67,59 +74,66 @@
 
             <TextView
                 android:id="@+id/text_category"
-                style="@style/TextAppearance.Cricket.LabelLarge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/jet_brains_mono_bold"
+                android:letterSpacing="0.1"
                 android:textAllCaps="true"
                 android:textColor="@color/secondary"
-                android:letterSpacing="0.1"
+                android:textSize="14dp"
                 tools:text="MIXED MARTIAL ARTS" />
 
             <TextView
                 android:id="@+id/text_trending_title"
-                style="@style/TextAppearance.Cricket.HeadlineLarge"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:fontFamily="@font/oswald_regular"
                 android:textColor="@color/white"
-                android:textSize="42sp"
+                android:textSize="42dp"
                 tools:text="UFC 300" />
 
             <TextView
                 android:id="@+id/text_trending_desc"
-                style="@style/TextAppearance.Cricket.BodyMedium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:alpha="0.8"
+                android:fontFamily="@font/inter_regular"
                 android:lineSpacingExtra="4dp"
                 android:textColor="@color/white"
+                android:textSize="14dp"
                 tools:text="Pereira vs. Hill - The historic triple-header championship event is underway. Stream the main card live." />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginTop="24dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_watch_now"
-                    style="@style/Widget.Cricket.Button.Primary"
-                    android:layout_width="0dp"
+                    android:layout_width="160dp"
                     android:layout_height="56dp"
                     android:layout_marginEnd="12dp"
-                    android:layout_weight="1"
-                    app:icon="@android:drawable/ic_media_play"
-                    app:iconTint="@color/black"
-                    android:text="WATCH NOW" />
+                    android:background="@drawable/rounded_rect_bck"
+                    android:fontFamily="@font/oswald_regular"
+                    android:text="WATCH NOW"
+                    android:textColor="@color/black"
+                    android:textSize="15dp"
+                    app:icon="@drawable/play_icon"
+                    app:iconTint="@color/black" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_details"
                     style="@style/Widget.Cricket.Button.Outlined"
                     android:layout_width="wrap_content"
                     android:layout_height="56dp"
+                    android:fontFamily="@font/oswald_regular"
                     android:paddingHorizontal="32dp"
-                    android:text="DETAILS" />
+                    android:textSize="15dp"
+                    android:text="DETAILS"
+                    android:textColor="@color/primary" />
 
             </LinearLayout>
 
