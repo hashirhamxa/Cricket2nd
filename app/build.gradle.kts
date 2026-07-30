@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -9,12 +11,21 @@ android {
     namespace = "livecricket.livecrickettv.cricketstreaming"
     compileSdk = 36
 
+    val localProperties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localProperties.load(localPropertiesFile.inputStream())
+    }
+    val apiToken = localProperties.getProperty("API_TOKEN") ?: ""
+
     defaultConfig {
         applicationId = "livecricket.livecrickettv.cricketstreaming"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "API_TOKEN", "\"$apiToken\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
@@ -40,6 +51,11 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
+    }
+
+    buildFeatures {
+        buildConfig = true
+        viewBinding = true
     }
 }
 
@@ -82,4 +98,14 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    //ads
+    implementation(libs.play.services.ads)
+    implementation(libs.unity.ads)
+
+
+    implementation(files(*fileTree("libs").matching { include("*.jar") }.files.toTypedArray()))
+    implementation(project(":newjustplayer"))
+
+
 }

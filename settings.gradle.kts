@@ -24,3 +24,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "CricketPulse"
 include(":app")
+include(":file-chooser")
+include(":baseplayerview")
+include(":newjustplayer")

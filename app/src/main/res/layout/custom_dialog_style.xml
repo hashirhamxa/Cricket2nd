@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:background="@drawable/dialog_background"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+
+    <TextView
+        android:id="@+id/dialogTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Are you sure?"
+        android:textColor="@color/primary"
+        android:textSize="15dp"
+        android:fontFamily="@font/jet_brains_mono_bold"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/dialogMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialogTitle"
+        android:layout_marginTop="9dp"
+        android:gravity="start"
+        android:text="According to the Play Store Policy, we are not allowed to provide services if you don't agree. If you leave this page, you will quit the app directly."
+        android:textColor="@color/secondary"
+        android:textSize="14sp" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialogMessage"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="15dp">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/negativeButton"
+            android:layout_width="90dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/grey_rect"
+            android:text="Quit"
+            android:textAllCaps="false"
+            android:textColor="#FF856C"
+            android:textSize="12sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/positiveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_toRightOf="@id/negativeButton"
+            android:background="@drawable/rounded_rect_bck"
+            android:gravity="center"
+            android:paddingHorizontal="10dp"
+            android:text="Cancel"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="10sp" />
+    </RelativeLayout>
+</RelativeLayout>
