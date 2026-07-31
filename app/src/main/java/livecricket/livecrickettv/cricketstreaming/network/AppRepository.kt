@@ -1,0 +1,255 @@
+package livecricket.livecrickettv.cricketstreaming.network
+
+import android.util.Log
+import kotlinx.coroutines.flow.Flow
+import livecricket.livecrickettv.cricketstreaming.BuildConfig
+import livecricket.livecrickettv.cricketstreaming.database.*
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class AppRepository @Inject constructor(
+    private val apiService: ApiService,
+    private val appDao: AppDao
+) {
+    suspend fun fetchAndSaveConfig(onResult: (Boolean, String?) -> Unit): Boolean {
+        Log.d("AppRepository", "fetchAndSaveConfig: Starting API call")
+        try {
+            val response = apiService.getAppConfig("Bearer ${BuildConfig.API_TOKEN}")
+            Log.d("AppRepository", "fetchAndSaveConfig: Response received")
+            
+            if (response.data.isNotEmpty()) {
+                Log.d("AppRepository", "fetchAndSaveConfig: Data received, processing...")
+                val appData = response.data[0]
+
+                val appEntity = AppEntity(
+                    id = appData.id,
+                    packageName = appData.packageName,
+                    appName = appData.appName,
+                    appType = appData.appType,
+                    category = appData.category,
+                    currentVersion = appData.currentVersion,
+                    updateRequired = appData.updateRequired,
+                    isActive = appData.isActive,
+                    newPackageName = appData.newPackageName,
+                    licenseKey = appData.licenseKey,
+                    productId = appData.productId
+                )
+
+                val adEntities = appData.ads?.map { ad ->
+                    AdEntity(
+                        id = ad.id,
+                        platform = ad.platform,
+                        adUnitId = ad.adUnitId,
+                        adPlacement = ad.adPlacement,
+                        priority = ad.priority,
+                        isActive = ad.isActive,
+                        frequencyCap = ad.frequencyCap,
+                        appId = appData.id
+                    )
+                } ?: emptyList()
+
+                val streamingEntities = mutableListOf<StreamingEntity>()
+                val tournamentEntities = mutableListOf<TournamentEntity>()
+                val eventEntities = mutableListOf<EventEntity>()
+                val highlightEntities = mutableListOf<HighlightEntity>()
+                val linkEntities = mutableListOf<LinkEntity>()
+
+                appData.streaming?.forEach { streamingWrapper ->
+                    streamingWrapper.streamingId?.let { streaming ->
+                        streamingEntities.add(
+                            StreamingEntity(
+                                id = streaming.id,
+                                status = streaming.status,
+                                showCricketHighlights = streaming.showCricketHighlights,
+                                showFootballHighlights = streaming.showFootballHighlights,
+                                showOtherSportsHighlights = streaming.showOtherSportsHighlights,
+                                newAppOutsideUrl = streaming.newAppOutsideUrl,
+                                forceNewAppOutsideUrl = streaming.forceNewAppOutsideUrl,
+                                appSportType = streaming.appSportType,
+                                bannerAds = streaming.bannerAds,
+                                onPauseAd = streaming.onPauseAd,
+                                showOtherSports = streaming.showOtherSports,
+                                liveCricket = streaming.liveCricket,
+                                liveFootball = streaming.liveFootball,
+                                liveOtherSport = streaming.liveOtherSport,
+                                splashImageLink = streaming.splashImageLink,
+                                otherSports = streaming.otherSports,
+                                appId = appData.id
+                            )
+                        )
+
+                        streaming.tournaments?.forEach { tournamentWrapper ->
+                            tournamentWrapper.tournamentsId?.let { tournament ->
+                                tournamentEntities.add(
+                                    TournamentEntity(
+                                        id = tournament.id,
+                                        status = tournament.status,
+                                        name = tournament.name,
+                                        thumbUrl = tournament.thumbUrl,
+                                        isVisible = tournament.isVisible,
+                                        startTime = tournament.startTime,
+                                        endTime = tournament.endTime,
+                                        description = tournament.description,
+                                        sportType = tournament.sportType,
+                                        streamingId = streaming.id
+                                    )
+                                )
+
+                                tournament.events?.forEach { eventWrapper ->
+                                    eventWrapper.eventsId?.let { event ->
+                                        eventEntities.add(
+                                            EventEntity(
+                                                id = event.id,
+                                                eventName = event.eventName,
+                                                eventSlug = event.eventSlug,
+                                                eventThumbUrl = event.eventThumbUrl,
+                                                eventUrl = event.eventUrl,
+                                                isHighlight = event.isHighlight,
+                                                isVisible = event.isVisible,
+                                                startTime = event.startTime,
+                                                endTime = event.endTime,
+                                                description = event.description,
+                                                teamAName = event.teamAName,
+                                                teamAImage = event.teamAImage,
+                                                teamBName = event.teamBName,
+                                                teamBUrl = event.teamBUrl,
+                                                tournamentId = tournament.id
+                                            )
+                                        )
+
+                                        event.highlights?.forEach { highlightWrapper ->
+                                            highlightWrapper.highlightsId?.let { highlight ->
+                                                highlightEntities.add(
+                                                    HighlightEntity(
+                                                        id = highlight.id,
+                                                        title = highlight.title,
+                                                        videoLink = highlight.videoLink,
+                                                        thumbnailLink = highlight.thumbnailLink,
+                                                        durationSeconds = highlight.durationSeconds,
+                                                        viewCount = highlight.viewCount,
+                                                        isVisible = highlight.isVisible,
+                                                        eventId = event.id
+                                                    )
+                                                )
+                                            }
+                                        }
+
+                                        event.links?.forEach { linkWrapper ->
+                                            linkWrapper.linksId?.let { link ->
+                                                linkEntities.add(
+                                                    LinkEntity(
+                                                        id = link.id,
+                                                        linkName = link.linkName,
+                                                        linkUrl = link.linkUrl,
+                                                        linkType = link.linkType,
+                                                        mpdLink = link.mpdLink,
+                                                        mpdKey = link.mpdKey,
+                                                        linkImage = link.linkImage,
+                                                        isVisible = link.isVisible,
+                                                        priority = link.priority,
+                                                        eventId = event.id
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                appDao.clearAndInsert(
+                    appEntity,
+                    adEntities,
+                    streamingEntities,
+                    tournamentEntities,
+                    eventEntities,
+                    highlightEntities,
+                    linkEntities
+                )
+                Log.d("AppRepository", "fetchAndSaveConfig: Success - Data saved to DB")
+                onResult(true, null)
+                return true
+            } else {
+                Log.e("AppRepository", "fetchAndSaveConfig: Error - Data list is empty")
+                onResult(false, "No data available from server")
+                return false
+            }
+        } catch (e: Exception) {
+            Log.e("AppRepository", "fetchAndSaveConfig: Exception occurred "+e.message, e)
+            e.printStackTrace()
+            onResult(false, e.message ?: "Server connection error")
+            return false
+        }
+    }
+
+    suspend fun getAllAds(): List<AdEntity> {
+        return appDao.getAllAds()
+    }
+
+    suspend fun getApp(): AppEntity? {
+        return appDao.getApp()
+    }
+
+    fun getAppFlow(): Flow<AppEntity?> {
+        return appDao.getAppFlow()
+    }
+
+    suspend fun getStreamingData(appId: Int): List<StreamingWithTournaments> {
+        return appDao.getStreamingWithTournaments(appId)
+    }
+
+    fun getStreamingDataFlow(appId: Int): Flow<List<StreamingWithTournaments>> {
+        return appDao.getStreamingWithTournamentsFlow(appId)
+    }
+
+    suspend fun getEventsForTournament(tournamentId: Int): List<EventEntity> {
+        return appDao.getEventsForTournament(tournamentId)
+    }
+
+    fun getEventsForTournamentFlow(tournamentId: Int): Flow<List<EventEntity>> {
+        return appDao.getEventsForTournamentFlow(tournamentId)
+    }
+
+    suspend fun getHighlightEventsForTournament(tournamentId: Int): List<EventEntity> {
+        return appDao.getHighlightEventsForTournament(tournamentId)
+    }
+
+    fun getHighlightEventsForTournamentFlow(tournamentId: Int): Flow<List<EventEntity>> {
+        return appDao.getHighlightEventsForTournamentFlow(tournamentId)
+    }
+
+    suspend fun getTournamentsWithEventsBySportType(sportType: String): List<TournamentWithEvents> {
+        return appDao.getTournamentsWithEventsBySportType(sportType)
+    }
+
+    fun getTournamentsWithEventsBySportTypeFlow(sportType: String): Flow<List<TournamentWithEvents>> {
+        return appDao.getTournamentsWithEventsBySportTypeFlow(sportType)
+    }
+
+    suspend fun getTrendingTournamentsWithEvents(): List<TournamentWithEvents> {
+        return appDao.getTrendingTournamentsWithEvents()
+    }
+
+    fun getTrendingTournamentsWithEventsFlow(): Flow<List<TournamentWithEvents>> {
+        return appDao.getTrendingTournamentsWithEventsFlow()
+    }
+
+    suspend fun getLinksForEvent(eventId: Int): List<LinkEntity> {
+        return appDao.getLinksForEvent(eventId)
+    }
+
+    fun getLinksForEventFlow(eventId: Int): Flow<List<LinkEntity>> {
+        return appDao.getLinksForEventFlow(eventId)
+    }
+
+    suspend fun getHighlightsForEvent(eventId: Int): List<HighlightEntity> {
+        return appDao.getHighlightsForEvent(eventId)
+    }
+
+    fun getHighlightsForEventFlow(eventId: Int): Flow<List<HighlightEntity>> {
+        return appDao.getHighlightsForEventFlow(eventId)
+    }
+}

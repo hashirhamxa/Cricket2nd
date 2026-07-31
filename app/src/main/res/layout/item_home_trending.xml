@@ -50,7 +50,6 @@
                 app:drawableTint="@color/black" />
 
             <TextView
-                style="@style/TextAppearance.Cricket.LabelMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -60,7 +59,7 @@
                 android:paddingVertical="4dp"
                 android:textColor="@color/white"
                 android:textSize="12dp"
-                tools:text="PPV EVENT" />
+                android:text="Trending" />
 
         </LinearLayout>
 
@@ -131,9 +130,9 @@
                     android:layout_height="56dp"
                     android:fontFamily="@font/oswald_regular"
                     android:paddingHorizontal="32dp"
-                    android:textSize="15dp"
                     android:text="DETAILS"
-                    android:textColor="@color/primary" />
+                    android:textColor="@color/primary"
+                    android:textSize="15dp" />
 
             </LinearLayout>
 

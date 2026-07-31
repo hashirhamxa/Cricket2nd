@@ -298,9 +298,6 @@ public class PlayerActivity extends Activity {
 
             Log.e("leolog", "PlayerActivity isVideoLoop " + isVideoLoop);
             Log.e("leolog", "PlayerActivity videoTittle " + videoTitleForVideo);
-            Log.e("leolog", "PlayerActivity videoLink " + link);
-            Log.e("leolog", "PlayerActivity mpdLink " + mpdLink);
-            Log.e("leolog", "PlayerActivity mpdKey " + mpdKey);
 
 
             if (link != null && !link.equals("null")) {
@@ -879,7 +876,6 @@ public class PlayerActivity extends Activity {
 
                 Log.e("leolog", "PlayerActivity isVideoLoop " + isVideoLoop);
                 Log.e("leolog", "PlayerActivity videoTittle " + videoTitleForVideo);
-                Log.e("leolog", "PlayerActivity videoLink " + link);
 
                 if (link != null) {
 //                    final Uri parsedUri = Uri.parse(text);
@@ -1611,6 +1607,10 @@ public class PlayerActivity extends Activity {
         @SuppressLint("SourceLockedOrientationActivity")
         @Override
         public void onPlaybackStateChanged(int state) {
+            if (state == Player.STATE_BUFFERING) {
+                updateVideoLoading(true);
+            }
+
             boolean isNearEnd = false;
             final long duration = exoPlayer.getDuration();
             if (duration != C.TIME_UNSET) {
@@ -2304,9 +2304,9 @@ public class PlayerActivity extends Activity {
     private void updateVideoLoading(final boolean enableLoading) {
         if (enableLoading) {
             exoPlayPauseBtn.setVisibility(View.GONE);
-//            loadingProgressBar.setVisibility(View.VISIBLE);
+            loadingProgressBar.setVisibility(View.VISIBLE);
         } else {
-//            loadingProgressBar.setVisibility(View.GONE);
+            loadingProgressBar.setVisibility(View.GONE);
             exoPlayPauseBtn.setVisibility(View.VISIBLE);
             if (focusPlay) {
                 focusPlay = false;

@@ -9,7 +9,7 @@
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
     <application
-        android:name=".Utilities.CricketApp"
+        android:name=".utilities.CricketApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -22,7 +22,7 @@
         android:theme="@style/Theme.Cricket">
 
         <activity
-            android:name=".SplashActivity"
+            android:name=".activities.SplashActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -32,27 +32,31 @@
         </activity>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".TournamentActivity"
+            android:name=".activities.TournamentActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".EventActivity"
+            android:name=".activities.EventActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".LinksActivity"
+            android:name=".activities.LinksActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713" />
+
         <activity
-            android:name=".NewPlayer.NewPlayerActivity"
+            android:name=".newplayer.NewPlayerActivity"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:exported="true"
             android:label="CricVid: Video Player"

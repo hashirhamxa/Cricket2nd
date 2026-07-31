@@ -62,6 +62,7 @@ android {
 dependencies {
     // Core Android
     implementation(libs.activity)
+    implementation(libs.fragment.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -94,6 +95,10 @@ dependencies {
     implementation(libs.work.runtime)
     implementation(libs.hilt.work)
     kapt(libs.hilt.work.compiler)
+
+    // Image Loading (Glide)
+    implementation(libs.glide)
+    kapt(libs.glide.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
