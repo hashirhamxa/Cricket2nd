@@ -1,6 +1,7 @@
 package livecricket.livecrickettv.cricketstreaming.network
 
 import android.util.Log
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import livecricket.livecrickettv.cricketstreaming.BuildConfig
 import livecricket.livecrickettv.cricketstreaming.database.*
@@ -34,7 +35,7 @@ class AppRepository @Inject constructor(
                     newPackageName = appData.newPackageName,
                     licenseKey = appData.licenseKey,
                     productId = appData.productId,
-                    socialMediaLinks = appData.socialMediaLinks
+                    socialMediaLinks = appData.socialMediaLinks?.let { Gson().toJson(it) }
                 )
 
                 val adEntities = appData.ads?.map { ad ->
