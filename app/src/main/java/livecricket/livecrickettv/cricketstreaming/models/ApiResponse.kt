@@ -21,6 +21,7 @@ data class AppData(
     @SerializedName("new_package_name") val newPackageName: String?,
     @SerializedName("license_key") val licenseKey: String?,
     @SerializedName("product_id") val productId: String?,
+    @SerializedName("socail_media_links") val socialMediaLinks: String?,
     @SerializedName("ads") val ads: List<Ad>?,
     @SerializedName("streaming") val streaming: List<StreamingWrapper>?
 )
@@ -61,7 +62,15 @@ data class Streaming(
     @SerializedName("live_other_sport") val liveOtherSport: Boolean?,
     @SerializedName("splash_image_link") val splashImageLink: String?,
     @SerializedName("other_sports") val otherSports: String?,
+    @SerializedName("show_score") val showScore: Boolean?,
+    @SerializedName("Scores") val scores: List<Score>?,
     @SerializedName("tournaments") val tournaments: List<TournamentWrapper>?
+)
+
+data class Score(
+    @SerializedName("type") val type: String?,
+    @SerializedName("api") val api: String?,
+    @SerializedName("status") val status: String?
 )
 
 data class TournamentWrapper(
@@ -104,6 +113,8 @@ data class Event(
     @SerializedName("team_a_image") val teamAImage: String?,
     @SerializedName("team_b_name") val teamBName: String?,
     @SerializedName("team_b_url") val teamBUrl: String?,
+    @SerializedName("metadata") val metadata: String?,
+    @SerializedName("is_live") val isLive: Boolean?,
     @SerializedName("highligths") val highlights: List<HighlightWrapper>?,
     @SerializedName("links") val links: List<LinkWrapper>?
 )
@@ -116,12 +127,13 @@ data class HighlightWrapper(
 
 data class Highlight(
     @SerializedName("id") val id: Int,
-    @SerializedName("title") val title: String?,
-    @SerializedName("video_link") val videoLink: String?,
-    @SerializedName("thumbnail_link") val thumbnailLink: String?,
+    @SerializedName("link_name") val linkName: String?,
+    @SerializedName("link_url") val linkUrl: String?,
+    @SerializedName("link_image") val linkImage: String?,
     @SerializedName("duration_seconds") val durationSeconds: Int?,
     @SerializedName("view_count") val viewCount: Int?,
-    @SerializedName("is_visible") val isVisible: Boolean?
+    @SerializedName("is_visible") val isVisible: Boolean?,
+    @SerializedName("published_at") val publishedAt: String?
 )
 
 data class LinkWrapper(
@@ -139,5 +151,9 @@ data class Link(
     @SerializedName("mpd_key") val mpdKey: String?,
     @SerializedName("link_image") val linkImage: String?,
     @SerializedName("is_visible") val isVisible: Boolean?,
-    @SerializedName("priority") val priority: Int?
+    @SerializedName("priority") val priority: Int?,
+    @SerializedName("excluded_app_package_names") val excludedAppPackageNames: String?,
+    @SerializedName("referer_header") val refererHeader: String?,
+    @SerializedName("origin_header") val originHeader: String?,
+    @SerializedName("user_agent_header") val userAgentHeader: String?
 )

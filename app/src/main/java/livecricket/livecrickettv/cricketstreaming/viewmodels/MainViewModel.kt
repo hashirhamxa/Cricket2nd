@@ -11,11 +11,14 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import livecricket.livecrickettv.cricketstreaming.network.AppRepository
+import livecricket.livecrickettv.cricketstreaming.utilities.SplashPreloader
 import javax.inject.Inject
+import android.app.Application
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: AppRepository
+    private val repository: AppRepository,
+    private val application: Application
 ) : ViewModel() {
 
     private val _showHighlights = MutableStateFlow(true)
@@ -23,6 +26,20 @@ class MainViewModel @Inject constructor(
 
     init {
         observeHighlightsVisibility()
+        observeSplashUpdate()
+    }
+
+    private fun observeSplashUpdate() {
+        viewModelScope.launch {
+            repository.getAppFlow().collectLatest { app ->
+                app?.let {
+                    repository.getStreamingData(it.id).firstOrNull()?.let { data ->
+                        val splashUrl = data.streaming.splashImageLink
+                        SplashPreloader(application).updateSplashImage(splashUrl)
+                    }
+                }
+            }
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

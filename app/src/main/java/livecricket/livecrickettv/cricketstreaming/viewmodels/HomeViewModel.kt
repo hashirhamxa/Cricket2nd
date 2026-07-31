@@ -146,9 +146,11 @@ class HomeViewModel @Inject constructor(
         isTrending: Boolean
     ): List<HomeDisplayItem> {
         return tournaments.mapNotNull { tWithE ->
-            if (tWithE.events.size == 1) {
+            val liveEvents = tWithE.events.filter { it.isLive == true }
+
+            if (liveEvents.size == 1) {
                 // Promotion logic: Show event directly
-                val event = tWithE.events[0]
+                val event = liveEvents[0]
                 HomeDisplayItem(
                     id = event.id,
                     title = event.eventName ?: "",
@@ -159,7 +161,7 @@ class HomeViewModel @Inject constructor(
                     isTrending = isTrending,
                     originalObject = event
                 )
-            } else if (tWithE.events.size > 1) {
+            } else if (liveEvents.size > 1) {
                 // Show Tournament group
                 HomeDisplayItem(
                     id = tWithE.tournament.id,

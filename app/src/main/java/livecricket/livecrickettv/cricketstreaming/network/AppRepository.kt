@@ -33,7 +33,8 @@ class AppRepository @Inject constructor(
                     isActive = appData.isActive,
                     newPackageName = appData.newPackageName,
                     licenseKey = appData.licenseKey,
-                    productId = appData.productId
+                    productId = appData.productId,
+                    socialMediaLinks = appData.socialMediaLinks
                 )
 
                 val adEntities = appData.ads?.map { ad ->
@@ -50,6 +51,7 @@ class AppRepository @Inject constructor(
                 } ?: emptyList()
 
                 val streamingEntities = mutableListOf<StreamingEntity>()
+                val scoreEntities = mutableListOf<ScoreEntity>()
                 val tournamentEntities = mutableListOf<TournamentEntity>()
                 val eventEntities = mutableListOf<EventEntity>()
                 val highlightEntities = mutableListOf<HighlightEntity>()
@@ -75,9 +77,21 @@ class AppRepository @Inject constructor(
                                 liveOtherSport = streaming.liveOtherSport,
                                 splashImageLink = streaming.splashImageLink,
                                 otherSports = streaming.otherSports,
+                                showScore = streaming.showScore,
                                 appId = appData.id
                             )
                         )
+
+                        streaming.scores?.forEach { score ->
+                            scoreEntities.add(
+                                ScoreEntity(
+                                    type = score.type,
+                                    api = score.api,
+                                    status = score.status,
+                                    streamingId = streaming.id
+                                )
+                            )
+                        }
 
                         streaming.tournaments?.forEach { tournamentWrapper ->
                             tournamentWrapper.tournamentsId?.let { tournament ->
@@ -114,6 +128,8 @@ class AppRepository @Inject constructor(
                                                 teamAImage = event.teamAImage,
                                                 teamBName = event.teamBName,
                                                 teamBUrl = event.teamBUrl,
+                                                metadata = event.metadata,
+                                                isLive = event.isLive,
                                                 tournamentId = tournament.id
                                             )
                                         )
@@ -123,12 +139,13 @@ class AppRepository @Inject constructor(
                                                 highlightEntities.add(
                                                     HighlightEntity(
                                                         id = highlight.id,
-                                                        title = highlight.title,
-                                                        videoLink = highlight.videoLink,
-                                                        thumbnailLink = highlight.thumbnailLink,
+                                                        linkName = highlight.linkName,
+                                                        linkUrl = highlight.linkUrl,
+                                                        linkImage = highlight.linkImage,
                                                         durationSeconds = highlight.durationSeconds,
                                                         viewCount = highlight.viewCount,
                                                         isVisible = highlight.isVisible,
+                                                        publishedAt = highlight.publishedAt,
                                                         eventId = event.id
                                                     )
                                                 )
@@ -148,6 +165,10 @@ class AppRepository @Inject constructor(
                                                         linkImage = link.linkImage,
                                                         isVisible = link.isVisible,
                                                         priority = link.priority,
+                                                        excludedAppPackageNames = link.excludedAppPackageNames,
+                                                        refererHeader = link.refererHeader,
+                                                        originHeader = link.originHeader,
+                                                        userAgentHeader = link.userAgentHeader,
                                                         eventId = event.id
                                                     )
                                                 )
@@ -167,7 +188,8 @@ class AppRepository @Inject constructor(
                     tournamentEntities,
                     eventEntities,
                     highlightEntities,
-                    linkEntities
+                    linkEntities,
+                    scoreEntities
                 )
                 Log.d("AppRepository", "fetchAndSaveConfig: Success - Data saved to DB")
                 onResult(true, null)

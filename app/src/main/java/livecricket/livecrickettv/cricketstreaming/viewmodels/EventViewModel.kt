@@ -37,7 +37,7 @@ class EventViewModel @Inject constructor(
     fun loadEvents(tournamentId: Int) {
         viewModelScope.launch {
             repository.getEventsForTournamentFlow(tournamentId).collectLatest { eventList ->
-                _events.value = eventList
+                _events.value = eventList.filter { it.isLive == true }
             }
         }
     }

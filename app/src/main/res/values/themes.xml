@@ -34,6 +34,16 @@
 
     <style name="Theme.Cricket" parent="Base.Theme.Cricket" />
 
+    <style name="Theme.Cricket.Splash" parent="Theme.Cricket">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="28">shortEdges</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
     <!-- Typography Styles -->
     <style name="TextAppearance.Cricket.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
         <item name="android:fontFamily">@font/oswald_bold</item>

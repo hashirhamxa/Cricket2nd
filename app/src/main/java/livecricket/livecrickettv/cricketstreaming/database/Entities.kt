@@ -17,7 +17,8 @@ data class AppEntity(
     val isActive: Boolean?,
     val newPackageName: String?,
     val licenseKey: String?,
-    val productId: String?
+    val productId: String?,
+    val socialMediaLinks: String?
 )
 
 @Entity(tableName = "ads")
@@ -50,7 +51,17 @@ data class StreamingEntity(
     val liveOtherSport: Boolean?,
     val splashImageLink: String?,
     val otherSports: String?,
+    val showScore: Boolean?,
     val appId: Int
+)
+
+@Entity(tableName = "scores")
+data class ScoreEntity(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val type: String?,
+    val api: String?,
+    val status: String?,
+    val streamingId: Int
 )
 
 @Entity(tableName = "tournaments")
@@ -83,18 +94,21 @@ data class EventEntity(
     val teamAImage: String?,
     val teamBName: String?,
     val teamBUrl: String?,
+    val metadata: String?,
+    val isLive: Boolean?,
     val tournamentId: Int
 )
 
 @Entity(tableName = "highlights")
 data class HighlightEntity(
     @PrimaryKey val id: Int,
-    val title: String?,
-    val videoLink: String?,
-    val thumbnailLink: String?,
+    val linkName: String?,
+    val linkUrl: String?,
+    val linkImage: String?,
     val durationSeconds: Int?,
     val viewCount: Int?,
     val isVisible: Boolean?,
+    val publishedAt: String?,
     val eventId: Int
 )
 
@@ -109,6 +123,10 @@ data class LinkEntity(
     val linkImage: String?,
     val isVisible: Boolean?,
     val priority: Int?,
+    val excludedAppPackageNames: String?,
+    val refererHeader: String?,
+    val originHeader: String?,
+    val userAgentHeader: String?,
     val eventId: Int
 )
 
@@ -128,5 +146,10 @@ data class StreamingWithTournaments(
         entityColumn = "streamingId",
         entity = TournamentEntity::class
     )
-    val tournaments: List<TournamentWithEvents>
+    val tournaments: List<TournamentWithEvents>,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "streamingId"
+    )
+    val scores: List<ScoreEntity>
 )

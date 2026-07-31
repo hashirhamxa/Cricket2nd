@@ -2,8 +2,16 @@ package livecricket.livecrickettv.cricketstreaming.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowManager
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -14,6 +22,7 @@ import livecricket.livecrickettv.cricketstreaming.database.AdEntity
 import livecricket.livecrickettv.cricketstreaming.network.AppRepository
 import livecricket.livecrickettv.cricketstreaming.R
 import livecricket.livecrickettv.cricketstreaming.utilities.CricketApp
+import livecricket.livecrickettv.cricketstreaming.utilities.SplashPreloader
 import livecricket.livecrickettv.cricketstreaming.utilities.Utils
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -29,10 +38,43 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+        controller.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
+        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+
         setContentView(R.layout.activity_splash)
+
+        loadSplashBackground()
 
         lifecycleScope.launch {
             handleSplashFlow()
+        }
+    }
+
+    private fun loadSplashBackground() {
+        val imgBackground = findViewById<ImageView>(R.id.img_background)
+        val preloader = SplashPreloader(this)
+        val cachedFile = preloader.getCachedSplashFile()
+
+        if (cachedFile != null) {
+            try {
+                val bitmap = BitmapFactory.decodeFile(cachedFile.absolutePath)
+                if (bitmap != null) {
+                    imgBackground.setImageBitmap(bitmap)
+                } else {
+                    imgBackground.setImageResource(R.drawable.splash_background)
+                }
+            } catch (e: Exception) {
+                imgBackground.setImageResource(R.drawable.splash_background)
+            }
+        } else {
+            imgBackground.setImageResource(R.drawable.splash_background)
         }
     }
 

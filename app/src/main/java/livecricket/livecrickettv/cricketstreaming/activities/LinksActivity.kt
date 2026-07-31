@@ -75,20 +75,24 @@ class LinksActivity : AppCompatActivity() {
                         viewModel.highlights.collectLatest { highlights ->
                             val channels = highlights.map { highlight ->
                                 Channel(
-                                    name = highlight.title ?: "Highlight",
+                                    name = highlight.linkName ?: "Highlight",
                                     quality = "HD",
                                     isHighlight = true,
-                                    thumbnailLink = highlight.thumbnailLink,
+                                    thumbnailLink = highlight.linkImage,
                                     link = LinkEntity(
                                         id = highlight.id,
-                                        linkName = highlight.title,
-                                        linkUrl = highlight.videoLink,
+                                        linkName = highlight.linkName,
+                                        linkUrl = highlight.linkUrl,
                                         linkType = "Highlight",
                                         mpdLink = null,
                                         mpdKey = null,
-                                        linkImage = highlight.thumbnailLink,
+                                        linkImage = highlight.linkImage,
                                         isVisible = highlight.isVisible,
                                         priority = 0,
+                                        excludedAppPackageNames = null,
+                                        refererHeader = null,
+                                        originHeader = null,
+                                        userAgentHeader = null,
                                         eventId = eventId
                                     )
                                 )

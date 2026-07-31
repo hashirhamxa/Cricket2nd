@@ -30,6 +30,9 @@ interface AppDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLinks(links: List<LinkEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertScores(scores: List<ScoreEntity>)
+
     @Transaction
     suspend fun clearAndInsert(
         app: AppEntity,
@@ -38,7 +41,8 @@ interface AppDao {
         tournaments: List<TournamentEntity>,
         events: List<EventEntity>,
         highlights: List<HighlightEntity>,
-        links: List<LinkEntity>
+        links: List<LinkEntity>,
+        scores: List<ScoreEntity>
     ) {
         deleteAll()
         insertApp(app)
@@ -48,6 +52,7 @@ interface AppDao {
         insertEvents(events)
         insertHighlights(highlights)
         insertLinks(links)
+        insertScores(scores)
     }
 
     @Query("DELETE FROM apps")
@@ -70,6 +75,9 @@ interface AppDao {
 
     @Query("DELETE FROM links")
     suspend fun deleteAllLinks()
+
+    @Query("DELETE FROM scores")
+    suspend fun deleteAllScores()
 
     @Query("SELECT * FROM ads")
     suspend fun getAllAds(): List<AdEntity>
@@ -137,5 +145,6 @@ interface AppDao {
         deleteAllEvents()
         deleteAllHighlights()
         deleteAllLinks()
+        deleteAllScores()
     }
 }

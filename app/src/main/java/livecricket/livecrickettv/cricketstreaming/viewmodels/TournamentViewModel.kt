@@ -63,7 +63,7 @@ class TournamentViewModel @Inject constructor(
             val eventsToUse = if (isHighlights) {
                 tWithE.events.filter { it.isHighlight == true }
             } else {
-                tWithE.events
+                tWithE.events.filter { it.isLive == true }
             }
 
             if (eventsToUse.size == 1) {

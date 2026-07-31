@@ -13,9 +13,10 @@ import androidx.room.RoomDatabase
         TournamentEntity::class,
         EventEntity::class,
         HighlightEntity::class,
-        LinkEntity::class
+        LinkEntity::class,
+        ScoreEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -31,7 +32,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "cricket_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }
