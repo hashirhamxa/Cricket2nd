@@ -4,12 +4,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import livecricket.livecrickettv.cricketstreaming.fragments.HighlightsFragment
-import livecricket.livecrickettv.cricketstreaming.fragments.HomeFragment
+import livecricket.livecrickettv.cricketstreaming.fragments.LiveFragment
+import livecricket.livecrickettv.cricketstreaming.fragments.ScoreFragment
 import livecricket.livecrickettv.cricketstreaming.fragments.SettingsFragment
+import livecricket.livecrickettv.cricketstreaming.R
 
 class MainPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
 
     private var showHighlights = true
+    private var showScore = false
+    private var showHome = true
 
     fun updateHighlightsVisibility(visible: Boolean) {
         if (showHighlights != visible) {
@@ -18,22 +22,70 @@ class MainPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapte
         }
     }
 
-    override fun createFragment(position: Int): Fragment {
-        return if (showHighlights) {
-            when (position) {
-                0 -> HomeFragment()
-                1 -> HighlightsFragment()
-                2 -> SettingsFragment()
-                else -> HomeFragment()
-            }
-        } else {
-            when (position) {
-                0 -> HomeFragment()
-                1 -> SettingsFragment()
-                else -> HomeFragment()
-            }
+    fun updateScoreVisibility(visible: Boolean) {
+        if (showScore != visible) {
+            showScore = visible
+            notifyDataSetChanged()
         }
     }
 
-    override fun getItemCount(): Int = if (showHighlights) 3 else 2
+    fun updateHomeVisibility(visible: Boolean) {
+        if (showHome != visible) {
+            showHome = visible
+            notifyDataSetChanged()
+        }
+    }
+
+    override fun createFragment(position: Int): Fragment {
+        val fragments = mutableListOf<Fragment>()
+        if (showScore) fragments.add(ScoreFragment())
+        if (showHome) fragments.add(LiveFragment())
+        if (showHighlights) fragments.add(HighlightsFragment())
+        fragments.add(SettingsFragment())
+
+        return if (position < fragments.size) fragments[position] else SettingsFragment()
+    }
+
+    override fun getItemCount(): Int {
+        var count = 1 // Settings is always there
+        if (showScore) count++
+        if (showHome) count++
+        if (showHighlights) count++
+        return count
+    }
+
+    override fun getItemId(position: Int): Long {
+        return getIdForPosition(position).toLong()
+    }
+
+    override fun containsItem(itemId: Long): Boolean {
+        val id = itemId.toInt()
+        val ids = mutableListOf<Int>()
+        if (showScore) ids.add(R.id.navigation_score)
+        if (showHome) ids.add(R.id.navigation_home)
+        if (showHighlights) ids.add(R.id.navigation_highlights)
+        ids.add(R.id.navigation_settings)
+        return ids.contains(id)
+    }
+
+    fun getPositionForId(itemId: Int): Int {
+        val ids = mutableListOf<Int>()
+        if (showScore) ids.add(R.id.navigation_score)
+        if (showHome) ids.add(R.id.navigation_home)
+        if (showHighlights) ids.add(R.id.navigation_highlights)
+        ids.add(R.id.navigation_settings)
+
+        val index = ids.indexOf(itemId)
+        return if (index != -1) index else 0
+    }
+
+    fun getIdForPosition(position: Int): Int {
+        val ids = mutableListOf<Int>()
+        if (showScore) ids.add(R.id.navigation_score)
+        if (showHome) ids.add(R.id.navigation_home)
+        if (showHighlights) ids.add(R.id.navigation_highlights)
+        ids.add(R.id.navigation_settings)
+
+        return if (position < ids.size) ids[position] else R.id.navigation_home
+    }
 }

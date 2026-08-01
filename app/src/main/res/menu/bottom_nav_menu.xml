@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/navigation_score"
+        android:icon="@drawable/bottom_nav_score_icon"
+        android:title="Score" />
+    <item
         android:id="@+id/navigation_home"
-        android:icon="@drawable/bottom_nav_home_icon"
-        android:title="Home" />
+        android:icon="@drawable/bottom_nav_live_icon"
+        android:title="Live" />
     <item
         android:id="@+id/navigation_highlights"
         android:icon="@drawable/bottom_nav_highlight_icon"

@@ -1,7 +1,12 @@
 package livecricket.livecrickettv.cricketstreaming.activities
 
 import android.os.Bundle
+import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import com.facebook.shimmer.ShimmerFrameLayout
+import kotlinx.coroutines.delay
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.activity.viewModels
@@ -19,6 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var viewPager: ViewPager2
     private lateinit var bottomNavigationView: BottomNavigationView
+    private var isUiRevealed = false
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -35,19 +41,148 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
+        val progressBar = findViewById<ProgressBar>(R.id.main_progress_bar)
+        val bottomNavCard = findViewById<View>(R.id.card_bottom_navigation)
+        val shimmerContainer = findViewById<ShimmerFrameLayout>(R.id.shimmer_view_container)
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.showHighlights.collect { show ->
-                    bottomNavigationView.menu.findItem(R.id.navigation_highlights).isVisible = show
-                    
-                    (viewPager.adapter as? MainPagerAdapter)?.updateHighlightsVisibility(show)
-                    
-                    // If current item is highlights and it's now hidden, move to home
-                    if (!show && viewPager.currentItem == 1) {
-                        viewPager.currentItem = 0
+                // Global loading state: Only reveal UI when EVERYTHING is ready
+                launch {
+                    viewModel.isConfigReady.collect { ready ->
+                        if (ready) {
+                            if (isUiRevealed) {
+                                shimmerContainer.visibility = View.GONE
+                                viewPager.visibility = View.VISIBLE
+                                bottomNavCard.visibility = View.VISIBLE
+                                progressBar.visibility = View.GONE
+                                return@collect
+                            }
+                            
+                            isUiRevealed = true
+                            // Add a 2-second delay to ensure premium shimmer feel
+                            delay(2000)
+
+                            // Stop Shimmer
+                            shimmerContainer.stopShimmer()
+                            
+                            // Animate transition
+                            shimmerContainer.animate()
+                                .alpha(0f)
+                                .setDuration(300)
+                                .withEndAction {
+                                    shimmerContainer.visibility = View.GONE
+                                }
+
+                            viewPager.alpha = 0f
+                            bottomNavCard.alpha = 0f
+                            viewPager.visibility = View.VISIBLE
+                            bottomNavCard.visibility = View.VISIBLE
+                            
+                            viewPager.animate()
+                                .alpha(1f)
+                                .translationYBy(-16f)
+                                .setDuration(400)
+                                .start()
+                            
+                            bottomNavCard.animate()
+                                .alpha(1f)
+                                .setDuration(400)
+                                .start()
+
+                            progressBar.visibility = View.GONE
+                            
+                            // Initial selection when app first opens and config is ready
+                            resetToFirstTab()
+                        } else {
+                            if (!isUiRevealed) {
+                                shimmerContainer.startShimmer()
+                                shimmerContainer.visibility = View.VISIBLE
+                                viewPager.visibility = View.GONE
+                                bottomNavCard.visibility = View.GONE
+                            }
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.showHighlights.collect { show ->
+                        val currentMenu = bottomNavigationView.menu.findItem(R.id.navigation_highlights)
+                        if (currentMenu.isVisible != show) {
+                            currentMenu.isVisible = show
+                            val adapter = viewPager.adapter as? MainPagerAdapter
+                            adapter?.updateHighlightsVisibility(show)
+                            if (isUiRevealed) resetToFirstTab()
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.showHome.collect { show ->
+                        val currentMenu = bottomNavigationView.menu.findItem(R.id.navigation_home)
+                        if (currentMenu.isVisible != show) {
+                            currentMenu.isVisible = show
+                            val adapter = viewPager.adapter as? MainPagerAdapter
+                            adapter?.updateHomeVisibility(show)
+                            if (isUiRevealed) resetToFirstTab()
+                        }
+                    }
+                }
+                
+                launch {
+                    viewModel.showScore.collect { show ->
+                        val currentMenu = bottomNavigationView.menu.findItem(R.id.navigation_score)
+                        if (currentMenu.isVisible != show) {
+                            currentMenu.isVisible = show
+                            val adapter = viewPager.adapter as? MainPagerAdapter
+                            adapter?.updateScoreVisibility(show)
+                            if (isUiRevealed) resetToFirstTab()
+                        }
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Handles logic when server configuration changes (tabs added/removed).
+     * Ensures we don't stay on a removed fragment.
+     */
+    private fun handleConfigChange() {
+        if (!isUiRevealed) return
+
+        val adapter = viewPager.adapter as? MainPagerAdapter ?: return
+        val currentItemId = bottomNavigationView.selectedItemId
+        
+        // Check if current item still exists in the active set
+        val ids = mutableListOf<Int>()
+        if (viewModel.showScore.value) ids.add(R.id.navigation_score)
+        if (viewModel.showHome.value) ids.add(R.id.navigation_home)
+        if (viewModel.showHighlights.value) ids.add(R.id.navigation_highlights)
+        ids.add(R.id.navigation_settings)
+
+        if (!ids.contains(currentItemId)) {
+            // Current fragment was removed, reset to first available
+            resetToFirstTab()
+        } else {
+            // Sync positions in case indices shifted but item still exists
+            syncSelection()
+        }
+    }
+
+    private fun resetToFirstTab() {
+        val adapter = viewPager.adapter as? MainPagerAdapter ?: return
+        val firstId = adapter.getIdForPosition(0)
+        bottomNavigationView.selectedItemId = firstId
+        viewPager.setCurrentItem(0, false)
+    }
+
+    private fun syncSelection() {
+        val adapter = viewPager.adapter as? MainPagerAdapter ?: return
+        val currentItemId = bottomNavigationView.selectedItemId
+        val targetPos = adapter.getPositionForId(currentItemId)
+        if (viewPager.currentItem != targetPos) {
+            viewPager.currentItem = targetPos
         }
     }
 
@@ -57,30 +192,8 @@ class MainActivity : AppCompatActivity() {
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                val showHighlights = (viewPager.adapter as? MainPagerAdapter)?.let { 
-                    try {
-                        val field = it.javaClass.getDeclaredField("showHighlights")
-                        field.isAccessible = true
-                        field.get(it) as Boolean
-                    } catch (e: Exception) {
-                        true
-                    }
-                } ?: true
-
-                val itemId = if (showHighlights) {
-                    when (position) {
-                        1 -> R.id.navigation_highlights
-                        2 -> R.id.navigation_settings
-                        else -> R.id.navigation_home
-                    }
-                } else {
-                    when (position) {
-                        1 -> R.id.navigation_settings
-                        else -> R.id.navigation_home
-                    }
-                }
-
-                if (bottomNavigationView.selectedItemId != itemId) {
+                val itemId = (viewPager.adapter as? MainPagerAdapter)?.getIdForPosition(position)
+                if (itemId != null && bottomNavigationView.selectedItemId != itemId) {
                     bottomNavigationView.selectedItemId = itemId
                 }
             }
@@ -89,34 +202,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupBottomNavigation() {
         bottomNavigationView.setOnItemSelectedListener { item ->
-            val showHighlights = (viewPager.adapter as? MainPagerAdapter)?.let {
-                try {
-                    val field = it.javaClass.getDeclaredField("showHighlights")
-                    field.isAccessible = true
-                    field.get(it) as Boolean
-                } catch (e: Exception) {
-                    true
+            val targetPos = (viewPager.adapter as? MainPagerAdapter)?.getPositionForId(item.itemId)
+            if (targetPos != null) {
+                if (viewPager.currentItem != targetPos) {
+                    viewPager.currentItem = targetPos
                 }
-            } ?: true
-
-            when (item.itemId) {
-                R.id.navigation_home -> {
-                    if (viewPager.currentItem != 0) viewPager.currentItem = 0
-                    true
-                }
-                R.id.navigation_highlights -> {
-                    if (showHighlights) {
-                        if (viewPager.currentItem != 1) viewPager.currentItem = 1
-                        true
-                    } else false
-                }
-                R.id.navigation_settings -> {
-                    val targetPos = if (showHighlights) 2 else 1
-                    if (viewPager.currentItem != targetPos) viewPager.currentItem = targetPos
-                    true
-                }
-                else -> false
-            }
+                true
+            } else false
         }
     }
 }

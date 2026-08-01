@@ -14,9 +14,10 @@ import androidx.room.RoomDatabase
         EventEntity::class,
         HighlightEntity::class,
         LinkEntity::class,
-        ScoreEntity::class
+        ScoreEntity::class,
+        MatchEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

@@ -79,6 +79,18 @@ interface AppDao {
     @Query("DELETE FROM scores")
     suspend fun deleteAllScores()
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMatches(matches: List<MatchEntity>)
+
+    @Query("SELECT * FROM matches ORDER BY lastUpdated DESC")
+    fun getAllMatchesFlow(): Flow<List<MatchEntity>>
+
+    @Query("SELECT * FROM matches WHERE id = :matchId")
+    suspend fun getMatchById(matchId: String): MatchEntity?
+
+    @Query("DELETE FROM matches")
+    suspend fun deleteAllMatches()
+
     @Query("SELECT * FROM ads")
     suspend fun getAllAds(): List<AdEntity>
 

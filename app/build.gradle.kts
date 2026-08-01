@@ -100,6 +100,9 @@ dependencies {
     implementation(libs.glide)
     kapt(libs.glide.compiler)
 
+    // Shimmer
+    implementation(libs.shimmer)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

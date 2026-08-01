@@ -24,8 +24,20 @@ class MainViewModel @Inject constructor(
     private val _showHighlights = MutableStateFlow(true)
     val showHighlights: StateFlow<Boolean> = _showHighlights
 
+    private val _showHome = MutableStateFlow(true)
+    val showHome: StateFlow<Boolean> = _showHome
+
+    private val _showScore = MutableStateFlow(false)
+    val showScore: StateFlow<Boolean> = _showScore
+
+    private val _scoreApiKey = MutableStateFlow<String?>(null)
+    val scoreApiKey: StateFlow<String?> = _scoreApiKey
+
+    private val _isConfigReady = MutableStateFlow(false)
+    val isConfigReady: StateFlow<Boolean> = _isConfigReady
+
     init {
-        observeHighlightsVisibility()
+        observeConfig()
         observeSplashUpdate()
     }
 
@@ -43,7 +55,7 @@ class MainViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun observeHighlightsVisibility() {
+    private fun observeConfig() {
         viewModelScope.launch {
             repository.getAppFlow().flatMapLatest { app ->
                 if (app != null) {
@@ -53,10 +65,19 @@ class MainViewModel @Inject constructor(
                 }
             }.collectLatest { streamingDataList ->
                 if (streamingDataList.isNotEmpty()) {
-                    val streaming = streamingDataList[0].streaming
+                    val data = streamingDataList[0]
+                    val streaming = data.streaming
                     _showHighlights.value = streaming.showCricketHighlights == true ||
                             streaming.showFootballHighlights == true ||
                             streaming.showOtherSportsHighlights == true
+                    
+                    _showHome.value = streaming.liveCricket == true ||
+                            streaming.liveFootball == true ||
+                            streaming.liveOtherSport == true
+                    
+                    _showScore.value = streaming.showScore == true
+                    _scoreApiKey.value = data.scores.find { it.type == "cricket" }?.api
+                    _isConfigReady.value = true
                 }
             }
         }

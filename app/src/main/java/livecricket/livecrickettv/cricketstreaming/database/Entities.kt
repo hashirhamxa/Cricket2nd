@@ -130,6 +130,22 @@ data class LinkEntity(
     val eventId: Int
 )
 
+@Entity(tableName = "matches")
+data class MatchEntity(
+    @PrimaryKey val id: String,
+    val name: String?,
+    val matchType: String?,
+    val status: String?,
+    val venue: String?,
+    val date: String?,
+    val team1: String?,
+    val team2: String?,
+    val team1Img: String?,
+    val team2Img: String?,
+    val scoreJson: String?, // JSON string of List<Inning>
+    val lastUpdated: Long = System.currentTimeMillis()
+)
+
 data class TournamentWithEvents(
     @Embedded val tournament: TournamentEntity,
     @Relation(
