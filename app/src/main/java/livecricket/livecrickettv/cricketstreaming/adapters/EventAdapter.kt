@@ -1,5 +1,6 @@
 package livecricket.livecrickettv.cricketstreaming.adapters
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -13,6 +14,11 @@ import com.bumptech.glide.Glide
 import livecricket.livecrickettv.cricketstreaming.database.EventEntity
 import livecricket.livecrickettv.cricketstreaming.R
 import livecricket.livecrickettv.cricketstreaming.activities.LinksActivity
+import livecricket.livecrickettv.cricketstreaming.ads.AdsHelper
+
+import android.os.Handler
+import android.os.Looper
+import livecricket.livecrickettv.cricketstreaming.utilities.TimeUtils
 
 class EventAdapter(
     private val items: List<EventEntity>,
@@ -20,6 +26,24 @@ class EventAdapter(
     private val isHighlightsMode: Boolean = false,
     private val tournamentThumbUrl: String? = null
 ) : RecyclerView.Adapter<EventAdapter.ViewHolder>() {
+
+    private val handler = Handler(Looper.getMainLooper())
+    private val updateRunnable = object : Runnable {
+        override fun run() {
+            notifyDataSetChanged()
+            handler.postDelayed(this, 1000)
+        }
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        if (!isHighlightsMode) handler.post(updateRunnable)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        handler.removeCallbacks(updateRunnable)
+    }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val container: View = view
@@ -30,6 +54,8 @@ class EventAdapter(
         val statusMain: TextView = view.findViewById(R.id.text_status_main)
         val statusSub: TextView = view.findViewById(R.id.text_status_sub)
         val btnAction: AppCompatButton = view.findViewById(R.id.btn_action)
+        val startingInText: TextView = view.findViewById(R.id.text_starting_in)
+        val countdownText: TextView = view.findViewById(R.id.text_countdown)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -50,25 +76,48 @@ class EventAdapter(
         holder.tournamentName.text = tournamentName
         holder.matchTitle.text = item.eventName
         
-        val isLive = item.isVisible == true
-        holder.statusMain.text = if (isLive) "LIVE NOW" else "UPCOMING"
-        holder.statusSub.text = item.description ?: ""
-
-        if (isLive) {
-            holder.liveBadge.text = "LIVE"
-            holder.liveBadge.setBackgroundResource(R.drawable.bg_badge_live_red)
-            holder.btnAction.text = "WATCH NOW"
+        if (!isHighlightsMode) {
+            val startDate = TimeUtils.parseUtcToLocal(item.startTime)
+            if (startDate != null && !TimeUtils.isEventLive(startDate)) {
+                // Event is Upcoming
+                holder.statusMain.visibility = View.GONE
+                holder.liveBadge.visibility = View.GONE
+                
+                holder.btnAction.text = "DETAILS"
+                holder.btnAction.setBackgroundResource(R.drawable.bg_button_details)
+                holder.btnAction.setTextColor(Color.WHITE)
+                
+                holder.startingInText.visibility = View.VISIBLE
+                holder.countdownText.text = TimeUtils.getCountdownString(startDate)
+                holder.countdownText.visibility = View.VISIBLE
+            } else {
+                // Event is Live
+                holder.statusMain.visibility = View.VISIBLE
+                holder.statusMain.text = "LIVE NOW"
+                holder.liveBadge.visibility = View.VISIBLE
+                holder.liveBadge.text = "LIVE"
+                holder.liveBadge.setBackgroundResource(R.drawable.bg_badge_live_red)
+                holder.btnAction.text = "WATCH NOW"
+                holder.btnAction.setBackgroundResource(R.drawable.bg_button_watch_now)
+                holder.btnAction.setTextColor(Color.BLACK)
+                
+                holder.startingInText.visibility = View.GONE
+                holder.countdownText.visibility = View.GONE
+            }
+        } else {
+            // Highlights mode: Simple static display
+            holder.statusMain.text = "HIGHLIGHT"
+            holder.liveBadge.visibility = View.GONE
+            holder.btnAction.text = "WATCH"
             holder.btnAction.setBackgroundResource(R.drawable.bg_button_watch_now)
             holder.btnAction.setTextColor(Color.BLACK)
-        } else {
-            holder.liveBadge.text = "UPCOMING"
-            holder.liveBadge.setBackgroundResource(R.drawable.bg_badge_upcoming)
-            holder.btnAction.text = "DETAILS"
-            holder.btnAction.setBackgroundResource(R.drawable.bg_button_details)
-            holder.btnAction.setTextColor(Color.WHITE)
+            holder.countdownText.visibility = View.GONE
         }
 
+        holder.statusSub.text = item.description ?: ""
+
         holder.container.setOnClickListener {
+            AdsHelper.getInstance(it.context).showAd_Mob_X_Inter_With_Time((it.context as Activity))
             val intent = Intent(it.context, LinksActivity::class.java).apply {
                 putExtra("MATCH_TITLE", item.eventName)
                 putExtra("TOURNAMENT", tournamentName)

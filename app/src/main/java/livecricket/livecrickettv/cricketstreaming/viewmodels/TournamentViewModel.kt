@@ -61,8 +61,10 @@ class TournamentViewModel @Inject constructor(
     ): List<HomeDisplayItem> {
         return tournaments.mapNotNull { tWithE ->
             val eventsToUse = if (isHighlights) {
+                // Show if explicitly true or if highlight mode is on and it's not explicitly false
                 tWithE.events.filter { it.isHighlight == true }
             } else {
+                // Show in live mode if isLive is true or null (defaulting to live)
                 tWithE.events.filter { it.isLive == true }
             }
 
@@ -77,6 +79,7 @@ class TournamentViewModel @Inject constructor(
                     imageUrl = event.eventThumbUrl ?: tWithE.tournament.thumbUrl,
                     isLive = !isHighlights,
                     isTrending = false,
+                    startTime = if (!isHighlights) event.startTime else null,
                     originalObject = event
                 )
             } else if (eventsToUse.size > 1) {

@@ -10,11 +10,33 @@ import com.bumptech.glide.Glide
 import livecricket.livecrickettv.cricketstreaming.R
 import livecricket.livecrickettv.cricketstreaming.viewmodels.HomeDisplayItem
 
+import android.os.Handler
+import android.os.Looper
+import livecricket.livecrickettv.cricketstreaming.utilities.TimeUtils
+
 class CategoryAdapter(
     private val items: List<HomeDisplayItem>,
     private val isVertical: Boolean = false,
     private val onItemClick: (HomeDisplayItem) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private val handler = Handler(Looper.getMainLooper())
+    private val updateRunnable = object : Runnable {
+        override fun run() {
+            notifyDataSetChanged()
+            handler.postDelayed(this, 1000)
+        }
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        handler.post(updateRunnable)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        handler.removeCallbacks(updateRunnable)
+    }
 
     companion object {
         private const val TYPE_MATCH = 1
@@ -29,13 +51,20 @@ class CategoryAdapter(
         val inflater = LayoutInflater.from(parent.context)
         return if (viewType == TYPE_TRENDING) {
             val view = inflater.inflate(R.layout.item_home_trending, parent, false)
+            if (isVertical) {
+                val params = view.layoutParams as RecyclerView.LayoutParams
+                params.width = ViewGroup.LayoutParams.MATCH_PARENT
+                params.bottomMargin = view.context.resources.getDimensionPixelSize(R.dimen.spacing_large)
+                view.layoutParams = params
+            }
             TrendingViewHolder(view)
         } else {
             val view = inflater.inflate(R.layout.item_home_match, parent, false)
             // Adjust width for vertical layout
             if (isVertical) {
-                val params = view.layoutParams
+                val params = view.layoutParams as RecyclerView.LayoutParams
                 params.width = ViewGroup.LayoutParams.MATCH_PARENT
+                params.bottomMargin = view.context.resources.getDimensionPixelSize(R.dimen.spacing_large)
                 view.layoutParams = params
             }
             MatchViewHolder(view)
@@ -60,12 +89,36 @@ class CategoryAdapter(
         private val tournament: TextView = view.findViewById(R.id.badge_tournament)
         private val status: TextView = view.findViewById(R.id.text_match_status)
         private val liveBadge: View = view.findViewById(R.id.badge_live)
+        private val badgeText: TextView = view.findViewById(R.id.badge_live)
+        private val startingInText: TextView = view.findViewById(R.id.text_starting_in)
+        private val countdownText: TextView = view.findViewById(R.id.text_countdown)
 
         fun bind(item: HomeDisplayItem) {
             title.text = item.title
             tournament.text = item.subtitle
-            status.text = item.status
-            liveBadge.visibility = if (item.isLive) View.VISIBLE else View.GONE
+            
+            val startDate = TimeUtils.parseUtcToLocal(item.startTime)
+            if (startDate != null && !TimeUtils.isEventLive(startDate)) {
+                // Event is Upcoming
+                liveBadge.visibility = View.GONE
+
+                status.visibility = View.VISIBLE
+                status.text = item.status
+
+                startingInText.visibility = View.VISIBLE
+                countdownText.text = TimeUtils.getCountdownString(startDate)
+                countdownText.visibility = View.VISIBLE
+            } else {
+                // Event is Live
+                liveBadge.visibility = if (item.isLive) View.VISIBLE else View.GONE
+                status.visibility = View.VISIBLE
+                status.text = item.status
+                badgeText.text = "LIVE"
+                badgeText.setBackgroundResource(R.drawable.bg_badge_live)
+                
+                startingInText.visibility = View.GONE
+                countdownText.visibility = View.GONE
+            }
             
             Glide.with(itemView.context)
                 .load(item.imageUrl)

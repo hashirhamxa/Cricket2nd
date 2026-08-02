@@ -25,6 +25,7 @@ import livecricket.livecrickettv.cricketstreaming.activities.EventActivity
 import livecricket.livecrickettv.cricketstreaming.activities.LinksActivity
 import livecricket.livecrickettv.cricketstreaming.activities.TournamentActivity
 import livecricket.livecrickettv.cricketstreaming.adapters.CategoryAdapter
+import livecricket.livecrickettv.cricketstreaming.ads.AdsHelper
 import livecricket.livecrickettv.cricketstreaming.viewmodels.HighlightsViewModel
 import livecricket.livecrickettv.cricketstreaming.viewmodels.HomeDisplayItem
 
@@ -155,17 +156,21 @@ class HighlightsFragment : Fragment() {
 
     private fun setupStaticClickListeners(view: View) {
         view.findViewById<TextView>(R.id.btn_see_all_cricket).setOnClickListener {
+            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
             openTournamentActivity("CRICKET")
         }
         view.findViewById<TextView>(R.id.btn_see_all_football).setOnClickListener {
+            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
             openTournamentActivity("FOOTBALL")
         }
         view.findViewById<TextView>(R.id.btn_see_all_trending).setOnClickListener {
+            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
             openTournamentActivity("TRENDING NOW")
         }
     }
 
     private fun handleItemClick(item: HomeDisplayItem) {
+        AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
         when (val original = item.originalObject) {
             is EventEntity -> {
                 // Navigate directly to links for promoted events
@@ -192,6 +197,7 @@ class HighlightsFragment : Fragment() {
     }
 
     private fun openTournamentActivity(category: String) {
+        AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
         val intent = Intent(context, TournamentActivity::class.java)
         intent.putExtra("CATEGORY", category)
         intent.putExtra("IS_HIGHLIGHTS_MODE", true)

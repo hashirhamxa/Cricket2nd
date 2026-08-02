@@ -20,11 +20,14 @@ import androidx.appcompat.widget.AppCompatButton;
 import livecricket.livecrickettv.cricketstreaming.R;
 
 public class Utils {
+    private static boolean isDialogShowing = false;
+
     public static void showCustomDialog(Context context, String title, String message,
                                         String positiveText, String negativeText,
                                         boolean setNegative, boolean setCancelable,
                                         View.OnClickListener positiveListener,
                                         View.OnClickListener negativeListener) {
+        if (isDialogShowing) return;
         try {
             if (!(context instanceof Activity)) return;
             Activity activity = (Activity) context;
@@ -84,10 +87,13 @@ public class Utils {
             dialog.setCancelable(setCancelable);
             dialog.setCanceledOnTouchOutside(setCancelable);
 
+            dialog.setOnDismissListener(d -> isDialogShowing = false);
+
             // Safely show the dialog
             if (!activity.isFinishing() &&
                     (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 || !activity.isDestroyed())) {
                 dialog.show();
+                isDialogShowing = true;
             }
         } catch (WindowManager.BadTokenException e) {
             e.printStackTrace(); // log and ignore instead of crashing

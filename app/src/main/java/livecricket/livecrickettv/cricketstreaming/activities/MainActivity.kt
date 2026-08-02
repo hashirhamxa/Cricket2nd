@@ -14,13 +14,23 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import livecricket.livecrickettv.cricketstreaming.adapters.MainPagerAdapter
 import livecricket.livecrickettv.cricketstreaming.viewmodels.MainViewModel
 import livecricket.livecrickettv.cricketstreaming.R
+import livecricket.livecrickettv.cricketstreaming.ads.AdsHelper
+import livecricket.livecrickettv.cricketstreaming.database.AppEntity
+import livecricket.livecrickettv.cricketstreaming.database.StreamingEntity
+import livecricket.livecrickettv.cricketstreaming.network.AppRepository
+import livecricket.livecrickettv.cricketstreaming.utilities.DialogManager
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var repository: AppRepository
 
     private lateinit var viewPager: ViewPager2
     private lateinit var bottomNavigationView: BottomNavigationView
@@ -38,6 +48,27 @@ class MainActivity : AppCompatActivity() {
         setupViewPager()
         setupBottomNavigation()
         observeViewModel()
+        loadAds()
+    }
+
+    private fun loadAds() {
+        lifecycleScope.launch {
+            val ads = repository.getAllAds()
+
+            // 1. Preload Interstitial
+            ads.find { it.adPlacement.equals("Interstitial", ignoreCase = true) }?.let { ad ->
+                if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
+                    AdsHelper.getInstance(this@MainActivity).preloadAdADMOB_X_Inter(this@MainActivity, ad.adUnitId)
+                }
+            }
+
+            // 2. Preload Rewarded
+            ads.find { it.adPlacement.equals("Rewarded", ignoreCase = true) }?.let { ad ->
+                if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
+                    AdsHelper.getInstance(this@MainActivity).preloadRewardedAd(this@MainActivity, ad.adUnitId)
+                }
+            }
+        }
     }
 
     private fun observeViewModel() {
@@ -101,6 +132,16 @@ class MainActivity : AppCompatActivity() {
                                 viewPager.visibility = View.GONE
                                 bottomNavCard.visibility = View.GONE
                             }
+                        }
+                    }
+                }
+
+                launch {
+                    combine(viewModel.appConfig, viewModel.streamingConfig) { app, streaming ->
+                        Pair(app, streaming)
+                    }.collect { (app, streaming) ->
+                        if (app != null) {
+                            DialogManager.checkAndShowDialog(this@MainActivity, app, streaming, false)
                         }
                     }
                 }

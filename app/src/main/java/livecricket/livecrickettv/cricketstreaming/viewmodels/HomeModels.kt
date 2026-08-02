@@ -8,6 +8,7 @@ data class HomeDisplayItem(
     val imageUrl: String?,
     val isLive: Boolean,
     val isTrending: Boolean = false,
+    val startTime: String? = null,
     val originalObject: Any // Keep the original entity for navigation
 )
 

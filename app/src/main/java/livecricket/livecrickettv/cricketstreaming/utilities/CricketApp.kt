@@ -6,9 +6,14 @@ import android.os.Bundle
 import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.HiltAndroidApp
 import livecricket.livecrickettv.cricketstreaming.ads.AppOpenManager
+import livecricket.livecrickettv.cricketstreaming.network.AppRepository
+import javax.inject.Inject
 
 @HiltAndroidApp
 class CricketApp : Application() {
+
+    @Inject
+    lateinit var repository: AppRepository
 
     var appOpenManager: AppOpenManager? = null
         private set
@@ -22,7 +27,7 @@ class CricketApp : Application() {
     override fun onCreate() {
         super.onCreate()
         MobileAds.initialize(this) { }
-        appOpenManager = AppOpenManager(this)
+        appOpenManager = AppOpenManager(this, repository)
 
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}

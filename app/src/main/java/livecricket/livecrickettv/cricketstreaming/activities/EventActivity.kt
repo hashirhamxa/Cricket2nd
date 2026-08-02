@@ -15,10 +15,16 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import livecricket.livecrickettv.cricketstreaming.R
 import livecricket.livecrickettv.cricketstreaming.adapters.EventAdapter
+import livecricket.livecrickettv.cricketstreaming.ads.AdsHelper
+import livecricket.livecrickettv.cricketstreaming.network.AppRepository
 import livecricket.livecrickettv.cricketstreaming.viewmodels.EventViewModel
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class EventActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var repository: AppRepository
 
     private val viewModel: EventViewModel by viewModels()
 
@@ -32,7 +38,10 @@ class EventActivity : AppCompatActivity() {
         val isHighlightsMode = intent.getBooleanExtra("IS_HIGHLIGHTS_MODE", false)
 
         findViewById<TextView>(R.id.text_category_title).text = tournamentName
-        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
+        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { 
+            AdsHelper.getInstance(this@EventActivity).showAd_Mob_X_Inter_With_Time(this@EventActivity)
+            finish() 
+        }
 
         val rvEvents = findViewById<RecyclerView>(R.id.rv_tournaments)
 
@@ -70,5 +79,39 @@ class EventActivity : AppCompatActivity() {
                 viewModel.loadEvents(tournamentId)
             }
         }
+        loadAds()
+    }
+
+    private fun loadAds() {
+        lifecycleScope.launch {
+            val ads = repository.getAllAds()
+
+            // 1. Banner Ad
+            ads.find { it.adPlacement.equals("Banner", ignoreCase = true) }?.let { ad ->
+                if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
+                    val adContainer = findViewById<android.widget.RelativeLayout>(R.id.ad_container_tournament)
+                    AdsHelper.getInstance(this@EventActivity).loadAdaptiveADMOB_X_Banner(this@EventActivity, adContainer, ad.adUnitId)
+                }
+            }
+
+            // 2. Preload Interstitial
+            ads.find { it.adPlacement.equals("Interstitial", ignoreCase = true) }?.let { ad ->
+                if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
+                    AdsHelper.getInstance(this@EventActivity).preloadAdADMOB_X_Inter(this@EventActivity, ad.adUnitId)
+                }
+            }
+
+            // 3. Preload Rewarded
+            ads.find { it.adPlacement.equals("Rewarded", ignoreCase = true) }?.let { ad ->
+                if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
+                    AdsHelper.getInstance(this@EventActivity).preloadRewardedAd(this@EventActivity, ad.adUnitId)
+                }
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        AdsHelper.getInstance(this@EventActivity).showAd_Mob_X_Inter_With_Time(this@EventActivity)
+        super.onBackPressed()
     }
 }

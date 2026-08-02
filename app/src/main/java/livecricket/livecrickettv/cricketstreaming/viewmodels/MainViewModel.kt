@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import livecricket.livecrickettv.cricketstreaming.database.AppEntity
+import livecricket.livecrickettv.cricketstreaming.database.StreamingEntity
 import livecricket.livecrickettv.cricketstreaming.network.AppRepository
 import livecricket.livecrickettv.cricketstreaming.utilities.SplashPreloader
 import javax.inject.Inject
@@ -36,6 +38,12 @@ class MainViewModel @Inject constructor(
     private val _isConfigReady = MutableStateFlow(false)
     val isConfigReady: StateFlow<Boolean> = _isConfigReady
 
+    private val _appConfig = MutableStateFlow<AppEntity?>(null)
+    val appConfig: StateFlow<AppEntity?> = _appConfig
+
+    private val _streamingConfig = MutableStateFlow<StreamingEntity?>(null)
+    val streamingConfig: StateFlow<StreamingEntity?> = _streamingConfig
+
     init {
         observeConfig()
         observeSplashUpdate()
@@ -57,6 +65,12 @@ class MainViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeConfig() {
         viewModelScope.launch {
+            repository.getAppFlow().collectLatest { app ->
+                _appConfig.value = app
+            }
+        }
+
+        viewModelScope.launch {
             repository.getAppFlow().flatMapLatest { app ->
                 if (app != null) {
                     repository.getStreamingDataFlow(app.id)
@@ -67,6 +81,7 @@ class MainViewModel @Inject constructor(
                 if (streamingDataList.isNotEmpty()) {
                     val data = streamingDataList[0]
                     val streaming = data.streaming
+                    _streamingConfig.value = streaming
                     _showHighlights.value = streaming.showCricketHighlights == true ||
                             streaming.showFootballHighlights == true ||
                             streaming.showOtherSportsHighlights == true

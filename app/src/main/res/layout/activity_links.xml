@@ -93,7 +93,7 @@
         android:id="@+id/swipe_refresh_links"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/ad_container_links"
         app:layout_constraintTop_toBottomOf="@id/top_panel">
 
         <androidx.core.widget.NestedScrollView
@@ -132,39 +132,46 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/gradient_trending_card" />
 
-                    <TextView
-                        android:id="@+id/badge_live_hero"
-                        android:layout_width="70dp"
-                        android:layout_height="23dp"
-                        android:layout_margin="16dp"
-                        android:background="@drawable/bg_badge_live"
-                        android:drawablePadding="3dp"
-                        android:fontFamily="@font/jet_brains_mono_bold"
-                        android:paddingHorizontal="8dp"
-                        android:paddingVertical="4dp"
-                        android:text="LIVE"
-                        android:textColor="@color/black"
-                        android:textSize="12dp"
-                        app:drawableStartCompat="@drawable/live_dot"
-                        app:drawableTint="@color/black"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/badge_tournament_hero"
+                    <LinearLayout
+                        android:id="@+id/layout_badges_hero"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:background="@drawable/bg_badge_overlay"
-                        android:fontFamily="@font/jet_brains_mono_regular"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="6dp"
-                        android:textColor="@color/white"
-                        android:textSize="12dp"
-                        app:layout_constraintBottom_toBottomOf="@id/badge_live_hero"
-                        app:layout_constraintStart_toEndOf="@id/badge_live_hero"
-                        app:layout_constraintTop_toTopOf="@id/badge_live_hero"
-                        tools:text="ICC T20 WORLD CUP" />
+                        android:layout_margin="16dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:id="@+id/badge_live_hero"
+                            android:layout_width="70dp"
+                            android:layout_height="23dp"
+                            android:background="@drawable/bg_badge_live"
+                            android:drawablePadding="3dp"
+                            android:fontFamily="@font/jet_brains_mono_bold"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp"
+                            android:text="LIVE"
+                            android:textColor="@color/black"
+                            android:textSize="12dp"
+                            app:drawableStartCompat="@drawable/live_dot"
+                            app:drawableTint="@color/black" />
+
+                        <TextView
+                            android:id="@+id/badge_tournament_hero"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:background="@drawable/bg_badge_overlay"
+                            android:fontFamily="@font/jet_brains_mono_regular"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="6dp"
+                            android:textColor="@color/white"
+                            android:textSize="12dp"
+                            tools:text="ICC T20 WORLD CUP" />
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/text_match_title_hero"
@@ -194,6 +201,36 @@
                         app:drawableTint="@color/white"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent" />
+
+                    <TextView
+                        android:id="@+id/text_starting_in_hero"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="2dp"
+                        android:alpha="0.7"
+                        android:fontFamily="@font/jet_brains_mono_regular"
+                        android:text="Starting in"
+                        android:textColor="@color/white"
+                        android:textSize="10dp"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toTopOf="@id/text_countdown_hero"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        tools:visibility="visible" />
+
+                    <TextView
+                        android:id="@+id/text_countdown_hero"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:fontFamily="@font/jet_brains_mono_bold"
+                        android:textColor="@color/primary"
+                        android:textSize="18dp"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        tools:text="02:15:30"
+                        tools:visibility="visible" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -296,5 +333,11 @@
     </androidx.core.widget.NestedScrollView>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <RelativeLayout
+        android:id="@+id/ad_container_links"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

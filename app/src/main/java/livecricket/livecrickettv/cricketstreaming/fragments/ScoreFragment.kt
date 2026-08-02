@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import livecricket.livecrickettv.cricketstreaming.R
 import livecricket.livecrickettv.cricketstreaming.activities.ScoreDetailActivity
 import livecricket.livecrickettv.cricketstreaming.adapters.MatchesAdapter
+import livecricket.livecrickettv.cricketstreaming.ads.AdsHelper
 import livecricket.livecrickettv.cricketstreaming.viewmodels.ScoreViewModel
 
 @AndroidEntryPoint
@@ -54,6 +55,7 @@ class ScoreFragment : Fragment() {
                 launch {
                     viewModel.matches.collectLatest { matches ->
                         rvMatches.adapter = MatchesAdapter(matches) { match ->
+                            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
                             val intent = Intent(context, ScoreDetailActivity::class.java)
                             intent.putExtra("MATCH_ID", match.id)
                             startActivity(intent)

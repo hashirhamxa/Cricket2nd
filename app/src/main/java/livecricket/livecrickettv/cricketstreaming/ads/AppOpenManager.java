@@ -31,6 +31,7 @@ import java.util.List;
 import livecricket.livecrickettv.cricketstreaming.BuildConfig;
 import livecricket.livecrickettv.cricketstreaming.newplayer.NewPlayerActivity;
 import livecricket.livecrickettv.cricketstreaming.activities.SplashActivity;
+import livecricket.livecrickettv.cricketstreaming.network.AppRepository;
 import livecricket.livecrickettv.cricketstreaming.utilities.Utils;
 
 
@@ -38,22 +39,33 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, D
     private static final String LOG_TAG = "AppOpenManager";
     private static boolean isShowingAd = false;
     private final Application myApplication;
+    private final AppRepository repository;
     private AppOpenAd appOpenAd = null;
     private Activity currentActivity;
     private int retryCount = 0;
     private final int maxRetries = 3;
+    private String appOpenAdId = null;
 
-    public AppOpenManager(Application myApplication) {
+    public AppOpenManager(Application myApplication, AppRepository repository) {
         this.myApplication = myApplication;
+        this.repository = repository;
         this.myApplication.registerActivityLifecycleCallbacks(this);
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this); // Register as a lifecycle observer
+    }
+
+    public void setAppOpenAdId(String adId) {
+        this.appOpenAdId = adId;
+        if (adId != null && !adId.isEmpty()) {
+            fetchAd(adId);
+        }
     }
 
     /**
      * Request an ad
      */
     public void fetchAd(String adKey) {
+        if (adKey == null || adKey.isEmpty()) return;
 //        if (BuildConfig.DEBUG) {
 //            return; // Skip loading ads in debug mode
 //        }
@@ -74,7 +86,7 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, D
                     Log.e(LOG_TAG, "AppOpen fetchAd onAdFailedToLoad: " + loadAdError.getMessage());
                     retryCount++;
                     if (retryCount < maxRetries) {
-                        fetchAd("adkey");
+                        fetchAd(adKey);
                     }
                 }
             };
@@ -177,7 +189,7 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, D
                 public void onAdDismissedFullScreenContent() {
                     appOpenAd = null;
                     isShowingAd = false;
-                    fetchAd("adkey");
+                    fetchAd(appOpenAdId);
                 }
 
                 @Override
@@ -195,7 +207,7 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, D
             appOpenAd.show(currentActivity);
         } else {
             Log.d(LOG_TAG, "Cannot show ad. Fetching...");
-            fetchAd("adkey");
+            fetchAd(appOpenAdId);
         }
     }
 

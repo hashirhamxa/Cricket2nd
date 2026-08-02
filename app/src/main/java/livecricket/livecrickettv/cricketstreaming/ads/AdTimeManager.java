@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 public class AdTimeManager {
     private static final String sp_name = "AdTimerPrefs";
     private static final String KEY_LAST_AD_TIME = "lastAdShownTime";
-    private static final long TIME_INTERVAL = 13000; // fixed 13 seconds
+    private static final long TIME_INTERVAL = 5000; // fixed 5 seconds
     private final SharedPreferences sharedPreferences;
 
     public AdTimeManager(Context context) {

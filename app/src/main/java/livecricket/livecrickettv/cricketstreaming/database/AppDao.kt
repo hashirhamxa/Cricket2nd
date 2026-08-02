@@ -115,19 +115,19 @@ interface AppDao {
     suspend fun getHighlightEventsForTournament(tournamentId: Int): List<EventEntity>
 
     @Transaction
-    @Query("SELECT * FROM tournaments WHERE isVisible = 1 AND (sportType != 'cricket' AND sportType != 'football')")
+    @Query("SELECT * FROM tournaments WHERE (sportType != 'cricket' AND sportType != 'football')")
     fun getTrendingTournamentsWithEventsFlow(): Flow<List<TournamentWithEvents>>
 
     @Transaction
-    @Query("SELECT * FROM tournaments WHERE isVisible = 1 AND (sportType != 'cricket' AND sportType != 'football')")
+    @Query("SELECT * FROM tournaments WHERE (sportType != 'cricket' AND sportType != 'football')")
     suspend fun getTrendingTournamentsWithEvents(): List<TournamentWithEvents>
 
     @Transaction
-    @Query("SELECT * FROM tournaments WHERE sportType = :sportType AND isVisible = 1")
+    @Query("SELECT * FROM tournaments WHERE sportType = :sportType")
     fun getTournamentsWithEventsBySportTypeFlow(sportType: String): Flow<List<TournamentWithEvents>>
 
     @Transaction
-    @Query("SELECT * FROM tournaments WHERE sportType = :sportType AND isVisible = 1")
+    @Query("SELECT * FROM tournaments WHERE sportType = :sportType")
     suspend fun getTournamentsWithEventsBySportType(sportType: String): List<TournamentWithEvents>
 
     @Query("SELECT * FROM links WHERE eventId = :eventId")

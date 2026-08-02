@@ -25,6 +25,7 @@ import livecricket.livecrickettv.cricketstreaming.activities.EventActivity
 import livecricket.livecrickettv.cricketstreaming.activities.LinksActivity
 import livecricket.livecrickettv.cricketstreaming.activities.TournamentActivity
 import livecricket.livecrickettv.cricketstreaming.adapters.CategoryAdapter
+import livecricket.livecrickettv.cricketstreaming.ads.AdsHelper
 import livecricket.livecrickettv.cricketstreaming.viewmodels.HomeDisplayItem
 import livecricket.livecrickettv.cricketstreaming.viewmodels.HomeViewModel
 
@@ -160,12 +161,22 @@ class LiveFragment : Fragment() {
     private fun setupSection(sectionView: View, title: String) {
         sectionView.visibility = View.VISIBLE
         sectionView.findViewById<TextView>(R.id.text_section_title)?.text = title
-        sectionView.findViewById<View>(R.id.btn_see_all_cricket)?.setOnClickListener { openTournamentActivity(title) }
-        sectionView.findViewById<View>(R.id.btn_see_all_football)?.setOnClickListener { openTournamentActivity(title) }
-        sectionView.findViewById<View>(R.id.btn_see_all_trending)?.setOnClickListener { openTournamentActivity(title) }
+        sectionView.findViewById<View>(R.id.btn_see_all_cricket)?.setOnClickListener { 
+            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
+            openTournamentActivity(title) 
+        }
+        sectionView.findViewById<View>(R.id.btn_see_all_football)?.setOnClickListener { 
+            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
+            openTournamentActivity(title) 
+        }
+        sectionView.findViewById<View>(R.id.btn_see_all_trending)?.setOnClickListener { 
+            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
+            openTournamentActivity(title) 
+        }
     }
 
     private fun handleItemClick(item: HomeDisplayItem) {
+        AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
         when (val original = item.originalObject) {
             is EventEntity -> {
                 val intent = Intent(context, LinksActivity::class.java).apply {
@@ -173,6 +184,7 @@ class LiveFragment : Fragment() {
                     putExtra("TOURNAMENT", item.subtitle)
                     putExtra("EVENT_ID", original.id)
                     putExtra("EVENT_THUMB_URL", original.eventThumbUrl)
+                    putExtra("START_TIME", original.startTime)
                     putExtra("IS_HIGHLIGHTS_MODE", false)
                 }
                 startActivity(intent)
@@ -190,6 +202,7 @@ class LiveFragment : Fragment() {
     }
 
     private fun openTournamentActivity(category: String) {
+        AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
         val intent = Intent(context, TournamentActivity::class.java)
         intent.putExtra("CATEGORY", category)
         intent.putExtra("IS_HIGHLIGHTS_MODE", false)
@@ -197,8 +210,17 @@ class LiveFragment : Fragment() {
     }
 
     private fun setupStaticClickListeners(view: View) {
-        view.findViewById<View>(R.id.btn_see_all_cricket)?.setOnClickListener { openTournamentActivity("CRICKET") }
-        view.findViewById<View>(R.id.btn_see_all_football)?.setOnClickListener { openTournamentActivity("FOOTBALL") }
-        view.findViewById<View>(R.id.btn_see_all_trending)?.setOnClickListener { openTournamentActivity("TRENDING NOW") }
+        view.findViewById<View>(R.id.btn_see_all_cricket)?.setOnClickListener { 
+            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
+            openTournamentActivity("CRICKET") 
+        }
+        view.findViewById<View>(R.id.btn_see_all_football)?.setOnClickListener { 
+            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
+            openTournamentActivity("FOOTBALL") 
+        }
+        view.findViewById<View>(R.id.btn_see_all_trending)?.setOnClickListener { 
+            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
+            openTournamentActivity("TRENDING NOW") 
+        }
     }
 }

@@ -14,47 +14,24 @@ public class NewPlayerActivity extends PlayerActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.e("leolog", "NewPlayerActivity onCreate called");
-        Log.e("leolog", "Intent action: " + getIntent().getAction());
-        Log.e("leolog", "Intent type: " + getIntent().getType());
-        super.onCreate(savedInstanceState);
+         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         adsHelper = AdsHelper.getInstance(NewPlayerActivity.this);
-//        if (spGetSet.getUnityADSP(NewPlayerActivity.this)) {
-//            FBAdDataModel unityData = adKeysDB.getUnityData();
-//            if (unityData != null && unityData.getInterstitial_id() != null) {
-//                String unity_inter_id = unityData.getInterstitial_id();
-//                adsHelper.loadUnityInterstitialAd(NewPlayerActivity.this, unity_inter_id);
-//            }
-//        } else {
-//            if (adKeysDB.getAdXData() != null) {
-//                FBAdDataModel adxModel = adKeysDB.getAdXData();
-//                if (adxModel != null && adxModel.getInterstitial_id() != null) {
-//                    String inter_ID = adxModel.getInterstitial_id();
-//                    adsHelper.preloadAdADMOB_X_Inter(NewPlayerActivity.this, inter_ID);
-//                    adsHelper.preloadRewardedAd(NewPlayerActivity.this, adKeysDB.getAdXData().getRewarded_key());
-//                }
-//            }
-//        }
+
+        String interID = getIntent().getStringExtra("interstitialAdKey");
+        String rewardedID = getIntent().getStringExtra("rewardedAdKey");
+
+        if (interID != null && !interID.isEmpty()) {
+            adsHelper.preloadAdADMOB_X_Inter(NewPlayerActivity.this, interID);
+        }
+        if (rewardedID != null && !rewardedID.isEmpty()) {
+            adsHelper.preloadRewardedAd(NewPlayerActivity.this, rewardedID);
+        }
     }
 
     @Override
     public void onBackPressed() {
-        Log.e("leolog", "NewPlayerActivity handleOnBackPressed");
-//        FBRemoteSPGetSet spGetSet = new FBRemoteSPGetSet();
-//        if (spGetSet.getUnityADSP(NewPlayerActivity.this)) {
-//            Log.e("leolog", "NewPlayerActivity handleOnBackPressed unity");
-//            ADKeysDB adKeysDB = new ADKeysDB(NewPlayerActivity.this);
-//            if (adKeysDB.getUnityData() != null) {
-//                FBAdDataModel unityModel = adKeysDB.getUnityData();
-//                if (unityModel != null && unityModel.getInterstitial_id() != null) {
-//                    adsHelper.showUnityInterstitialAd(NewPlayerActivity.this, unityModel.getInterstitial_id());
-//                }
-//            }
-//        } else {
-//            Log.e("leolog", "NewPlayerActivity handleOnBackPressed admob");
-//            adsHelper.showAd_Mob_X_Inter_With_Time(NewPlayerActivity.this);
-//        }
+        adsHelper.showAd_Mob_X_Inter_With_Time(NewPlayerActivity.this);
         NewPlayerActivity.this.finish();
 
     }
@@ -62,7 +39,6 @@ public class NewPlayerActivity extends PlayerActivity {
     @Override
     public void onStop() {
         super.onStop();
-        Log.e("leolog player", "New Player onStop");
         finish();
     }
 }

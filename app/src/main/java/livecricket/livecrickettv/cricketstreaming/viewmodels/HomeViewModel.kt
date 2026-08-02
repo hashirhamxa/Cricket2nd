@@ -146,6 +146,7 @@ class HomeViewModel @Inject constructor(
         isTrending: Boolean
     ): List<HomeDisplayItem> {
         return tournaments.mapNotNull { tWithE ->
+            // Show events if isLive is true
             val liveEvents = tWithE.events.filter { it.isLive == true }
 
             if (liveEvents.size == 1) {
@@ -159,6 +160,7 @@ class HomeViewModel @Inject constructor(
                     imageUrl = event.eventThumbUrl ?: tWithE.tournament.thumbUrl,
                     isLive = true,
                     isTrending = isTrending,
+                    startTime = event.startTime,
                     originalObject = event
                 )
             } else if (liveEvents.size > 1) {

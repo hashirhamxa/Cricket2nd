@@ -22,6 +22,7 @@ import livecricket.livecrickettv.cricketstreaming.database.AdEntity
 import livecricket.livecrickettv.cricketstreaming.network.AppRepository
 import livecricket.livecrickettv.cricketstreaming.R
 import livecricket.livecrickettv.cricketstreaming.utilities.CricketApp
+import livecricket.livecrickettv.cricketstreaming.utilities.DialogManager
 import livecricket.livecrickettv.cricketstreaming.utilities.SplashPreloader
 import livecricket.livecrickettv.cricketstreaming.utilities.Utils
 import javax.inject.Inject
@@ -100,7 +101,17 @@ class SplashActivity : AppCompatActivity() {
         }
 
         if (isSuccess) {
+            val app = repository.getApp()
+            if (app != null) {
+                val streaming = repository.getStreamingData(app.id).firstOrNull()?.streaming
+                val dialogShown = DialogManager.checkAndShowDialog(this, app, streaming, true)
+                if (dialogShown) return
+            }
+
             val allAds = repository.getAllAds()
+            val appOpenId = allAds.find { it.adPlacement.equals("AppOpen", ignoreCase = true) }?.adUnitId
+            (application as CricketApp).appOpenManager?.setAppOpenAdId(appOpenId)
+
             preloadAds(allAds)
             loadAndShowAppOpenAd(allAds)
         } else {
