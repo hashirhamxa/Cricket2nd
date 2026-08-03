@@ -72,10 +72,10 @@ glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", versi
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
-firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging-ktx" }
-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
-firebase-perf = { group = "com.google.firebase", name = "firebase-perf-ktx" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-perf = { group = "com.google.firebase", name = "firebase-perf" }
 
 
 [plugins]
