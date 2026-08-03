@@ -59,7 +59,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-6834725428461055~9348890875" />
 
         <activity
             android:name=".newplayer.NewPlayerActivity"

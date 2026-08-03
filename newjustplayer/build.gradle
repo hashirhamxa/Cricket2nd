@@ -9,12 +9,12 @@ base {
 
 android {
     namespace 'com.brouken.player'
-    compileSdkVersion 33
+    compileSdkVersion 34
     ndkVersion '21.4.7075529'
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 34
         versionCode vCode
         versionName vName
         multiDexEnabled true
