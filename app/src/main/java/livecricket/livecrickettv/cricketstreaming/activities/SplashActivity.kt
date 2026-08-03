@@ -187,6 +187,7 @@ class SplashActivity : AppCompatActivity() {
             "Cancel",
             false,
             false,
+            null,
             { finishAffinity() },
             { }
         )
@@ -201,6 +202,7 @@ class SplashActivity : AppCompatActivity() {
             "",
             false,
             false,
+            null,
             { finishAffinity() },
             null
         )

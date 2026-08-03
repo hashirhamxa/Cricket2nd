@@ -13,9 +13,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.AppCompatButton;
+
+import com.bumptech.glide.Glide;
 
 import livecricket.livecrickettv.cricketstreaming.R;
 
@@ -25,6 +30,7 @@ public class Utils {
     public static void showCustomDialog(Context context, String title, String message,
                                         String positiveText, String negativeText,
                                         boolean setNegative, boolean setCancelable,
+                                        String imageUrl,
                                         View.OnClickListener positiveListener,
                                         View.OnClickListener negativeListener) {
         if (isDialogShowing) return;
@@ -54,6 +60,15 @@ public class Utils {
                 int marginInPixels = (int) (32 * context.getResources().getDisplayMetrics().density);
                 dialog.getWindow().setAttributes(params);
                 dialog.getWindow().getDecorView().setPadding(marginInPixels, 0, marginInPixels, 0);
+            }
+
+            // Set icon if provided
+            ImageView dialogIcon = dialogView.findViewById(R.id.dialogIcon);
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                dialogIcon.setVisibility(View.VISIBLE);
+                Glide.with(context).load(imageUrl).into(dialogIcon);
+            } else {
+                dialogIcon.setVisibility(View.GONE);
             }
 
             // Set title and message
@@ -125,6 +140,19 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    /**
+     * Animates a view (like a live dot) with a continuous pulse effect.
+     */
+    public static void animateLiveDot(View view) {
+        if (view == null) return;
+        
+        AlphaAnimation pulse = new AlphaAnimation(1.0f, 0.2f);
+        pulse.setDuration(800);
+        pulse.setRepeatMode(Animation.REVERSE);
+        pulse.setRepeatCount(Animation.INFINITE);
+        view.startAnimation(pulse);
     }
 
 }

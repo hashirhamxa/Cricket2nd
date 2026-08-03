@@ -69,6 +69,9 @@ data class Streaming(
     @SerializedName("splash_image_link") val splashImageLink: String?,
     @SerializedName("other_sports") val otherSports: String?,
     @SerializedName("show_score") val showScore: Boolean?,
+    @SerializedName("outside_url_title") val outsideUrlTitle: String?,
+    @SerializedName("outside_url_description") val outsideUrlDescription: String?,
+    @SerializedName("outside_url_image_url") val outsideUrlImageUrl: String?,
     @SerializedName("Scores") val scores: List<Score>?,
     @SerializedName("tournaments") val tournaments: List<TournamentWrapper>?
 )
@@ -95,6 +98,7 @@ data class Tournament(
     @SerializedName("end_time") val endTime: String?,
     @SerializedName("description") val description: String?,
     @SerializedName("sport_type") val sportType: String?,
+    @SerializedName("excluded_app_package_names") val excludedAppPackageNames: String?,
     @SerializedName("events") val events: List<EventWrapper>?
 )
 
@@ -121,6 +125,7 @@ data class Event(
     @SerializedName("team_b_url") val teamBUrl: String?,
     @SerializedName("metadata") val metadata: String?,
     @SerializedName("is_live") val isLive: Boolean?,
+    @SerializedName("excluded_app_package_names") val excludedAppPackageNames: String?,
     @SerializedName("highligths") val highlights: List<HighlightWrapper>?,
     @SerializedName("links") val links: List<LinkWrapper>?
 )

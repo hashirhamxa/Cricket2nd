@@ -27,14 +27,38 @@
             tools:text="IPL 2026 | T20" />
 
         <!-- Status Badge -->
-        <TextView
+        <LinearLayout
             android:id="@+id/text_status_badge"
             style="@style/BadgeStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="LIVE" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <View
+                android:id="@+id/dot_live_score"
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/live_dot"
+                android:backgroundTint="@color/white"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/text_status_badge_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:fontFamily="@font/jet_brains_mono_bold"
+                tools:text="LIVE" />
+
+        </LinearLayout>
 
         <!-- Divider line -->
         <View

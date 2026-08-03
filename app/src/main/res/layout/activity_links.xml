@@ -66,6 +66,7 @@
                     tools:text="ICC T20 WORLD CUP" />
 
                 <TextView
+                    android:id="@+id/text_live_toolbar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -142,21 +143,32 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
-                        <TextView
+                        <LinearLayout
                             android:id="@+id/badge_live_hero"
-                            android:layout_width="70dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="23dp"
                             android:background="@drawable/bg_badge_live"
-                            android:drawablePadding="3dp"
-                            android:fontFamily="@font/jet_brains_mono_bold"
-                            android:gravity="center"
+                            android:gravity="center_vertical"
                             android:paddingHorizontal="8dp"
-                            android:paddingVertical="4dp"
-                            android:text="LIVE"
-                            android:textColor="@color/black"
-                            android:textSize="12dp"
-                            app:drawableStartCompat="@drawable/live_dot"
-                            app:drawableTint="@color/black" />
+                            android:paddingVertical="4dp">
+
+                            <View
+                                android:id="@+id/dot_live_hero"
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/live_dot"
+                                android:backgroundTint="@color/black" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/jet_brains_mono_bold"
+                                android:text="LIVE"
+                                android:textColor="@color/black"
+                                android:textSize="12dp" />
+
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/badge_tournament_hero"

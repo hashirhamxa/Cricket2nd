@@ -52,6 +52,9 @@ data class StreamingEntity(
     val splashImageLink: String?,
     val otherSports: String?,
     val showScore: Boolean?,
+    val outsideUrlTitle: String?,
+    val outsideUrlDescription: String?,
+    val outsideUrlImageUrl: String?,
     val appId: Int
 )
 
@@ -75,6 +78,7 @@ data class TournamentEntity(
     val endTime: String?,
     val description: String?,
     val sportType: String?,
+    val excludedAppPackageNames: String?,
     val streamingId: Int
 )
 
@@ -96,6 +100,7 @@ data class EventEntity(
     val teamBUrl: String?,
     val metadata: String?,
     val isLive: Boolean?,
+    val excludedAppPackageNames: String?,
     val tournamentId: Int
 )
 

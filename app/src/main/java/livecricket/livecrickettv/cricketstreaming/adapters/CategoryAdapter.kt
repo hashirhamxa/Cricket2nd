@@ -13,6 +13,7 @@ import livecricket.livecrickettv.cricketstreaming.viewmodels.HomeDisplayItem
 import android.os.Handler
 import android.os.Looper
 import livecricket.livecrickettv.cricketstreaming.utilities.TimeUtils
+import livecricket.livecrickettv.cricketstreaming.utilities.Utils
 
 class CategoryAdapter(
     private val items: List<HomeDisplayItem>,
@@ -89,7 +90,8 @@ class CategoryAdapter(
         private val tournament: TextView = view.findViewById(R.id.badge_tournament)
         private val status: TextView = view.findViewById(R.id.text_match_status)
         private val liveBadge: View = view.findViewById(R.id.badge_live)
-        private val badgeText: TextView = view.findViewById(R.id.badge_live)
+        private val liveDot: View? = view.findViewById(R.id.dot_live)
+        private val badgeText: TextView = view.findViewById(R.id.badge_live_text)
         private val startingInText: TextView = view.findViewById(R.id.text_starting_in)
         private val countdownText: TextView = view.findViewById(R.id.text_countdown)
 
@@ -114,7 +116,10 @@ class CategoryAdapter(
                 status.visibility = View.VISIBLE
                 status.text = item.status
                 badgeText.text = "LIVE"
-                badgeText.setBackgroundResource(R.drawable.bg_badge_live)
+                badgeText.setBackgroundResource(android.R.color.transparent)
+                liveBadge.setBackgroundResource(R.drawable.bg_badge_live)
+                
+                liveDot?.let { Utils.animateLiveDot(it) }
                 
                 startingInText.visibility = View.GONE
                 countdownText.visibility = View.GONE
@@ -132,11 +137,28 @@ class CategoryAdapter(
         private val title: TextView = view.findViewById(R.id.text_trending_title)
         private val category: TextView = view.findViewById(R.id.text_category)
         private val description: TextView = view.findViewById(R.id.text_trending_desc)
+        private val liveBadge: View? = view.findViewById(R.id.badge_live_trending)
+        private val liveDot: View? = view.findViewById(R.id.dot_live_trending)
+        private val btnWatch: com.google.android.material.button.MaterialButton? = view.findViewById(R.id.btn_watch_now)
+        private val btnDetails: View? = view.findViewById(R.id.btn_details)
 
         fun bind(item: HomeDisplayItem) {
             title.text = item.title
             category.text = item.subtitle
             description.text = item.status
+            
+            if (item.isLive) {
+                liveBadge?.visibility = View.VISIBLE
+                liveDot?.let { Utils.animateLiveDot(it) }
+                btnWatch?.text = "WATCH NOW"
+            } else {
+                liveBadge?.visibility = View.GONE
+                liveDot?.clearAnimation()
+                btnWatch?.text = "WATCH"
+            }
+            
+            btnWatch?.setOnClickListener { onItemClick(item) }
+            btnDetails?.setOnClickListener { onItemClick(item) }
             
             Glide.with(itemView.context)
                 .load(item.imageUrl)

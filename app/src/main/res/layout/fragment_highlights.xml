@@ -47,7 +47,7 @@
                     android:layout_marginStart="12dp"
                     android:layout_toEndOf="@id/indicator_cricket"
                     android:fontFamily="@font/oswald_regular"
-                    android:text="CRICKET HIGHLIGHTS"
+                    android:text="🏏 HIGHLIGHTS"
                     android:textColor="@color/white"
                     android:textSize="24dp" />
 
@@ -99,7 +99,7 @@
                     android:fontFamily="@font/oswald_regular"
                     android:layout_marginStart="12dp"
                     android:layout_toEndOf="@id/indicator_football"
-                    android:text="FOOTBALL HIGHLIGHTS"
+                    android:text="⚽ HIGHLIGHTS"
                     android:textColor="@color/white"
                     android:textSize="24dp" />
 

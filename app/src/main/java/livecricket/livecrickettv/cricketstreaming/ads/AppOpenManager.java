@@ -66,9 +66,9 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, D
      */
     public void fetchAd(String adKey) {
         if (adKey == null || adKey.isEmpty()) return;
-//        if (BuildConfig.DEBUG) {
-//            return; // Skip loading ads in debug mode
-//        }
+        if (BuildConfig.DEBUG) {
+            return; // Skip loading ads in debug mode
+        }
         try {
             if (isAdAvailable() || retryCount >= maxRetries) {
                 return;
@@ -107,6 +107,9 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, D
      * Request and show an ad once loaded.
      */
     public void fetchAndShowAd(String adKey, OnAppOpenAdListener listener) {
+        if (BuildConfig.DEBUG) {
+            return; // Skip loading ads in debug mode
+        }
         try {
             AppOpenAd.AppOpenAdLoadCallback loadCallback = new AppOpenAd.AppOpenAdLoadCallback() {
                 @Override
@@ -351,7 +354,7 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, D
             if (finalThreatMessage.contains("Developer Options Enabled")) {
                 positiveBtn = "Disable";
             }
-            Utils.showCustomDialog(currentActivity, threatMessage, detailMessage, positiveBtn, "Cancel", false, false,
+            Utils.showCustomDialog(currentActivity, threatMessage, detailMessage, positiveBtn, "Cancel", false, false, null,
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {

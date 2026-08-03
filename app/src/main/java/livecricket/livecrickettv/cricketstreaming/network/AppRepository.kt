@@ -79,6 +79,9 @@ class AppRepository @Inject constructor(
                                 splashImageLink = streaming.splashImageLink,
                                 otherSports = streaming.otherSports,
                                 showScore = streaming.showScore,
+                                outsideUrlTitle = streaming.outsideUrlTitle,
+                                outsideUrlDescription = streaming.outsideUrlDescription,
+                                outsideUrlImageUrl = streaming.outsideUrlImageUrl,
                                 appId = appData.id
                             )
                         )
@@ -107,6 +110,7 @@ class AppRepository @Inject constructor(
                                         endTime = tournament.endTime,
                                         description = tournament.description,
                                         sportType = tournament.sportType,
+                                        excludedAppPackageNames = tournament.excludedAppPackageNames,
                                         streamingId = streaming.id
                                     )
                                 )
@@ -131,6 +135,7 @@ class AppRepository @Inject constructor(
                                                 teamBUrl = event.teamBUrl,
                                                 metadata = event.metadata,
                                                 isLive = event.isLive,
+                                                excludedAppPackageNames = event.excludedAppPackageNames,
                                                 tournamentId = tournament.id
                                             )
                                         )

@@ -20,11 +20,11 @@
 
         <ImageView
             android:id="@+id/img_flag"
-            android:layout_width="@dimen/icon_size_medium"
-            android:layout_height="@dimen/icon_size_medium"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_marginStart="@dimen/spacing_large"
             android:contentDescription="@null"
-            android:src="@drawable/top_bar_flag_icon"
+            android:src="@drawable/top_bar_sports"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

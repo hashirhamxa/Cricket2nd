@@ -24,23 +24,24 @@ object DialogManager {
         val appVersion = BuildConfig.VERSION_NAME
         val isNewVersionAvailable = compareVersions(currentVersion, appVersion) > 0
 
-        // 1. App Migration (Play Store)
-        if (!app.newPackageName.isNullOrEmpty() && app.isActive == false) {
+        // 1. App Migration (Play Store) - Required
+        if (!app.newPackageName.isNullOrEmpty()) {
             Utils.showCustomDialog(
                 activity,
-                "A New Version is Available",
-                "This app is no longer supported and will no longer receive updates. Please download our new app to continue enjoying the latest features, improved performance, and ongoing support.",
-                "Download New App",
+                "Update Required",
+                "A new version of the app is available and is required to continue. Please update to the latest version to keep using the app.",
+                "Update Now",
                 "Exit",
                 true,
                 false,
-                { openPlayStore(activity, app.newPackageName) },
+                null,
+                { openPlayStore(activity, app.newPackageName!!) },
                 { activity.finishAffinity() }
             )
             return true
         }
 
-        // 2. Force Update
+        // 2. Force Update (Same app, version increase)
         if (isNewVersionAvailable && app.updateRequired == true) {
             Utils.showCustomDialog(
                 activity,
@@ -50,23 +51,28 @@ object DialogManager {
                 "",
                 false,
                 false,
+                null,
                 { openPlayStore(activity, activity.packageName) },
                 null
             )
             return true
         }
 
-        // 3. App Migration (External URL)
+        // 3. App Migration (External URL) - Required
         if (streaming != null && !streaming.newAppOutsideUrl.isNullOrEmpty() && streaming.forceNewAppOutsideUrl == true) {
+            val title = streaming.outsideUrlTitle ?: "A New Version is Available"
+            val message = streaming.outsideUrlDescription ?: "This app is no longer supported and will no longer receive updates. Please download our new app to continue enjoying the latest features, improved performance, and ongoing support."
+            
             Utils.showCustomDialog(
                 activity,
-                "A New Version is Available",
-                "This app is no longer supported and will no longer receive updates. Please download our new app to continue enjoying the latest features, improved performance, and ongoing support.",
+                title,
+                message,
                 "Download New App",
                 "Exit",
                 true,
                 false,
-                { openExternalUrl(activity, streaming.newAppOutsideUrl) },
+                streaming.outsideUrlImageUrl,
+                { openExternalUrl(activity, streaming.newAppOutsideUrl!!) },
                 { activity.finishAffinity() }
             )
             return true
@@ -77,21 +83,11 @@ object DialogManager {
 
         // Step 2 - Promotional Dialogs (Only for MainActivity)
 
-        // 1. Promote New Play Store App
-        if (!app.newPackageName.isNullOrEmpty() && app.isActive == true) {
-            Utils.showCustomDialog(
-                activity,
-                "Try Our New App",
-                "We've launched a brand-new app with an improved design, better performance, and exciting new features. Download it today and experience the latest version.",
-                "Download New App",
-                "Cancel",
-                true,
-                true,
-                { openPlayStore(activity, app.newPackageName) },
-                { }
-            )
-            return true
-        }
+        // 1. Promote New Play Store App - Optional
+        // (This condition might need adjustment since we now force if package name exists above)
+        // But following logic: if it reached here, force didn't trigger. 
+        // However, if newPackageName is not empty, it ALWAYS triggers above.
+        // So this optional Play Store promotion is effectively skipped.
 
         // 2. Optional Update
         if (isNewVersionAvailable && app.updateRequired == false) {
@@ -103,23 +99,28 @@ object DialogManager {
                 "Cancel",
                 true,
                 true,
+                null,
                 { openPlayStore(activity, activity.packageName) },
                 { }
             )
             return true
         }
 
-        // 3. Promote New App (External URL)
+        // 3. Promote New App (External URL) - Optional
         if (streaming != null && !streaming.newAppOutsideUrl.isNullOrEmpty() && streaming.forceNewAppOutsideUrl == false) {
+            val title = streaming.outsideUrlTitle ?: "Try Our New App"
+            val message = streaming.outsideUrlDescription ?: "We've launched a brand-new app with an improved design, better performance, and exciting new features. Download it today and experience the latest version."
+
             Utils.showCustomDialog(
                 activity,
-                "Try Our New App",
-                "We've launched a brand-new app with an improved design, better performance, and exciting new features. Download it today and experience the latest version.",
+                title,
+                message,
                 "Download New App",
                 "Cancel",
                 true,
                 true,
-                { openExternalUrl(activity, streaming.newAppOutsideUrl) },
+                streaming.outsideUrlImageUrl,
+                { openExternalUrl(activity, streaming.newAppOutsideUrl!!) },
                 { }
             )
             return true

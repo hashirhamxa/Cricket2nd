@@ -31,6 +31,7 @@ import kotlin.random.Random
 import android.os.Handler
 import android.os.Looper
 import livecricket.livecrickettv.cricketstreaming.utilities.TimeUtils
+import livecricket.livecrickettv.cricketstreaming.utilities.Utils
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -41,6 +42,7 @@ class LinksActivity : AppCompatActivity() {
 
     private val viewModel: LinksViewModel by viewModels()
     
+    private var isHighlightsMode = false
     private var showAdInExo = false
     private var bannerAdKey = ""
     private var interstitialAdKey = ""
@@ -62,7 +64,7 @@ class LinksActivity : AppCompatActivity() {
         val eventId = intent.getIntExtra("EVENT_ID", -1)
         val matchTitle = intent.getStringExtra("MATCH_TITLE") ?: "Match Details"
         val tournament = intent.getStringExtra("TOURNAMENT") ?: "Tournament"
-        val isHighlights = intent.getBooleanExtra("IS_HIGHLIGHTS_MODE", false)
+        isHighlightsMode = intent.getBooleanExtra("IS_HIGHLIGHTS_MODE", false)
         val eventThumbUrl = intent.getStringExtra("EVENT_THUMB_URL")
         startTime = intent.getStringExtra("START_TIME")
 
@@ -75,13 +77,22 @@ class LinksActivity : AppCompatActivity() {
 
         // Set hero image
         val imgHero = findViewById<ImageView>(R.id.img_hero)
+        val liveDotHero = findViewById<View>(R.id.dot_live_hero)
+        if (!isHighlightsMode) {
+            liveDotHero?.let { Utils.animateLiveDot(it) }
+            
+            // Set random watching count only for live matches
+            val randomWatching = Random.nextInt(1000, 10001)
+            findViewById<TextView>(R.id.text_watching)?.text = "$randomWatching WATCHING"
+        } else {
+            findViewById<TextView>(R.id.text_watching)?.visibility = View.GONE
+            findViewById<View>(R.id.badge_live_hero)?.visibility = View.GONE
+            findViewById<View>(R.id.text_live_toolbar)?.visibility = View.GONE
+        }
+
         Glide.with(this).load(eventThumbUrl)
             .placeholder(R.drawable.bg_section_indicator)
             .into(imgHero)
-
-        // Set random watching count
-        val randomWatching = Random.nextInt(1000, 10001)
-        findViewById<TextView>(R.id.text_watching)?.text = "$randomWatching WATCHING"
 
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { 
             AdsHelper.getInstance(this@LinksActivity).showAd_Mob_X_Inter_With_Time(this@LinksActivity)
@@ -94,13 +105,13 @@ class LinksActivity : AppCompatActivity() {
         swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.surface)
         swipeRefresh.setColorSchemeResources(R.color.primary, R.color.secondary)
         swipeRefresh.setOnRefreshListener {
-            viewModel.refresh(eventId,  isHighlights)
+            viewModel.refresh(eventId, isHighlightsMode)
         }
         
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    if (isHighlights) {
+                    if (isHighlightsMode) {
                         viewModel.highlights.collectLatest { highlights ->
                             val channels = highlights.map { highlight ->
                                 Channel(
@@ -153,13 +164,14 @@ class LinksActivity : AppCompatActivity() {
         }
 
         if (eventId != -1) {
-            if (isHighlights) {
+            if (isHighlightsMode) {
                 viewModel.loadHighlights(eventId)
             } else {
                 viewModel.loadLinks(eventId)
                 handler.post(updateRunnable)
             }
         }
+        updateHeroTime()
         loadBannerAd()
         loadAdSettings()
     }
@@ -210,8 +222,18 @@ class LinksActivity : AppCompatActivity() {
         val countdownText = findViewById<TextView>(R.id.text_countdown_hero)
         val startingInText = findViewById<TextView>(R.id.text_starting_in_hero)
         val watchingText = findViewById<TextView>(R.id.text_watching)
-        val liveBadgeHero = findViewById<TextView>(R.id.badge_live_hero)
+        val liveBadgeHero = findViewById<View>(R.id.badge_live_hero)
+        val liveToolbar = findViewById<View>(R.id.text_live_toolbar)
         
+        if (isHighlightsMode) {
+            watchingText?.visibility = View.GONE
+            liveBadgeHero?.visibility = View.GONE
+            liveToolbar?.visibility = View.GONE
+            startingInText?.visibility = View.GONE
+            countdownText?.visibility = View.GONE
+            return
+        }
+
         val startDate = TimeUtils.parseUtcToLocal(startTime)
         
         if (startDate != null && !TimeUtils.isEventLive(startDate)) {
@@ -220,8 +242,10 @@ class LinksActivity : AppCompatActivity() {
             liveBadgeHero?.visibility = View.GONE
             
             startingInText?.visibility = View.VISIBLE
-            countdownText?.text = TimeUtils.getCountdownString(startDate)
-            countdownText?.visibility = View.VISIBLE
+            countdownText?.let {
+                it.text = TimeUtils.getCountdownString(startDate)
+                it.visibility = View.VISIBLE
+            }
         } else {
             // Live
             watchingText?.visibility = View.VISIBLE

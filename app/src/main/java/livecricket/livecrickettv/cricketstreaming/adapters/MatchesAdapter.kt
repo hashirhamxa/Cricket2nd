@@ -11,6 +11,7 @@ import com.google.gson.reflect.TypeToken
 import livecricket.livecrickettv.cricketstreaming.R
 import livecricket.livecrickettv.cricketstreaming.database.MatchEntity
 import livecricket.livecrickettv.cricketstreaming.models.Inning
+import livecricket.livecrickettv.cricketstreaming.utilities.Utils
 
 class MatchesAdapter(
     private val items: List<MatchEntity>,
@@ -19,7 +20,8 @@ class MatchesAdapter(
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val series: TextView = view.findViewById(R.id.text_series_name)
-        val statusBadge: TextView = view.findViewById(R.id.text_status_badge)
+        val statusBadge: View = view.findViewById(R.id.text_status_badge)
+        val statusBadgeText: TextView = view.findViewById(R.id.text_status_badge_text)
         val team1: TextView = view.findViewById(R.id.text_team1_name)
         val team1Score: TextView = view.findViewById(R.id.text_team1_score)
         val team2: TextView = view.findViewById(R.id.text_team2_name)
@@ -38,11 +40,24 @@ class MatchesAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         holder.series.text = "${item.name ?: ""} | ${item.matchType ?: ""}"
+        holder.statusBadgeText.text = item.status
         holder.team1.text = item.team1
         holder.team2.text = item.team2
         holder.status.text = item.status
         holder.venue.text = "📍 ${item.venue ?: "Unknown Venue"}"
         
+        if (item.status?.contains("Live", ignoreCase = true) == true) {
+            holder.statusBadge.findViewById<View>(R.id.dot_live_score)?.let {
+                it.visibility = View.VISIBLE
+                Utils.animateLiveDot(it)
+            }
+        } else {
+            holder.statusBadge.findViewById<View>(R.id.dot_live_score)?.let {
+                it.visibility = View.GONE
+                it.clearAnimation()
+            }
+        }
+
         val timeAgo = DateUtils.getRelativeTimeSpanString(item.lastUpdated, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)
         holder.lastUpdated.text = "Updated: $timeAgo"
 

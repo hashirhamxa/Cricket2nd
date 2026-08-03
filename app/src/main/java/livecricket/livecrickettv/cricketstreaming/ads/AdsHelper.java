@@ -33,6 +33,7 @@ import com.unity3d.ads.IUnityAdsLoadListener;
 import com.unity3d.ads.IUnityAdsShowListener;
 import com.unity3d.ads.UnityAds;
 
+import livecricket.livecrickettv.cricketstreaming.BuildConfig;
 import livecricket.livecrickettv.cricketstreaming.R;
 
 
@@ -59,9 +60,9 @@ public class AdsHelper {
 
 
     public void initializeAdMob(Activity activity, String appId) {
-//        if (BuildConfig.DEBUG) {
-//            return; // Skip loading ads in debug mode
-//        }
+        if (BuildConfig.DEBUG) {
+            return; // Skip loading ads in debug mode
+        }
         MobileAds.initialize(activity, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
@@ -71,9 +72,9 @@ public class AdsHelper {
     }
 
     public void loadAdaptiveADMOB_X_Banner(Activity activity, RelativeLayout adContainerView, String banner_id) {
-//        if (BuildConfig.DEBUG) {
-//            return; // Skip loading ads in debug mode
-//        }
+        if (BuildConfig.DEBUG) {
+            return; // Skip loading ads in debug mode
+        }
 
         Log.e("AdMob", "loadAdaptiveADMOB_X_Banner banner_id " + banner_id);
         // Create an AdView and set the ad unit ID
@@ -132,9 +133,9 @@ public class AdsHelper {
 
     public void loadNativeBannerAd(Context context, NativeAdView adView, String nativeId) {
         Log.e("AdMob", "loadNativeBannerAd nativeId " + nativeId);
-//        if (BuildConfig.DEBUG) {
-//            return; // Skip loading ads in debug mode
-//        }
+        if (BuildConfig.DEBUG) {
+            return; // Skip loading ads in debug mode
+        }
         AdLoader adLoader = new AdLoader.Builder(context, nativeId).forNativeAd(nativeAd -> populateNativeAdView(nativeAd, adView))  // On Ad Loaded, populate it
                 .withAdListener(new AdListener() {
                     @Override
@@ -206,9 +207,9 @@ public class AdsHelper {
      * @param activity The current activity context.
      */
     public void preloadAdADMOB_X_Inter(Activity activity, String adUnitId1) {
-//        if (BuildConfig.DEBUG) {
-//            return; // Skip loading ads in debug mode
-//        }
+        if (BuildConfig.DEBUG) {
+            return; // Skip loading ads in debug mode
+        }
         if (isAdLoading || interstitialAd != null) {
             return; // Prevent multiple loading attempts
         }
@@ -268,9 +269,9 @@ public class AdsHelper {
 
 
     public void showAd_Mob_X_Inter_With_Time(Activity activity) {
-//        if (BuildConfig.DEBUG) {
-//            return; // Skip loading ads in debug mode
-//        }
+        if (BuildConfig.DEBUG) {
+            return; // Skip loading ads in debug mode
+        }
         Log.e("AdMob", "showAd_Mob_X_Inter_With_Time");
         Log.e("AdMob", "showAd_Mob_X_Inter_With_Time adTimeManager.canShowAd() " + adTimeManager.canShowAd());
 
@@ -297,9 +298,9 @@ public class AdsHelper {
     private boolean isRewardedAdLoading = false;
 
     public void preloadRewardedAd(Activity activity, String adUnitId1) {
-//        if (BuildConfig.DEBUG) {
-//            return; // Skip loading ads in debug mode
-//        }
+        if (BuildConfig.DEBUG) {
+            return; // Skip loading ads in debug mode
+        }
         Log.e("AdMob", "preloadRewardedAd");
         Log.e("AdMob", "preloadRewardedAd adUnitId " + adUnitId1);
 

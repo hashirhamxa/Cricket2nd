@@ -15,6 +15,7 @@ import livecricket.livecrickettv.cricketstreaming.database.EventEntity
 import livecricket.livecrickettv.cricketstreaming.R
 import livecricket.livecrickettv.cricketstreaming.activities.LinksActivity
 import livecricket.livecrickettv.cricketstreaming.ads.AdsHelper
+import livecricket.livecrickettv.cricketstreaming.utilities.Utils
 
 import android.os.Handler
 import android.os.Looper
@@ -49,7 +50,9 @@ class EventAdapter(
         val container: View = view
         val banner: ImageView = view.findViewById(R.id.img_banner)
         val tournamentName: TextView = view.findViewById(R.id.text_tournament_name)
-        val liveBadge: TextView = view.findViewById(R.id.text_live_badge)
+        val liveBadge: View = view.findViewById(R.id.text_live_badge)
+        val liveDot: View? = view.findViewById(R.id.dot_live_tournament)
+        val badgeText: TextView = view.findViewById(R.id.text_live_badge_text)
         val matchTitle: TextView = view.findViewById(R.id.text_match_title)
         val statusMain: TextView = view.findViewById(R.id.text_status_main)
         val statusSub: TextView = view.findViewById(R.id.text_status_sub)
@@ -95,8 +98,11 @@ class EventAdapter(
                 holder.statusMain.visibility = View.VISIBLE
                 holder.statusMain.text = "LIVE NOW"
                 holder.liveBadge.visibility = View.VISIBLE
-                holder.liveBadge.text = "LIVE"
+                
+                holder.badgeText.text = "LIVE"
                 holder.liveBadge.setBackgroundResource(R.drawable.bg_badge_live_red)
+                holder.liveDot?.let { Utils.animateLiveDot(it) }
+
                 holder.btnAction.text = "WATCH NOW"
                 holder.btnAction.setBackgroundResource(R.drawable.bg_button_watch_now)
                 holder.btnAction.setTextColor(Color.BLACK)
