@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "783411572911",
+    "project_id": "cricpulse-2cbb6",
+    "storage_bucket": "cricpulse-2cbb6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:783411572911:android:be535133cdc009592fe45a",
+        "android_client_info": {
+          "package_name": "livecricket.livecrickettv.cricketstreaming"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT5dUweyWOwy3p9iVW5A1k-yJA-Pd651I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
