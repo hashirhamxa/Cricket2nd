@@ -266,6 +266,11 @@ class LinksActivity : AppCompatActivity() {
                     putExtra("videoLink", if (!link.mpdLink.isNullOrEmpty()) null else link.linkUrl)
                     putExtra("mpdLink", link.mpdLink)
                     putExtra("mpdKey", link.mpdKey)
+                    putExtra("refererHeader",link.refererHeader)
+                    putExtra("originHeader",link.originHeader)
+                    putExtra("userAgentHeader",link.userAgentHeader)
+
+
 
                     putExtra("unityAds", false)
                     putExtra("showAdInExo", showAdInExo)

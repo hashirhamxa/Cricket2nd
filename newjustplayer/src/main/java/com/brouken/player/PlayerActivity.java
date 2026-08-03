@@ -87,6 +87,7 @@ import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.drm.DefaultDrmSessionManager;
 import androidx.media3.exoplayer.drm.FrameworkMediaDrm;
+import androidx.media3.exoplayer.hls.HlsMediaSource;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
@@ -126,6 +127,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -245,6 +247,9 @@ public class PlayerActivity extends Activity {
     String videoTitleForVideo;
     String mpdLink;
     String mpdKey;
+    String refererHeader;
+    String originHeader;
+    String userAgentHeader;
     RelativeLayout bannerAdLayout;
     private TextView slidingMessage;
 
@@ -294,6 +299,9 @@ public class PlayerActivity extends Activity {
             videoTitleForVideo = getIntent().getStringExtra("videoTittle");
             mpdLink = getIntent().getStringExtra("mpdLink");
             mpdKey = getIntent().getStringExtra("mpdKey");
+            refererHeader = getIntent().getStringExtra("refererHeader");
+            originHeader = getIntent().getStringExtra("originHeader");
+            userAgentHeader = getIntent().getStringExtra("userAgentHeader");
             String link = getIntent().getStringExtra("videoLink");
 
             Log.e("leolog", "PlayerActivity isVideoLoop " + isVideoLoop);
@@ -1367,29 +1375,54 @@ public class PlayerActivity extends Activity {
             updatebuttonAspectRatioIcon();
 
             if (mpdLink == null || Objects.equals(mpdLink, "null")) {
-                MediaItem.Builder mediaItemBuilder = new MediaItem.Builder()
-                        .setUri(spHandler.mediaUri)
-                        .setMimeType(spHandler.mediaType);
-                String title;
-                if (apiTitle != null) {
-                    title = apiTitle;
+                if (refererHeader != null || originHeader != null || userAgentHeader != null) {
+                    HashMap<String, String> headers = new HashMap<>();
+                    if (refererHeader != null) headers.put("Referer", refererHeader);
+                    if (originHeader != null) headers.put("Origin", originHeader);
+
+                    DefaultHttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory()
+                            .setDefaultRequestProperties(headers)
+                            .setAllowCrossProtocolRedirects(true);
+                    
+                    if (userAgentHeader != null) {
+                        httpDataSourceFactory.setUserAgent(userAgentHeader);
+                    }
+
+                    MediaSource mediaSource;
+                    // Check if it's HLS or other
+                    if (spHandler.mediaUri.toString().contains(".m3u8")) {
+                        mediaSource = new HlsMediaSource.Factory(httpDataSourceFactory)
+                                .createMediaSource(MediaItem.fromUri(spHandler.mediaUri));
+                    } else {
+                        mediaSource = new DefaultMediaSourceFactory(httpDataSourceFactory)
+                                .createMediaSource(MediaItem.fromUri(spHandler.mediaUri));
+                    }
+                    exoPlayer.setMediaSource(mediaSource, spHandler.getPosition());
                 } else {
-                    title = Utility.getFileName(PlayerActivity.this, spHandler.mediaUri);
+                    MediaItem.Builder mediaItemBuilder = new MediaItem.Builder()
+                            .setUri(spHandler.mediaUri)
+                            .setMimeType(spHandler.mediaType);
+                    String title;
+                    if (apiTitle != null) {
+                        title = apiTitle;
+                    } else {
+                        title = Utility.getFileName(PlayerActivity.this, spHandler.mediaUri);
+                    }
+                    if (title != null) {
+                        final MediaMetadata mediaMetadata = new MediaMetadata.Builder()
+                                .setTitle(title)
+                                .setDisplayTitle(title)
+                                .build();
+                        mediaItemBuilder.setMediaMetadata(mediaMetadata);
+                    }
+                    if (apiAccess && apiSubs.size() > 0) {
+                        mediaItemBuilder.setSubtitleConfigurations(apiSubs);
+                    } else if (spHandler.subtitleUri != null && Utility.fileExists(this, spHandler.subtitleUri)) {
+                        MediaItem.SubtitleConfiguration subtitle = SubtitleUtility.buildSubtitle(this, spHandler.subtitleUri, null, true);
+                        mediaItemBuilder.setSubtitleConfigurations(Collections.singletonList(subtitle));
+                    }
+                    exoPlayer.setMediaItem(mediaItemBuilder.build(), spHandler.getPosition());
                 }
-                if (title != null) {
-                    final MediaMetadata mediaMetadata = new MediaMetadata.Builder()
-                            .setTitle(title)
-                            .setDisplayTitle(title)
-                            .build();
-                    mediaItemBuilder.setMediaMetadata(mediaMetadata);
-                }
-                if (apiAccess && apiSubs.size() > 0) {
-                    mediaItemBuilder.setSubtitleConfigurations(apiSubs);
-                } else if (spHandler.subtitleUri != null && Utility.fileExists(this, spHandler.subtitleUri)) {
-                    MediaItem.SubtitleConfiguration subtitle = SubtitleUtility.buildSubtitle(this, spHandler.subtitleUri, null, true);
-                    mediaItemBuilder.setSubtitleConfigurations(Collections.singletonList(subtitle));
-                }
-                exoPlayer.setMediaItem(mediaItemBuilder.build(), spHandler.getPosition());
             } else {
                 if (mpdKey == null || Objects.equals(mpdKey, "null")) {
                     DashMediaSource.Factory dashFactory = new DashMediaSource.Factory(new DefaultHttpDataSource.Factory());

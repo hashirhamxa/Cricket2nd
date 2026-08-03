@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Cricket Pulse</string>
+    <string name="app_name" translatable="false">CricPulse</string>
 
     <!-- Match Details -->
     <string name="title_match_detail">Match Detail</string>
