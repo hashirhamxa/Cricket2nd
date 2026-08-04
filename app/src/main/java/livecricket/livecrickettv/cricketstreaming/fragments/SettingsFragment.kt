@@ -91,7 +91,7 @@ class SettingsFragment : Fragment() {
         view.findViewById<View>(R.id.btn_share).setOnClickListener { shareApp() }
         view.findViewById<View>(R.id.btn_rate).setOnClickListener { openPlayStore() }
         view.findViewById<View>(R.id.btn_privacy).setOnClickListener { 
-            openUrl("https://doc-hosting.flycricket.io/cricket-pulse-live-scores-privacy-policy/82b25c92-0566-4847-9774-bc6b22c16ae3/privacy") 
+            openUrl("https://thebicodes.com/CricPulse/privacypolicy")
         }
         view.findViewById<View>(R.id.btn_more_apps).setOnClickListener { 
             openDeveloperPage()

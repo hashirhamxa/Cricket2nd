@@ -11,13 +11,35 @@
 # ============================
 # Retrofit & Gson Keep Rules
 # ============================
--keep class com.google.gson.** { *; }
--keep class retrofit2.** { *; }
--keep interface retrofit2.** { *; }
--keepclasseswithmembers class * {
+-keepattributes Signature, InnerClasses, EnclosingMethod, *Annotation*, Exceptions
+
+# Keep Retrofit API interfaces
+-keep interface livecricket.livecrickettv.cricketstreaming.network.ApiService {
     @retrofit2.http.* <methods>;
 }
--keepattributes Signature, *Annotation*, InnerClasses, EnclosingMethod
+-keep interface livecricket.livecrickettv.cricketstreaming.network.ScoreApiService {
+    @retrofit2.http.* <methods>;
+}
+
+# Keep models and preserve generic signatures
+-keep class livecricket.livecrickettv.cricketstreaming.models.** { *; }
+
+# Allow obfuscation/shrinking for Retrofit types but keep them enough for reflection
+-keep,allowobfuscation,allowshrinking interface retrofit2.Call
+-keep,allowobfuscation,allowshrinking class retrofit2.Response
+-keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+
+# Gson specific rules
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
+-keep class com.google.gson.reflect.TypeToken
+-keep class * extends com.google.gson.reflect.TypeToken
+
+# OkHttp3 Platform Warnings
+-dontwarn okhttp3.internal.platform.ConscryptPlatform
+-dontwarn okhttp3.internal.platform.BouncyCastlePlatform
+-dontwarn okhttp3.internal.platform.OpenJSSEPlatform
 
 # ============================
 # Glide Keep Rules
