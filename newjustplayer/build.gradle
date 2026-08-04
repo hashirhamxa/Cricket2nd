@@ -77,7 +77,12 @@ dependencies {
 
 
     implementation project(path: ':file-chooser')
-    implementation fileTree(dir: 'libs', include: ['lib-*.aar'])
+//    implementation fileTree(dir: 'libs', include: ['lib-*.aar'])
+    implementation name: 'lib-ui-release', ext: 'aar'
+    implementation name: 'lib-exoplayer-release', ext: 'aar'
+    implementation name: 'lib-extractor-release', ext: 'aar'
+    implementation name: 'lib-decoder-av1-release', ext: 'aar'
+    implementation name: 'lib-decoder-ffmpeg-release', ext: 'aar'
 
 
     //leo ads

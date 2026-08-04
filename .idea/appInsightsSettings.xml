@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="livecricket.livecrickettv.cricketstreaming" />
+                  <option name="mobileSdkAppId" value="1:783411572911:android:be535133cdc009592fe45a" />
+                  <option name="projectId" value="cricpulse-2cbb6" />
+                  <option name="projectNumber" value="783411572911" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
