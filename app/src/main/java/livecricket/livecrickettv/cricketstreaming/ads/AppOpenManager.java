@@ -275,106 +275,106 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, D
     }
 
     public static boolean checkSniffer(Activity currentActivity) {
-//        if (BuildConfig.DEBUG) return false;
-//        Log.e("leolog", "AppOPenManager checkSniffer");
-//        boolean isThreatDetected = false;
-//        String threatMessage = "";
-//        String detailMessage = "";
-//
-//        if (checkVPN(currentActivity)) {
-//            Log.e("leolog", "AppOPenManager checkSniffer checkVPN");
-//
-//            if (currentActivity instanceof NewPlayerActivity) {
-//                Toast.makeText(currentActivity, "VPN Detected", Toast.LENGTH_SHORT).show();
-//                currentActivity.finishAffinity();
-//            }
-//            threatMessage = "VPN Detected";
-//            detailMessage = "Our app has detected that you're are using some kind of sniffer app in your device. if you want to continue to our app then uninstall it.";
-//            isThreatDetected = true;
-//        } else if (isUsingProxy(currentActivity)) {
-//            Log.e("leolog", "AppOPenManager checkSniffer isUsingProxy");
-//
-//            if (currentActivity instanceof NewPlayerActivity) {
-//                Toast.makeText(currentActivity, "Proxy Detected", Toast.LENGTH_SHORT).show();
-//                currentActivity.finishAffinity();
-//            }
-//            threatMessage = "Proxy Detected";
-//            detailMessage = "Our app has detected that you're are using some kind of sniffer app in your device. if you want to continue to our app then uninstall it.";
-//            isThreatDetected = true;
-//        } else if (isPacketCaptureAppInstalled(currentActivity)) {
-//            Log.e("leolog", "AppOPenManager checkSniffer isPacketCaptureAppInstalled");
-//
-//            if (currentActivity instanceof NewPlayerActivity) {
-//                Toast.makeText(currentActivity, "Unauthorized Activities Detected", Toast.LENGTH_SHORT).show();
-//                currentActivity.finishAffinity();
-//            }
-//            threatMessage = "Packet Capture App Detected";
-//            detailMessage = "Our app has detected that you're are using some kind of sniffer app in your device. if you want to continue to our app then uninstall it.";
-//            isThreatDetected = true;
-//        } else if (isRooted()) {
-//            Log.e("leolog", "AppOPenManager checkSniffer isRooted");
-//
-//            if (currentActivity instanceof NewPlayerActivity) {
-//                Toast.makeText(currentActivity, "Rooted Device Detected", Toast.LENGTH_SHORT).show();
-//                currentActivity.finishAffinity();
-//            }
-//            threatMessage = "Rooted Device Detected";
-//            detailMessage = "Our app has detected that your app is rooted and we don't allow rooted devices to use our app.";
-//            isThreatDetected = true;
-//        } else if (hasTunnelingActive(currentActivity)) {
-//            Log.e("leolog", "AppOPenManager checkSniffer hasTunnelingActive");
-//            if (currentActivity instanceof NewPlayerActivity) {
-//                Toast.makeText(currentActivity, "Unauthorized Activities Detected", Toast.LENGTH_SHORT).show();
-//                currentActivity.finishAffinity();
-//            }
-//            threatMessage = "Network Tunneling Detected";
-//            detailMessage = "Our app has detected that you're are using some kind of sniffer app in your device. if you want to continue to our app then uninstall it.";
-//            isThreatDetected = true;
-//        } else if (checkDeveloperOP(currentActivity) == 1) {
-//            if (currentActivity instanceof NewPlayerActivity) {
-//                Toast.makeText(currentActivity, "Developer Options Enabled", Toast.LENGTH_SHORT).show();
-//                currentActivity.finishAffinity();
-//            }
-//            threatMessage = "Developer Options Enabled";
-//            detailMessage = "Please disable USB or Wireless debugging from your phone to use the app.";
-//            isThreatDetected = true;
-//        } else if (checkWirelessDebugOP(currentActivity) == 1) {
-//            if (currentActivity instanceof NewPlayerActivity) {
-//                Toast.makeText(currentActivity, "Wireless Debugging Enabled", Toast.LENGTH_SHORT).show();
-//                currentActivity.finishAffinity();
-//            }
-//            threatMessage = "Wireless Debugging Enabled";
-//            detailMessage = "Please disable Wireless debugging from your phone to use the app.";
-//            isThreatDetected = true;
-//        }
-//
-//        if (isThreatDetected) {
-//            String finalThreatMessage = threatMessage;
-//            String positiveBtn = "Exit";
-//            if (finalThreatMessage.contains("Developer Options Enabled")) {
-//                positiveBtn = "Disable";
-//            }
-//            Utils.showCustomDialog(currentActivity, threatMessage, detailMessage, positiveBtn, "Cancel", false, false, null,
-//                    new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View view) {
-//                            if (finalThreatMessage.contains("Developer Options Enabled")) {
-//                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
-//                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                                currentActivity.startActivity(intent);
-//                                System.exit(0);
-//                            } else {
-//                                currentActivity.finishAffinity();
-//                            }
-//                        }
-//                    }, new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View view) {
-//                            currentActivity.finishAffinity();
-//                        }
-//                    });
-//            return true;
-//        }
+        if (BuildConfig.DEBUG) return false;
+        Log.e("leolog", "AppOPenManager checkSniffer");
+        boolean isThreatDetected = false;
+        String threatMessage = "";
+        String detailMessage = "";
+
+        if (checkVPN(currentActivity)) {
+            Log.e("leolog", "AppOPenManager checkSniffer checkVPN");
+
+            if (currentActivity instanceof NewPlayerActivity) {
+                Toast.makeText(currentActivity, "VPN Detected", Toast.LENGTH_SHORT).show();
+                currentActivity.finishAffinity();
+            }
+            threatMessage = "VPN Detected";
+            detailMessage = "Our app has detected that you're are using some kind of sniffer app in your device. if you want to continue to our app then uninstall it.";
+            isThreatDetected = true;
+        } else if (isUsingProxy(currentActivity)) {
+            Log.e("leolog", "AppOPenManager checkSniffer isUsingProxy");
+
+            if (currentActivity instanceof NewPlayerActivity) {
+                Toast.makeText(currentActivity, "Proxy Detected", Toast.LENGTH_SHORT).show();
+                currentActivity.finishAffinity();
+            }
+            threatMessage = "Proxy Detected";
+            detailMessage = "Our app has detected that you're are using some kind of sniffer app in your device. if you want to continue to our app then uninstall it.";
+            isThreatDetected = true;
+        } else if (isPacketCaptureAppInstalled(currentActivity)) {
+            Log.e("leolog", "AppOPenManager checkSniffer isPacketCaptureAppInstalled");
+
+            if (currentActivity instanceof NewPlayerActivity) {
+                Toast.makeText(currentActivity, "Unauthorized Activities Detected", Toast.LENGTH_SHORT).show();
+                currentActivity.finishAffinity();
+            }
+            threatMessage = "Packet Capture App Detected";
+            detailMessage = "Our app has detected that you're are using some kind of sniffer app in your device. if you want to continue to our app then uninstall it.";
+            isThreatDetected = true;
+        } else if (isRooted()) {
+            Log.e("leolog", "AppOPenManager checkSniffer isRooted");
+
+            if (currentActivity instanceof NewPlayerActivity) {
+                Toast.makeText(currentActivity, "Rooted Device Detected", Toast.LENGTH_SHORT).show();
+                currentActivity.finishAffinity();
+            }
+            threatMessage = "Rooted Device Detected";
+            detailMessage = "Our app has detected that your app is rooted and we don't allow rooted devices to use our app.";
+            isThreatDetected = true;
+        } else if (hasTunnelingActive(currentActivity)) {
+            Log.e("leolog", "AppOPenManager checkSniffer hasTunnelingActive");
+            if (currentActivity instanceof NewPlayerActivity) {
+                Toast.makeText(currentActivity, "Unauthorized Activities Detected", Toast.LENGTH_SHORT).show();
+                currentActivity.finishAffinity();
+            }
+            threatMessage = "Network Tunneling Detected";
+            detailMessage = "Our app has detected that you're are using some kind of sniffer app in your device. if you want to continue to our app then uninstall it.";
+            isThreatDetected = true;
+        } else if (checkDeveloperOP(currentActivity) == 1) {
+            if (currentActivity instanceof NewPlayerActivity) {
+                Toast.makeText(currentActivity, "Developer Options Enabled", Toast.LENGTH_SHORT).show();
+                currentActivity.finishAffinity();
+            }
+            threatMessage = "Developer Options Enabled";
+            detailMessage = "Please disable USB or Wireless debugging from your phone to use the app.";
+            isThreatDetected = true;
+        } else if (checkWirelessDebugOP(currentActivity) == 1) {
+            if (currentActivity instanceof NewPlayerActivity) {
+                Toast.makeText(currentActivity, "Wireless Debugging Enabled", Toast.LENGTH_SHORT).show();
+                currentActivity.finishAffinity();
+            }
+            threatMessage = "Wireless Debugging Enabled";
+            detailMessage = "Please disable Wireless debugging from your phone to use the app.";
+            isThreatDetected = true;
+        }
+
+        if (isThreatDetected) {
+            String finalThreatMessage = threatMessage;
+            String positiveBtn = "Exit";
+            if (finalThreatMessage.contains("Developer Options Enabled")) {
+                positiveBtn = "Disable";
+            }
+            Utils.showCustomDialog(currentActivity, threatMessage, detailMessage, positiveBtn, "Cancel", false, false, null,
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (finalThreatMessage.contains("Developer Options Enabled")) {
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                currentActivity.startActivity(intent);
+                                System.exit(0);
+                            } else {
+                                currentActivity.finishAffinity();
+                            }
+                        }
+                    }, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            currentActivity.finishAffinity();
+                        }
+                    });
+            return true;
+        }
 
         return false;
     }
