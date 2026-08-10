@@ -2,6 +2,7 @@ package livecricket.livecrickettv.cricketstreaming.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -35,6 +36,10 @@ class TournamentActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        getWindow().setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
         setContentView(R.layout.activity_tournament)
 
         val category = intent.getStringExtra("CATEGORY") ?: "CRICKET"

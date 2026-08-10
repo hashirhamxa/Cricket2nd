@@ -1,6 +1,7 @@
 package livecricket.livecrickettv.cricketstreaming.activities
 
 import android.os.Bundle
+import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -30,6 +31,11 @@ class EventActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        getWindow().setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
+
         setContentView(R.layout.activity_tournament) // Reusing the same list layout
 
         val tournamentId = intent.getIntExtra("TOURNAMENT_ID", -1)

@@ -1,6 +1,7 @@
 package livecricket.livecrickettv.cricketstreaming.activities
 
 import android.os.Bundle
+import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -33,6 +34,10 @@ class ScoreDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        getWindow().setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
         setContentView(R.layout.activity_match_detail)
 
         val matchId = intent.getStringExtra("MATCH_ID") ?: ""

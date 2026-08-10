@@ -30,6 +30,7 @@ import kotlin.random.Random
 
 import android.os.Handler
 import android.os.Looper
+import android.view.WindowManager
 import livecricket.livecrickettv.cricketstreaming.utilities.TimeUtils
 import livecricket.livecrickettv.cricketstreaming.utilities.Utils
 import javax.inject.Inject
@@ -59,6 +60,10 @@ class LinksActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        getWindow().setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
         setContentView(R.layout.activity_links)
 
         val eventId = intent.getIntExtra("EVENT_ID", -1)
