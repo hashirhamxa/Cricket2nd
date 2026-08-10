@@ -101,7 +101,7 @@ class AppRepository @Inject constructor(
                             tournamentWrapper.tournamentsId?.let { tournament ->
                                 tournamentEntities.add(
                                     TournamentEntity(
-                                        id = tournament.id,
+                                        id = tournamentWrapper.id,
                                         status = tournament.status,
                                         name = tournament.name,
                                         thumbUrl = tournament.thumbUrl,
@@ -119,7 +119,7 @@ class AppRepository @Inject constructor(
                                     eventWrapper.eventsId?.let { event ->
                                         eventEntities.add(
                                             EventEntity(
-                                                id = event.id,
+                                                id = eventWrapper.id,
                                                 eventName = event.eventName,
                                                 eventSlug = event.eventSlug,
                                                 eventThumbUrl = event.eventThumbUrl,
@@ -136,7 +136,7 @@ class AppRepository @Inject constructor(
                                                 metadata = event.metadata,
                                                 isLive = event.isLive,
                                                 excludedAppPackageNames = event.excludedAppPackageNames,
-                                                tournamentId = tournament.id
+                                                tournamentId = tournamentWrapper.id
                                             )
                                         )
 
@@ -144,7 +144,7 @@ class AppRepository @Inject constructor(
                                             highlightWrapper.highlightsId?.let { highlight ->
                                                 highlightEntities.add(
                                                     HighlightEntity(
-                                                        id = highlight.id,
+                                                        id = highlightWrapper.id,
                                                         linkName = highlight.linkName,
                                                         linkUrl = highlight.linkUrl,
                                                         linkImage = highlight.linkImage,
@@ -152,7 +152,7 @@ class AppRepository @Inject constructor(
                                                         viewCount = highlight.viewCount,
                                                         isVisible = highlight.isVisible,
                                                         publishedAt = highlight.publishedAt,
-                                                        eventId = event.id
+                                                        eventId = eventWrapper.id
                                                     )
                                                 )
                                             }
@@ -162,7 +162,7 @@ class AppRepository @Inject constructor(
                                             linkWrapper.linksId?.let { link ->
                                                 linkEntities.add(
                                                     LinkEntity(
-                                                        id = link.id,
+                                                        id = linkWrapper.id,
                                                         linkName = link.linkName,
                                                         linkUrl = link.linkUrl,
                                                         linkType = link.linkType,
@@ -175,7 +175,7 @@ class AppRepository @Inject constructor(
                                                         refererHeader = link.refererHeader,
                                                         originHeader = link.originHeader,
                                                         userAgentHeader = link.userAgentHeader,
-                                                        eventId = event.id
+                                                        eventId = eventWrapper.id
                                                     )
                                                 )
                                             }
