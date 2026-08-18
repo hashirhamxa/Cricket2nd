@@ -35,7 +35,8 @@ class AppRepository @Inject constructor(
                     newPackageName = appData.newPackageName,
                     licenseKey = appData.licenseKey,
                     productId = appData.productId,
-                    socialMediaLinks = appData.socialMediaLinks?.let { Gson().toJson(it) }
+                    socialMediaLinks = appData.socialMediaLinks?.let { Gson().toJson(it) },
+                    adsTimeCountDown = appData.adsTimeCountDown
                 )
 
                 val adEntities = appData.ads?.map { ad ->

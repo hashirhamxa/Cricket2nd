@@ -25,8 +25,8 @@ android {
         applicationId = "livecricket.livecrickettv.cricketstreaming"
         minSdk = 24
         targetSdk = 36
-        versionCode = 7
-        versionName = "1.7"
+        versionCode = 8
+        versionName = "1.8"
 
         buildConfigField("String", "API_TOKEN", "\"$apiToken\"")
 

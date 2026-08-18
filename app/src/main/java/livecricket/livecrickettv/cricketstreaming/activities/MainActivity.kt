@@ -1,31 +1,36 @@
 package livecricket.livecrickettv.cricketstreaming.activities
 
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ProgressBar
-import androidx.appcompat.app.AppCompatActivity
-import com.facebook.shimmer.ShimmerFrameLayout
-import kotlinx.coroutines.delay
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.viewpager2.widget.ViewPager2
+import com.facebook.shimmer.ShimmerFrameLayout
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.FirebaseApp
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import livecricket.livecrickettv.cricketstreaming.adapters.MainPagerAdapter
-import livecricket.livecrickettv.cricketstreaming.viewmodels.MainViewModel
 import livecricket.livecrickettv.cricketstreaming.R
+import livecricket.livecrickettv.cricketstreaming.adapters.MainPagerAdapter
 import livecricket.livecrickettv.cricketstreaming.ads.AdsHelper
-import livecricket.livecrickettv.cricketstreaming.database.AppEntity
-import livecricket.livecrickettv.cricketstreaming.database.StreamingEntity
 import livecricket.livecrickettv.cricketstreaming.network.AppRepository
 import livecricket.livecrickettv.cricketstreaming.utilities.DialogManager
+import livecricket.livecrickettv.cricketstreaming.viewmodels.MainViewModel
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -38,7 +43,11 @@ class MainActivity : AppCompatActivity() {
     private var isUiRevealed = false
 
     private val viewModel: MainViewModel by viewModels()
-
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        // Handle result if necessary
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getWindow().setFlags(
@@ -54,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         setupBottomNavigation()
         observeViewModel()
         loadAds()
+        settingFirebaseMessage()
     }
 
     private fun loadAds() {
@@ -108,6 +118,7 @@ class MainActivity : AppCompatActivity() {
                                 .setDuration(300)
                                 .withEndAction {
                                     shimmerContainer.visibility = View.GONE
+                                    checkNotificationPermission()
                                 }
 
                             viewPager.alpha = 0f
@@ -255,6 +266,49 @@ class MainActivity : AppCompatActivity() {
                 }
                 true
             } else false
+        }
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
+
+    private fun settingFirebaseMessage() {
+        try {
+            // Initialize Firebase App
+            if (FirebaseApp.getApps(this@MainActivity).isEmpty()) {
+                FirebaseApp.initializeApp(this@MainActivity)
+            }
+            // Subscribe to topic "all"
+            val firebaseMessaging = FirebaseMessaging.getInstance()
+            firebaseMessaging.subscribeToTopic("all")
+                .addOnCompleteListener(OnCompleteListener { task: Task<Void?>? -> })
+
+            // Get FCM registration token
+            firebaseMessaging.getToken()
+                .addOnCompleteListener(OnCompleteListener { task: Task<String?>? ->
+                    if (task!!.isSuccessful()) {
+                        // Get new FCM registration token
+                        val token = task.getResult()
+                        if (token != null) {
+                            // Log or use the token
+                            // Log.d("FCM", "Token: " + token);
+                        }
+                    }
+                })
+        } catch (e: NullPointerException) {
+            // Log the exception or handle it
+            e.printStackTrace()
+            // You can also show a toast or error message here if needed
+            // Toast.makeText(MainActivity.this, "Error in Firebase setup: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (e: Exception) {
+            // Handle any other exceptions
+            e.printStackTrace()
         }
     }
 }
