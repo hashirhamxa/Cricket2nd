@@ -16,6 +16,7 @@ import livecricket.livecrickettv.cricketstreaming.network.AppRepository
 import livecricket.livecrickettv.cricketstreaming.utilities.SplashPreloader
 import javax.inject.Inject
 import android.app.Application
+import livecricket.livecrickettv.cricketstreaming.models.SocialMediaLink
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -39,6 +40,9 @@ class MainViewModel @Inject constructor(
     val isConfigReady: StateFlow<Boolean> = _isConfigReady
 
     private val _appConfig = MutableStateFlow<AppEntity?>(null)
+
+    private val _whatsappLink = MutableStateFlow<String?>(null)
+    val whatsappLink: StateFlow<String?> = _whatsappLink
     val appConfig: StateFlow<AppEntity?> = _appConfig
 
     private val _streamingConfig = MutableStateFlow<StreamingEntity?>(null)
@@ -53,6 +57,18 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             repository.getAppFlow().collectLatest { app ->
                 app?.let {
+                    // Extract WhatsApp link from social media links JSON
+                    val linksJson = it.socialMediaLinks
+                    if (!linksJson.isNullOrEmpty()) {
+                        try {
+                            val type = object : com.google.gson.reflect.TypeToken<List<SocialMediaLink>>() {}.type
+                            val links: List<SocialMediaLink> = com.google.gson.Gson().fromJson(linksJson, type)
+                            _whatsappLink.value = links.find { link -> link.name?.contains("whatsapp", ignoreCase = true) == true }?.link
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+
                     repository.getStreamingData(it.id).firstOrNull()?.let { data ->
                         val splashUrl = data.streaming.splashImageLink
                         SplashPreloader(application).updateSplashImage(splashUrl)

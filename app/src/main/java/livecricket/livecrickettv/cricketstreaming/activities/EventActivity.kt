@@ -6,6 +6,9 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -37,7 +40,11 @@ class EventActivity : AppCompatActivity() {
         )
 
         setContentView(R.layout.activity_tournament) // Reusing the same list layout
-
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ad_container_tournament)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(bottom = systemBars.bottom)
+            insets
+        }
         val tournamentId = intent.getIntExtra("TOURNAMENT_ID", -1)
         val tournamentName = intent.getStringExtra("TOURNAMENT_NAME") ?: "Tournament"
         val tournamentThumbUrl = intent.getStringExtra("TOURNAMENT_THUMB_URL")

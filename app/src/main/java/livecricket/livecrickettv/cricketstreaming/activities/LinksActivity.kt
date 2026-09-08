@@ -31,6 +31,9 @@ import kotlin.random.Random
 import android.os.Handler
 import android.os.Looper
 import android.view.WindowManager
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import livecricket.livecrickettv.cricketstreaming.utilities.TimeUtils
 import livecricket.livecrickettv.cricketstreaming.utilities.Utils
 import javax.inject.Inject
@@ -65,7 +68,11 @@ class LinksActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_SECURE
         )
         setContentView(R.layout.activity_links)
-
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ad_container_links)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(bottom = systemBars.bottom)
+            insets
+        }
         val eventId = intent.getIntExtra("EVENT_ID", -1)
         val matchTitle = intent.getStringExtra("MATCH_TITLE") ?: "Match Details"
         val tournament = intent.getStringExtra("TOURNAMENT") ?: "Tournament"

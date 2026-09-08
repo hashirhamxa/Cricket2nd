@@ -122,6 +122,9 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.perf)
 
+    //in app review
+    implementation(libs.play.review)
+    implementation(libs.play.review.ktx)
 
     implementation(files(*fileTree("libs").matching { include("*.jar") }.files.toTypedArray()))
     implementation(project(":newjustplayer"))
