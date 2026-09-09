@@ -9,6 +9,8 @@ import livecricket.livecrickettv.cricketstreaming.database.AppEntity
 import livecricket.livecrickettv.cricketstreaming.database.StreamingEntity
 
 object DialogManager {
+    private var hasShownOptionalUpdate = false
+    private var hasShownPromotionalMigration = false
 
     /**
      * Evaluates and shows a dialog based on the server configuration.
@@ -90,7 +92,8 @@ object DialogManager {
         // So this optional Play Store promotion is effectively skipped.
 
         // 2. Optional Update
-        if (isNewVersionAvailable && app.updateRequired == false) {
+        if (isNewVersionAvailable && app.updateRequired != true && !hasShownOptionalUpdate) {
+            hasShownOptionalUpdate = true
             Utils.showCustomDialog(
                 activity,
                 "Update Is Available",
@@ -107,7 +110,8 @@ object DialogManager {
         }
 
         // 3. Promote New App (External URL) - Optional
-        if (streaming != null && !streaming.newAppOutsideUrl.isNullOrEmpty() && streaming.forceNewAppOutsideUrl == false) {
+        if (streaming != null && !streaming.newAppOutsideUrl.isNullOrEmpty() && streaming.forceNewAppOutsideUrl != true && !hasShownPromotionalMigration) {
+            hasShownPromotionalMigration = true
             val title = streaming.outsideUrlTitle ?: "Try Our New App"
             val message = streaming.outsideUrlDescription ?: "We've launched a brand-new app with an improved design, better performance, and exciting new features. Download it today and experience the latest version."
 
