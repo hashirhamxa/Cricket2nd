@@ -172,8 +172,21 @@ class LinksActivity : AppCompatActivity() {
                     } else {
                         combine(viewModel.links, viewModel.streaming) { links, streaming ->
                             Pair(links, streaming)
-                        }.collectLatest { (links, streaming) ->
-                            val channels = links.map { link ->
+                        }.collectLatest { (rawLinks, streaming) ->
+                            val hasValidPriority = rawLinks.any { it.priority != null && it.priority > 0 }
+                            val sortedLinks = if (hasValidPriority) {
+                                rawLinks.sortedWith { a, b ->
+                                    val p1 = a.priority
+                                    val p2 = b.priority
+                                    val v1 = if (p1 != null && p1 > 0) p1 else Int.MAX_VALUE
+                                    val v2 = if (p2 != null && p2 > 0) p2 else Int.MAX_VALUE
+                                    v1.compareTo(v2)
+                                }
+                            } else {
+                                rawLinks
+                            }
+
+                            val channels = sortedLinks.map { link ->
                                 Channel(
                                     name = link.linkName ?: "Link",
                                     quality = link.linkType ?: "HD",
