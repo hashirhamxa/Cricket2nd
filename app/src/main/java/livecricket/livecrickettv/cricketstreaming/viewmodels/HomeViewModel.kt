@@ -173,6 +173,7 @@ class HomeViewModel @Inject constructor(
                     imageUrl = tWithE.tournament.thumbUrl,
                     isLive = true,
                     isTrending = isTrending,
+                    startTime = tWithE.tournament.startTime,
                     originalObject = tWithE.tournament
                 )
             } else null

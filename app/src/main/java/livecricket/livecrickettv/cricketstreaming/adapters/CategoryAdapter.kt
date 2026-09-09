@@ -141,20 +141,38 @@ class CategoryAdapter(
         private val liveDot: View? = view.findViewById(R.id.dot_live_trending)
         private val btnWatch: com.google.android.material.button.MaterialButton? = view.findViewById(R.id.btn_watch_now)
         private val btnDetails: View? = view.findViewById(R.id.btn_details)
+        private val startingInText: TextView? = view.findViewById(R.id.text_starting_in_trending)
+        private val countdownText: TextView? = view.findViewById(R.id.text_countdown_trending)
 
         fun bind(item: HomeDisplayItem) {
             title.text = item.title
             category.text = item.subtitle
             description.text = item.status
             
-            if (item.isLive) {
-                liveBadge?.visibility = View.VISIBLE
-                liveDot?.let { Utils.animateLiveDot(it) }
-                btnWatch?.text = "WATCH NOW"
-            } else {
+            val startDate = TimeUtils.parseUtcToLocal(item.startTime)
+            if (startDate != null && !TimeUtils.isEventLive(startDate)) {
+                // Event / Tournament is Upcoming
                 liveBadge?.visibility = View.GONE
                 liveDot?.clearAnimation()
-                btnWatch?.text = "WATCH"
+                btnWatch?.text = "DETAILS"
+                
+                startingInText?.visibility = View.VISIBLE
+                countdownText?.text = TimeUtils.getCountdownString(startDate)
+                countdownText?.visibility = View.VISIBLE
+            } else {
+                // Event / Tournament is Live
+                startingInText?.visibility = View.GONE
+                countdownText?.visibility = View.GONE
+                
+                if (item.isLive) {
+                    liveBadge?.visibility = View.VISIBLE
+                    liveDot?.let { Utils.animateLiveDot(it) }
+                    btnWatch?.text = "WATCH NOW"
+                } else {
+                    liveBadge?.visibility = View.GONE
+                    liveDot?.clearAnimation()
+                    btnWatch?.text = "WATCH"
+                }
             }
             
             btnWatch?.setOnClickListener { onItemClick(item) }
