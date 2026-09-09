@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import livecricket.livecrickettv.cricketstreaming.database.HighlightEntity
 import livecricket.livecrickettv.cricketstreaming.database.LinkEntity
+import livecricket.livecrickettv.cricketstreaming.database.StreamingEntity
 import livecricket.livecrickettv.cricketstreaming.network.AppRepository
 import javax.inject.Inject
 
@@ -23,8 +24,29 @@ class LinksViewModel @Inject constructor(
     private val _highlights = MutableStateFlow<List<HighlightEntity>>(emptyList())
     val highlights: StateFlow<List<HighlightEntity>> = _highlights
 
+    private val _streaming = MutableStateFlow<StreamingEntity?>(null)
+    val streaming: StateFlow<StreamingEntity?> = _streaming
+
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing
+
+    init {
+        loadStreamingData()
+    }
+
+    private fun loadStreamingData() {
+        viewModelScope.launch {
+            repository.getAppFlow().collectLatest { app ->
+                if (app != null) {
+                    repository.getStreamingDataFlow(app.id).collectLatest { list ->
+                        if (list.isNotEmpty()) {
+                            _streaming.value = list[0].streaming
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     fun refresh(eventId: Int, isHighlights: Boolean) {
         viewModelScope.launch {
