@@ -121,20 +121,6 @@
 
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_action"
-            android:background="@drawable/rounded_rect_bck"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:minHeight="44dp"
-            android:fontFamily="@font/oswald_regular"
-            android:textSize="15dp"
-            android:paddingHorizontal="24dp"
-            android:text="WATCH NOW"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
         <TextView
             android:id="@+id/text_starting_in"
             android:layout_width="wrap_content"
