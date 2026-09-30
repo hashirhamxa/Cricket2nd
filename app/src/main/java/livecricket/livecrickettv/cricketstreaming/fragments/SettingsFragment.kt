@@ -20,6 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import livecricket.livecrickettv.cricketstreaming.R
+import livecricket.livecrickettv.cricketstreaming.ads.AdsHelper
 import livecricket.livecrickettv.cricketstreaming.network.SocialMediaLink
 import livecricket.livecrickettv.cricketstreaming.viewmodels.SettingsViewModel
 
@@ -41,7 +42,7 @@ class SettingsFragment : Fragment() {
         val swipeRefresh = view.findViewById<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.swipe_refresh_settings)
         swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.surface)
         swipeRefresh.setColorSchemeResources(R.color.primary, R.color.secondary)
-        
+
         swipeRefresh.setOnRefreshListener {
             viewModel.refresh()
         }
@@ -65,7 +66,7 @@ class SettingsFragment : Fragment() {
                         if (links.isNotEmpty()) {
                             headerFollowUs.visibility = View.VISIBLE
                             cardFollowUs.visibility = View.VISIBLE
-                            
+
                             // To prevent blinking, only clear and rebuild if the size or data is actually different
                             // Simple check: compare current view count with list size
                             if (containerSocialLinks.childCount != links.size) {
@@ -88,14 +89,23 @@ class SettingsFragment : Fragment() {
     private fun setupStaticClickListeners(view: View) {
         view.findViewById<View>(R.id.btn_share).setOnClickListener { shareApp() }
         view.findViewById<View>(R.id.btn_rate).setOnClickListener { openPlayStore() }
-        view.findViewById<View>(R.id.btn_privacy).setOnClickListener { 
-            openUrl("https://thebicodes.com/CricPulse/privacypolicy")
+        view.findViewById<View>(R.id.btn_privacy).setOnClickListener {
+            val adsHandler = AdsHelper.getInstance(context)
+            if (adsHandler.isPrivacyOptionsRequired(this)) {
+                adsHandler.showPrivacyOptionsForm(this) { formError ->
+                    if (formError != null) {
+                        openUrl("https://thebicodes.com/CricPulse/privacypolicy")
+                    }
+                }
+            } else {
+                openUrl("https://thebicodes.com/CricPulse/privacypolicy")
+            }
         }
-        view.findViewById<View>(R.id.btn_more_apps).setOnClickListener { 
+        view.findViewById<View>(R.id.btn_more_apps).setOnClickListener {
             openDeveloperPage()
         }
-        view.findViewById<View>(R.id.btn_about).setOnClickListener { 
-            openUrl("https://www.thebicodes.com/") 
+        view.findViewById<View>(R.id.btn_about).setOnClickListener {
+            openUrl("https://www.thebicodes.com/")
         }
     }
 
@@ -142,16 +152,16 @@ class SettingsFragment : Fragment() {
 
     private fun addSocialLinkView(container: LinearLayout, link: SocialMediaLink, isLast: Boolean) {
         val view = LayoutInflater.from(context).inflate(R.layout.item_setting_row, container, false) as RelativeLayout
-        
+
         val icon = view.findViewById<ImageView>(R.id.row_icon)
         val title = view.findViewById<TextView>(R.id.row_title)
         val divider = view.findViewById<View>(R.id.row_divider)
 
         title.text = link.name
         Glide.with(this).load(link.imageUrl).into(icon)
-        
+
         divider.visibility = if (isLast) View.GONE else View.VISIBLE
-        
+
         view.setOnClickListener {
             link.link?.let { url ->
                 try {

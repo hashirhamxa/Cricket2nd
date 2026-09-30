@@ -28,6 +28,10 @@ import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.android.gms.ads.nativead.NativeAdView;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.ump.ConsentForm;
+import com.google.android.ump.ConsentInformation;
+import com.google.android.ump.ConsentRequestParameters;
+import com.google.android.ump.UserMessagingPlatform;
 import com.unity3d.ads.IUnityAdsInitializationListener;
 import com.unity3d.ads.IUnityAdsLoadListener;
 import com.unity3d.ads.IUnityAdsShowListener;
@@ -48,6 +52,63 @@ public class AdsHelper {
         appSPGetSet = new AppSPGetSet();
     }
 
+    public interface OnConsentGatheredListener {
+        void onConsentGathered();
+    }
+
+    public void gatherConsent(Activity activity, OnConsentGatheredListener listener) {
+        if (BuildConfig.DEBUG) {
+            if (listener != null) {
+                listener.onConsentGathered();
+            }
+            return;
+        }
+
+        ConsentRequestParameters params = new ConsentRequestParameters.Builder()
+                .setTagForUnderAgeOfConsent(false)
+                .build();
+
+        ConsentInformation consentInformation = UserMessagingPlatform.getConsentInformation(activity);
+        consentInformation.requestConsentInfoUpdate(
+                activity,
+                params,
+                () -> {
+                    UserMessagingPlatform.loadAndShowConsentFormIfRequired(
+                            activity,
+                            formError -> {
+                                if (formError != null) {
+                                    Log.w("AdsHandler", String.format("Consent form error %d: %s", formError.getErrorCode(), formError.getMessage()));
+                                }
+                                if (consentInformation.canRequestAds()) {
+                                    initializeAdMob(activity, "");
+                                }
+                                if (listener != null) {
+                                    listener.onConsentGathered();
+                                }
+                            }
+                    );
+                },
+                requestConsentError -> {
+                    Log.w("AdsHandler", String.format("Consent info update error %d: %s", requestConsentError.getErrorCode(), requestConsentError.getMessage()));
+                    if (consentInformation.canRequestAds()) {
+                        initializeAdMob(activity, "");
+                    }
+                    if (listener != null) {
+                        listener.onConsentGathered();
+                    }
+                }
+        );
+    }
+
+    public void showPrivacyOptionsForm(Activity activity, ConsentForm.OnConsentFormDismissedListener listener) {
+        UserMessagingPlatform.showPrivacyOptionsForm(activity, listener);
+    }
+
+    public boolean isPrivacyOptionsRequired(Context context) {
+        ConsentInformation consentInformation = UserMessagingPlatform.getConsentInformation(context);
+        return consentInformation.getPrivacyOptionsRequirementStatus() == ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED;
+    }
+
     // Singleton getInstance method
     public static synchronized AdsHelper getInstance(Context context) {
         if (instance == null) {
@@ -55,8 +116,6 @@ public class AdsHelper {
         }
         return instance;
     }
-
-
 
 
     public void initializeAdMob(Activity activity, String appId) {
@@ -275,7 +334,7 @@ public class AdsHelper {
         Log.e("AdMob", "showAd_Mob_X_Inter_With_Time");
         Log.e("AdMob", "showAd_Mob_X_Inter_With_Time adTimeManager.canShowAd() " + adTimeManager.canShowAd());
 
-       if (rewardedAd != null && !appSPGetSet.getRewardAdShownSP(activity)) {
+        if (rewardedAd != null && !appSPGetSet.getRewardAdShownSP(activity)) {
             Log.e("AdMob", "showAd_Mob_X_Inter_With_Time Reward");
             if (appSPGetSet.getAddFirstTimeSP(activity) || adTimeManager.canShowAd()) {
                 showRewardedAd(activity);

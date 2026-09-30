@@ -149,6 +149,10 @@ class MainActivity : AppCompatActivity() {
                                 .withEndAction {
                                     shimmerContainer.visibility = View.GONE
                                     checkNotificationPermission()
+                                    // Gather AdMob GDPR consent smoothly in HomeDashboardActivity
+                                    AdsHelper.getInstance(this@MainActivity).gatherConsent(this@MainActivity) {
+                                        // Consent gathered or not required
+                                    }
                                     // Trigger In-App Review check after UI reveal
                                     lifecycleScope.launch {
                                         delay(5000) // Wait 5 seconds after reveal

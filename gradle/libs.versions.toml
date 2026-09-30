@@ -26,6 +26,7 @@ shimmer = "0.5.0"
 play-review = "2.0.2"
 
 playServicesAds = "25.4.0"
+userMessagingPlatform = "3.1.0"
 
 firebaseBom = "34.17.0"
 googleServicesPlugin = "4.5.0"
@@ -72,6 +73,7 @@ glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", versi
 
 
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
+ump = { module = "com.google.android.ump:user-messaging-platform", version.ref = "userMessagingPlatform" }
 
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
