@@ -102,16 +102,16 @@ interface AppDao {
     @Query("SELECT * FROM streaming WHERE appId = :appId")
     suspend fun getStreamingWithTournaments(appId: Int): List<StreamingWithTournaments>
 
-    @Query("SELECT * FROM events WHERE tournamentId = :tournamentId")
+    @Query("SELECT * FROM events WHERE tournamentId = :tournamentId ORDER BY sort ASC")
     fun getEventsForTournamentFlow(tournamentId: Int): Flow<List<EventEntity>>
 
-    @Query("SELECT * FROM events WHERE tournamentId = :tournamentId")
+    @Query("SELECT * FROM events WHERE tournamentId = :tournamentId ORDER BY sort ASC")
     suspend fun getEventsForTournament(tournamentId: Int): List<EventEntity>
 
-    @Query("SELECT * FROM events WHERE tournamentId = :tournamentId AND isHighlight = 1")
+    @Query("SELECT * FROM events WHERE tournamentId = :tournamentId AND isHighlight = 1 ORDER BY sort ASC")
     fun getHighlightEventsForTournamentFlow(tournamentId: Int): Flow<List<EventEntity>>
 
-    @Query("SELECT * FROM events WHERE tournamentId = :tournamentId AND isHighlight = 1")
+    @Query("SELECT * FROM events WHERE tournamentId = :tournamentId AND isHighlight = 1 ORDER BY sort ASC")
     suspend fun getHighlightEventsForTournament(tournamentId: Int): List<EventEntity>
 
     @Transaction

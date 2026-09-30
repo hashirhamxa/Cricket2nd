@@ -115,7 +115,8 @@ data class EventEntity(
     val metadata: String?,
     val isLive: Boolean?,
     val excludedAppPackageNames: String?,
-    val tournamentId: Int
+    val tournamentId: Int,
+    val sort: Int?
 )
 
 @Entity(tableName = "highlights")

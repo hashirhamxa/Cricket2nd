@@ -139,7 +139,8 @@ class AppRepository @Inject constructor(
                                                 metadata = event.metadata,
                                                 isLive = event.isLive,
                                                 excludedAppPackageNames = event.excludedAppPackageNames,
-                                                tournamentId = tournamentWrapper.id
+                                                tournamentId = tournamentWrapper.id,
+                                                sort = event.sort
                                             )
                                         )
 

@@ -132,6 +132,7 @@ data class Event(
     @SerializedName("metadata") val metadata: String?,
     @SerializedName("is_live") val isLive: Boolean?,
     @SerializedName("excluded_app_package_names") val excludedAppPackageNames: String?,
+    @SerializedName("sort") val sort: Int?,
     @SerializedName("highligths") val highlights: List<HighlightWrapper>?,
     @SerializedName("links") val links: List<LinkWrapper>?
 )
