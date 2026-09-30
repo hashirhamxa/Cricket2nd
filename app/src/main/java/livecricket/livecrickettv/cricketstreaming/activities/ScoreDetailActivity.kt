@@ -50,9 +50,11 @@ class ScoreDetailActivity : AppCompatActivity() {
         }
         val matchId = intent.getStringExtra("MATCH_ID") ?: ""
 
-        findViewById<android.widget.ImageButton>(R.id.btn_back).setOnClickListener { 
-            AdsHelper.getInstance(this@ScoreDetailActivity).showAd_Mob_X_Inter_With_Time(this@ScoreDetailActivity)
-            finish() 
+        findViewById<android.widget.ImageButton>(R.id.btn_back).setOnClickListener {
+            AdsHelper.getInstance(this@ScoreDetailActivity)
+                .showAd_Mob_X_Inter_With_Time(this@ScoreDetailActivity) {
+                finish()
+            }
         }
 
         val rvScores = findViewById<RecyclerView>(R.id.recycler_scores)
@@ -91,8 +93,10 @@ class ScoreDetailActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        AdsHelper.getInstance(this@ScoreDetailActivity).showAd_Mob_X_Inter_With_Time(this@ScoreDetailActivity)
-        super.onBackPressed()
+        AdsHelper.getInstance(this@ScoreDetailActivity)
+            .showAd_Mob_X_Inter_With_Time(this@ScoreDetailActivity) {
+            super.onBackPressed()
+        }
     }
 
     private fun bindMatchData(match: MatchEntity, rv: RecyclerView) {

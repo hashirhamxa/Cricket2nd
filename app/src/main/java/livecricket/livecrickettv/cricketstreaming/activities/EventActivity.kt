@@ -51,9 +51,11 @@ class EventActivity : AppCompatActivity() {
         val isHighlightsMode = intent.getBooleanExtra("IS_HIGHLIGHTS_MODE", false)
 
         findViewById<TextView>(R.id.text_category_title).text = tournamentName
-        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { 
-            AdsHelper.getInstance(this@EventActivity).showAd_Mob_X_Inter_With_Time(this@EventActivity)
-            finish() 
+        findViewById<ImageButton>(R.id.btn_back).setOnClickListener {
+            AdsHelper.getInstance(this@EventActivity)
+                .showAd_Mob_X_Inter_With_Time(this@EventActivity) {
+                    finish()
+                }
         }
 
         val rvEvents = findViewById<RecyclerView>(R.id.rv_tournaments)
@@ -107,24 +109,19 @@ class EventActivity : AppCompatActivity() {
                 }
             }
 
-            // 2. Preload Interstitial
+            // Preload Interstitial
             ads.find { it.adPlacement.equals("Interstitial", ignoreCase = true) }?.let { ad ->
                 if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
                     AdsHelper.getInstance(this@EventActivity).preloadAdADMOB_X_Inter(this@EventActivity, ad.adUnitId)
-                }
-            }
-
-            // 3. Preload Rewarded
-            ads.find { it.adPlacement.equals("Rewarded", ignoreCase = true) }?.let { ad ->
-                if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
-                    AdsHelper.getInstance(this@EventActivity).preloadRewardedAd(this@EventActivity, ad.adUnitId)
                 }
             }
         }
     }
 
     override fun onBackPressed() {
-        AdsHelper.getInstance(this@EventActivity).showAd_Mob_X_Inter_With_Time(this@EventActivity)
-        super.onBackPressed()
+        AdsHelper.getInstance(this@EventActivity)
+            .showAd_Mob_X_Inter_With_Time(this@EventActivity) {
+            super.onBackPressed()
+        }
     }
 }

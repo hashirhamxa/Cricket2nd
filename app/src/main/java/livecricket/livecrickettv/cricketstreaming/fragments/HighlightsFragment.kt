@@ -156,51 +156,53 @@ class HighlightsFragment : Fragment() {
 
     private fun setupStaticClickListeners(view: View) {
         view.findViewById<TextView>(R.id.btn_see_all_cricket).setOnClickListener {
-            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
             openTournamentActivity("CRICKET")
         }
         view.findViewById<TextView>(R.id.btn_see_all_football).setOnClickListener {
-            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
             openTournamentActivity("FOOTBALL")
         }
         view.findViewById<TextView>(R.id.btn_see_all_trending).setOnClickListener {
-            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
             openTournamentActivity("TRENDING NOW")
         }
     }
 
     private fun handleItemClick(item: HomeDisplayItem) {
-        AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
-        when (val original = item.originalObject) {
+        val targetIntent = when (val original = item.originalObject) {
             is EventEntity -> {
                 // Navigate directly to links for promoted events
-                val intent = Intent(context, LinksActivity::class.java).apply {
+                Intent(context, LinksActivity::class.java).apply {
                     putExtra("MATCH_TITLE", original.eventName)
                     putExtra("TOURNAMENT", item.subtitle)
                     putExtra("EVENT_ID", original.realEventId)
                     putExtra("EVENT_THUMB_URL", original.eventThumbUrl)
                     putExtra("IS_HIGHLIGHTS_MODE", true)
                 }
-                startActivity(intent)
             }
             is TournamentEntity -> {
                 // Navigate to event list for highlights (only show highlight events)
-                val intent = Intent(context, EventActivity::class.java).apply {
+                Intent(context, EventActivity::class.java).apply {
                     putExtra("TOURNAMENT_ID", original.id)
                     putExtra("TOURNAMENT_NAME", original.name)
                     putExtra("TOURNAMENT_THUMB_URL", original.thumbUrl)
                     putExtra("IS_HIGHLIGHTS_MODE", true)
                 }
-                startActivity(intent)
+            }
+            else -> null
+        }
+        if (targetIntent != null) {
+            val act = activity ?: return
+            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(act) {
+                startActivity(targetIntent)
             }
         }
     }
 
     private fun openTournamentActivity(category: String) {
-        AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
-        val intent = Intent(context, TournamentActivity::class.java)
-        intent.putExtra("CATEGORY", category)
-        intent.putExtra("IS_HIGHLIGHTS_MODE", true)
-        startActivity(intent)
+        AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity()){
+            val intent = Intent(context, TournamentActivity::class.java)
+            intent.putExtra("CATEGORY", category)
+            intent.putExtra("IS_HIGHLIGHTS_MODE", true)
+            startActivity(intent)
+        }
     }
 }

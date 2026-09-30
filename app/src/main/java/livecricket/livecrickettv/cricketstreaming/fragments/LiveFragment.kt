@@ -65,8 +65,10 @@ class LiveFragment : Fragment() {
         val textSingleTitle = view.findViewById<TextView>(R.id.text_single_title)
 
         // 2. Pre-configure LayoutManagers (Once only)
-        rvCricket.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        rvFootball.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        rvCricket.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        rvFootball.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         rvTrending.layoutManager = LinearLayoutManager(context)
         rvSingle.layoutManager = LinearLayoutManager(context)
 
@@ -80,7 +82,7 @@ class LiveFragment : Fragment() {
         // 3. Observe data flow
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                
+
                 launch {
                     viewModel.isSingleSection.collectLatest { isSingle ->
                         layoutSingle.visibility = if (isSingle) View.VISIBLE else View.GONE
@@ -99,18 +101,26 @@ class LiveFragment : Fragment() {
                         // The KEY FIX: Use .post to ensure the layout engine is ready after fragment transitions
                         view.post {
                             if (!isAdded) return@post
-                            
+
                             val isSingle = viewModel.isSingleSection.value
 
                             if (isSingle && sections.isNotEmpty()) {
                                 val section = sections[0]
                                 textSingleTitle.text = section.title
-                                rvSingle.adapter = CategoryAdapter(section.items, true) { handleItemClick(it) }
+                                rvSingle.adapter =
+                                    CategoryAdapter(section.items, true) { handleItemClick(it) }
                             } else {
                                 // Multi section mode: Hide all first
-                                listOf(sectionCricket, sectionFootball, sectionTrending, rvCricket, rvFootball, rvTrending)
+                                listOf(
+                                    sectionCricket,
+                                    sectionFootball,
+                                    sectionTrending,
+                                    rvCricket,
+                                    rvFootball,
+                                    rvTrending
+                                )
                                     .forEach { it.visibility = View.GONE }
-                                
+
                                 // Re-order by removing and re-adding EXISTING view objects
                                 layoutMulti.removeAllViews()
 
@@ -119,29 +129,34 @@ class LiveFragment : Fragment() {
                                         "cricket" -> {
                                             setupSection(sectionCricket, "CRICKET")
                                             rvCricket.visibility = View.VISIBLE
-                                            rvCricket.adapter = CategoryAdapter(section.items) { handleItemClick(it) }
+                                            rvCricket.adapter =
+                                                CategoryAdapter(section.items) { handleItemClick(it) }
                                             layoutMulti.addView(sectionCricket)
                                             layoutMulti.addView(rvCricket)
-                                            
+
                                             // Force re-measurement of height
                                             rvCricket.requestLayout()
                                         }
+
                                         "football" -> {
                                             setupSection(sectionFootball, "FOOTBALL")
                                             rvFootball.visibility = View.VISIBLE
-                                            rvFootball.adapter = CategoryAdapter(section.items) { handleItemClick(it) }
+                                            rvFootball.adapter =
+                                                CategoryAdapter(section.items) { handleItemClick(it) }
                                             layoutMulti.addView(sectionFootball)
                                             layoutMulti.addView(rvFootball)
-                                            
+
                                             rvFootball.requestLayout()
                                         }
+
                                         "other" -> {
                                             setupSection(sectionTrending, "TRENDING NOW")
                                             rvTrending.visibility = View.VISIBLE
-                                            rvTrending.adapter = CategoryAdapter(section.items) { handleItemClick(it) }
+                                            rvTrending.adapter =
+                                                CategoryAdapter(section.items) { handleItemClick(it) }
                                             layoutMulti.addView(sectionTrending)
                                             layoutMulti.addView(rvTrending)
-                                            
+
                                             rvTrending.requestLayout()
                                         }
                                     }
@@ -161,25 +176,21 @@ class LiveFragment : Fragment() {
     private fun setupSection(sectionView: View, title: String) {
         sectionView.visibility = View.VISIBLE
         sectionView.findViewById<TextView>(R.id.text_section_title)?.text = title
-        sectionView.findViewById<View>(R.id.btn_see_all_cricket)?.setOnClickListener { 
-            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
-            openTournamentActivity(title) 
+        sectionView.findViewById<View>(R.id.btn_see_all_cricket)?.setOnClickListener {
+            openTournamentActivity(title)
         }
-        sectionView.findViewById<View>(R.id.btn_see_all_football)?.setOnClickListener { 
-            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
-            openTournamentActivity(title) 
+        sectionView.findViewById<View>(R.id.btn_see_all_football)?.setOnClickListener {
+            openTournamentActivity(title)
         }
-        sectionView.findViewById<View>(R.id.btn_see_all_trending)?.setOnClickListener { 
-            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
-            openTournamentActivity(title) 
+        sectionView.findViewById<View>(R.id.btn_see_all_trending)?.setOnClickListener {
+            openTournamentActivity(title)
         }
     }
 
     private fun handleItemClick(item: HomeDisplayItem) {
-        AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
-        when (val original = item.originalObject) {
+        val targetIntent = when (val original = item.originalObject) {
             is EventEntity -> {
-                val intent = Intent(context, LinksActivity::class.java).apply {
+                Intent(context, LinksActivity::class.java).apply {
                     putExtra("MATCH_TITLE", original.eventName)
                     putExtra("TOURNAMENT", item.subtitle)
                     putExtra("EVENT_ID", original.realEventId)
@@ -187,40 +198,45 @@ class LiveFragment : Fragment() {
                     putExtra("START_TIME", original.startTime)
                     putExtra("IS_HIGHLIGHTS_MODE", false)
                 }
-                startActivity(intent)
             }
+
             is TournamentEntity -> {
-                val intent = Intent(context, EventActivity::class.java).apply {
+                Intent(context, EventActivity::class.java).apply {
                     putExtra("TOURNAMENT_ID", original.id)
                     putExtra("TOURNAMENT_NAME", original.name)
                     putExtra("TOURNAMENT_THUMB_URL", original.thumbUrl)
                     putExtra("IS_HIGHLIGHTS_MODE", false)
                 }
-                startActivity(intent)
+            }
+
+            else -> null
+        }
+        if (targetIntent != null) {
+            val act = activity ?: return
+            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(act) {
+                startActivity(targetIntent)
             }
         }
     }
 
     private fun openTournamentActivity(category: String) {
-        AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
-        val intent = Intent(context, TournamentActivity::class.java)
-        intent.putExtra("CATEGORY", category)
-        intent.putExtra("IS_HIGHLIGHTS_MODE", false)
-        startActivity(intent)
+        AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity()) {
+            val intent = Intent(context, TournamentActivity::class.java)
+            intent.putExtra("CATEGORY", category)
+            intent.putExtra("IS_HIGHLIGHTS_MODE", false)
+            startActivity(intent)
+        }
     }
 
     private fun setupStaticClickListeners(view: View) {
-        view.findViewById<View>(R.id.btn_see_all_cricket)?.setOnClickListener { 
-            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
-            openTournamentActivity("CRICKET") 
-        }
-        view.findViewById<View>(R.id.btn_see_all_football)?.setOnClickListener { 
-            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
-            openTournamentActivity("FOOTBALL") 
-        }
-        view.findViewById<View>(R.id.btn_see_all_trending)?.setOnClickListener { 
-            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
-            openTournamentActivity("TRENDING NOW") 
+        view.findViewById<View>(R.id.btn_see_all_cricket)?.setOnClickListener {
+            openTournamentActivity("CRICKET")
+            view.findViewById<View>(R.id.btn_see_all_football)?.setOnClickListener {
+                openTournamentActivity("FOOTBALL")
+            }
+            view.findViewById<View>(R.id.btn_see_all_trending)?.setOnClickListener {
+                openTournamentActivity("TRENDING NOW")
+            }
         }
     }
 }

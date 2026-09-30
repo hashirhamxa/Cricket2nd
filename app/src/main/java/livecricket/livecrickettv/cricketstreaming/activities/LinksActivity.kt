@@ -82,8 +82,6 @@ class LinksActivity : AppCompatActivity() {
         val eventThumbUrl = intent.getStringExtra("EVENT_THUMB_URL")
         startTime = intent.getStringExtra("START_TIME")
 
-        Log.e("leolog eventThumbUrl", "eventThumbUrl "+eventThumbUrl)
-
         findViewById<TextView>(R.id.text_match_title_top)?.text = matchTitle
         findViewById<TextView>(R.id.text_tournament_top)?.text = tournament
         findViewById<TextView>(R.id.text_match_title_hero)?.text = matchTitle
@@ -94,7 +92,7 @@ class LinksActivity : AppCompatActivity() {
         val liveDotHero = findViewById<View>(R.id.dot_live_hero)
         if (!isHighlightsMode) {
             liveDotHero?.let { Utils.animateLiveDot(it) }
-            
+
             // Set random watching count only for live matches
             val randomWatching = Random.nextInt(1000, 10001)
             findViewById<TextView>(R.id.text_watching)?.text = "$randomWatching WATCHING"
@@ -108,9 +106,11 @@ class LinksActivity : AppCompatActivity() {
             .placeholder(R.drawable.bg_section_indicator)
             .into(imgHero)
 
-        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { 
-            AdsHelper.getInstance(this@LinksActivity).showAd_Mob_X_Inter_With_Time(this@LinksActivity)
-            finish() 
+        findViewById<ImageButton>(R.id.btn_back).setOnClickListener {
+            AdsHelper.getInstance(this@LinksActivity)
+                .showAd_Mob_X_Inter_With_Time(this@LinksActivity) {
+                    finish()
+                }
         }
 
         val rvChannels = findViewById<RecyclerView>(R.id.rv_channels)
@@ -121,12 +121,15 @@ class LinksActivity : AppCompatActivity() {
         swipeRefresh.setOnRefreshListener {
             viewModel.refresh(eventId, isHighlightsMode)
         }
-        
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     if (isHighlightsMode) {
-                        combine(viewModel.highlights, viewModel.streaming) { highlights, streaming ->
+                        combine(
+                            viewModel.highlights,
+                            viewModel.streaming
+                        ) { highlights, streaming ->
                             Pair(highlights, streaming)
                         }.collectLatest { (highlights, streaming) ->
                             val channels = highlights.map { highlight ->
@@ -164,7 +167,8 @@ class LinksActivity : AppCompatActivity() {
                                     promotionDescription = streaming.outsideUrlDescription,
                                     promotionImageUrl = streaming.outsideUrlImageUrl
                                 )
-                                val middleIndex = if (channels.isEmpty()) 0 else maxOf(1, channels.size / 2)
+                                val middleIndex =
+                                    if (channels.isEmpty()) 0 else maxOf(1, channels.size / 2)
                                 channels.add(middleIndex, promoChannel)
                             }
 
@@ -174,7 +178,8 @@ class LinksActivity : AppCompatActivity() {
                         combine(viewModel.links, viewModel.streaming) { links, streaming ->
                             Pair(links, streaming)
                         }.collectLatest { (rawLinks, streaming) ->
-                            val hasValidPriority = rawLinks.any { it.priority != null && it.priority > 0 }
+                            val hasValidPriority =
+                                rawLinks.any { it.priority != null && it.priority > 0 }
                             val sortedLinks = if (hasValidPriority) {
                                 rawLinks.sortedWith { a, b ->
                                     val p1 = a.priority
@@ -207,7 +212,8 @@ class LinksActivity : AppCompatActivity() {
                                     promotionDescription = streaming.outsideUrlDescription,
                                     promotionImageUrl = streaming.outsideUrlImageUrl
                                 )
-                                val middleIndex = if (channels.isEmpty()) 0 else maxOf(1, channels.size / 2)
+                                val middleIndex =
+                                    if (channels.isEmpty()) 0 else maxOf(1, channels.size / 2)
                                 channels.add(middleIndex, promoChannel)
                             }
 
@@ -238,6 +244,12 @@ class LinksActivity : AppCompatActivity() {
         loadAdSettings()
     }
 
+    override fun onBackPressed() {
+        AdsHelper.getInstance(this@LinksActivity)
+            .showAd_Mob_X_Inter_With_Time(this@LinksActivity) {
+                super.onBackPressed()
+            }
+    }
 
     override fun onResume() {
         super.onResume()
@@ -259,27 +271,34 @@ class LinksActivity : AppCompatActivity() {
             }
             ads.find { it.adPlacement.equals("Interstitial", ignoreCase = true) }?.let { ad ->
                 interstitialAdKey = ad.adUnitId ?: ""
-                if (ad.isActive == true && !interstitialAdKey.isEmpty()) {
-                    AdsHelper.getInstance(this@LinksActivity).preloadAdADMOB_X_Inter(this@LinksActivity, interstitialAdKey)
-                }
             }
             ads.find { it.adPlacement.equals("Rewarded", ignoreCase = true) }?.let { ad ->
                 rewardedAdKey = ad.adUnitId ?: ""
-                if (ad.isActive == true && !rewardedAdKey.isEmpty()) {
-                    AdsHelper.getInstance(this@LinksActivity).preloadRewardedAd(this@LinksActivity, rewardedAdKey)
-                }
+            }
+            val adsHelper = AdsHelper.getInstance(this@LinksActivity)
+            if (!interstitialAdKey.isEmpty()) {
+                adsHelper.preloadAdADMOB_X_Inter(this@LinksActivity, interstitialAdKey)
+            }
+            if (!rewardedAdKey.isEmpty()) {
+                adsHelper.preloadRewardedAd(this@LinksActivity, rewardedAdKey)
             }
         }
     }
 
     private fun loadBannerAd() {
         lifecycleScope.launch {
-            repository.getAllAds().find { it.adPlacement.equals("Banner", ignoreCase = true) }?.let { ad ->
-                if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
-                    val adContainer = findViewById<android.widget.RelativeLayout>(R.id.ad_container_links)
-                    AdsHelper.getInstance(this@LinksActivity).loadAdaptiveADMOB_X_Banner(this@LinksActivity, adContainer, ad.adUnitId)
+            repository.getAllAds().find { it.adPlacement.equals("Banner", ignoreCase = true) }
+                ?.let { ad ->
+                    if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
+                        val adContainer =
+                            findViewById<android.widget.RelativeLayout>(R.id.ad_container_links)
+                        AdsHelper.getInstance(this@LinksActivity).loadAdaptiveADMOB_X_Banner(
+                            this@LinksActivity,
+                            adContainer,
+                            ad.adUnitId
+                        )
+                    }
                 }
-            }
         }
     }
 
@@ -294,7 +313,7 @@ class LinksActivity : AppCompatActivity() {
         val watchingText = findViewById<TextView>(R.id.text_watching)
         val liveBadgeHero = findViewById<View>(R.id.badge_live_hero)
         val liveToolbar = findViewById<View>(R.id.text_live_toolbar)
-        
+
         if (isHighlightsMode) {
             watchingText?.visibility = View.GONE
             liveBadgeHero?.visibility = View.GONE
@@ -305,12 +324,12 @@ class LinksActivity : AppCompatActivity() {
         }
 
         val startDate = TimeUtils.parseUtcToLocal(startTime)
-        
+
         if (startDate != null && !TimeUtils.isEventLive(startDate)) {
             // Upcoming
             watchingText?.visibility = View.GONE
             liveBadgeHero?.visibility = View.GONE
-            
+
             startingInText?.visibility = View.VISIBLE
             countdownText?.let {
                 it.text = TimeUtils.getCountdownString(startDate)
@@ -320,7 +339,7 @@ class LinksActivity : AppCompatActivity() {
             // Live
             watchingText?.visibility = View.VISIBLE
             liveBadgeHero?.visibility = View.VISIBLE
-            
+
             startingInText?.visibility = View.GONE
             countdownText?.visibility = View.GONE
         }
@@ -328,7 +347,6 @@ class LinksActivity : AppCompatActivity() {
 
     private fun updateAdapter(rv: RecyclerView, channels: List<Channel>, matchTitle: String) {
         rv.adapter = ChannelAdapter(channels) { channel ->
-            AdsHelper.getInstance(this@LinksActivity).showAd_Mob_X_Inter_With_Time(this@LinksActivity)
             channel.link?.let { link ->
                 val intent = Intent(this@LinksActivity, NewPlayerActivity::class.java).apply {
                     putExtra("isVideoLoop", false)
@@ -336,9 +354,9 @@ class LinksActivity : AppCompatActivity() {
                     putExtra("videoLink", if (!link.mpdLink.isNullOrEmpty()) null else link.linkUrl)
                     putExtra("mpdLink", link.mpdLink)
                     putExtra("mpdKey", link.mpdKey)
-                    putExtra("refererHeader",link.refererHeader)
-                    putExtra("originHeader",link.originHeader)
-                    putExtra("userAgentHeader",link.userAgentHeader)
+                    putExtra("refererHeader", link.refererHeader)
+                    putExtra("originHeader", link.originHeader)
+                    putExtra("userAgentHeader", link.userAgentHeader)
 
 
 
@@ -352,7 +370,10 @@ class LinksActivity : AppCompatActivity() {
                     setType("text/plain")
                     putExtra(Intent.EXTRA_TEXT, link.linkUrl)
                 }
-                startActivity(intent)
+                AdsHelper.getInstance(this@LinksActivity)
+                    .showAd_Mob_X_Inter_With_Time(this@LinksActivity) {
+                        startActivity(intent)
+                    }
             }
         }
     }

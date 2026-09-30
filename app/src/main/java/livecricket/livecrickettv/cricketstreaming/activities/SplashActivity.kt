@@ -122,7 +122,7 @@ class SplashActivity : AppCompatActivity() {
                 // Update AdTimeManager interval from server config (value is in seconds)
                 livecricket.livecrickettv.cricketstreaming.ads.AdTimeManager(this)
                     .setAdIntervalInSeconds(app.adsTimeCountDown ?: 0)
-
+                livecricket.livecrickettv.cricketstreaming.ads.AdsSPGetSet().setAddFirstTimeSP(this, true)
                 val streaming = repository.getStreamingData(app.id).firstOrNull()?.streaming
                 val dialogShown = DialogManager.checkAndShowDialog(this, app, streaming, true)
                 if (dialogShown) return

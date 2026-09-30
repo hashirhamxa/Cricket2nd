@@ -31,9 +31,12 @@ public class NewPlayerActivity extends PlayerActivity {
 
     @Override
     public void onBackPressed() {
-        adsHelper.showAd_Mob_X_Inter_With_Time(NewPlayerActivity.this);
-        NewPlayerActivity.this.finish();
-
+        adsHelper.showRewardedOrInterstitialAd(NewPlayerActivity.this, new Runnable() {
+            @Override
+            public void run() {
+                NewPlayerActivity.this.finish();
+            }
+        });
     }
 
     @Override

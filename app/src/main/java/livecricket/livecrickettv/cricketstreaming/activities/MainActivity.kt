@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val ads = repository.getAllAds()
 
-            // 1. Preload Interstitial
+            // Preload Interstitial
             ads.find { it.adPlacement.equals("Interstitial", ignoreCase = true) }?.let { ad ->
                 if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
                     AdsHelper.getInstance(this@MainActivity).preloadAdADMOB_X_Inter(this@MainActivity, ad.adUnitId)
@@ -110,7 +110,8 @@ class MainActivity : AppCompatActivity() {
             // 2. Preload Rewarded
             ads.find { it.adPlacement.equals("Rewarded", ignoreCase = true) }?.let { ad ->
                 if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
-                    AdsHelper.getInstance(this@MainActivity).preloadRewardedAd(this@MainActivity, ad.adUnitId)
+                    AdsHelper.getInstance(this@MainActivity)
+                        .preloadRewardedAd(this@MainActivity, ad.adUnitId)
                 }
             }
         }

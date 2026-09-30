@@ -45,7 +45,7 @@ class ScoreFragment : Fragment() {
         swipeRefresh.setColorSchemeResources(R.color.primary, R.color.secondary)
 
         rvMatches.layoutManager = LinearLayoutManager(context)
-        
+
         swipeRefresh.setOnRefreshListener {
             viewModel.refresh()
         }
@@ -55,10 +55,12 @@ class ScoreFragment : Fragment() {
                 launch {
                     viewModel.matches.collectLatest { matches ->
                         rvMatches.adapter = MatchesAdapter(matches) { match ->
-                            AdsHelper.getInstance(requireContext()).showAd_Mob_X_Inter_With_Time(requireActivity())
-                            val intent = Intent(context, ScoreDetailActivity::class.java)
-                            intent.putExtra("MATCH_ID", match.id)
-                            startActivity(intent)
+                            AdsHelper.getInstance(requireContext())
+                                .showAd_Mob_X_Inter_With_Time(requireActivity()) {
+                                    val intent = Intent(context, ScoreDetailActivity::class.java)
+                                    intent.putExtra("MATCH_ID", match.id)
+                                    startActivity(intent)
+                                }
                         }
                     }
                 }

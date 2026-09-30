@@ -46,18 +46,19 @@ class TournamentActivity : AppCompatActivity() {
         setContentView(R.layout.activity_tournament)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ad_container_tournament)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-           v.updatePadding(bottom = systemBars.bottom)
+            v.updatePadding(bottom = systemBars.bottom)
             insets
         }
         val category = intent.getStringExtra("CATEGORY") ?: "CRICKET"
         val isHighlights = intent.getBooleanExtra("IS_HIGHLIGHTS_MODE", false)
 
         findViewById<TextView>(R.id.text_category_title).text = category
-        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { 
-            AdsHelper.getInstance(this@TournamentActivity).showAd_Mob_X_Inter_With_Time(this@TournamentActivity)
-            finish() 
+        findViewById<ImageButton>(R.id.btn_back).setOnClickListener {
+            AdsHelper.getInstance(this@TournamentActivity)
+                .showAd_Mob_X_Inter_With_Time(this@TournamentActivity) {
+                    finish()
+                }
         }
-
         val rvTournaments = findViewById<RecyclerView>(R.id.rv_tournaments)
         rvTournaments.layoutManager = LinearLayoutManager(this)
 
@@ -95,38 +96,46 @@ class TournamentActivity : AppCompatActivity() {
             // 1. Banner Ad
             ads.find { it.adPlacement.equals("Banner", ignoreCase = true) }?.let { ad ->
                 if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
-                    val adContainer = findViewById<android.widget.RelativeLayout>(R.id.ad_container_tournament)
-                    AdsHelper.getInstance(this@TournamentActivity).loadAdaptiveADMOB_X_Banner(this@TournamentActivity, adContainer, ad.adUnitId)
+                    val adContainer =
+                        findViewById<android.widget.RelativeLayout>(R.id.ad_container_tournament)
+                    AdsHelper.getInstance(this@TournamentActivity).loadAdaptiveADMOB_X_Banner(
+                        this@TournamentActivity,
+                        adContainer,
+                        ad.adUnitId
+                    )
                 }
             }
 
             // 2. Preload Interstitial
             ads.find { it.adPlacement.equals("Interstitial", ignoreCase = true) }?.let { ad ->
                 if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
-                    AdsHelper.getInstance(this@TournamentActivity).preloadAdADMOB_X_Inter(this@TournamentActivity, ad.adUnitId)
+                    AdsHelper.getInstance(this@TournamentActivity)
+                        .preloadAdADMOB_X_Inter(this@TournamentActivity, ad.adUnitId)
                 }
             }
 
             // 3. Preload Rewarded
             ads.find { it.adPlacement.equals("Rewarded", ignoreCase = true) }?.let { ad ->
                 if (ad.isActive == true && !ad.adUnitId.isNullOrEmpty()) {
-                    AdsHelper.getInstance(this@TournamentActivity).preloadRewardedAd(this@TournamentActivity, ad.adUnitId)
+                    AdsHelper.getInstance(this@TournamentActivity)
+                        .preloadRewardedAd(this@TournamentActivity, ad.adUnitId)
                 }
             }
         }
     }
 
     override fun onBackPressed() {
-        AdsHelper.getInstance(this@TournamentActivity).showAd_Mob_X_Inter_With_Time(this@TournamentActivity)
-        super.onBackPressed()
+        AdsHelper.getInstance(this@TournamentActivity)
+            .showAd_Mob_X_Inter_With_Time(this@TournamentActivity) {
+                super.onBackPressed()
+            }
     }
 
     private fun handleItemClick(item: HomeDisplayItem) {
-        AdsHelper.getInstance(this@TournamentActivity).showAd_Mob_X_Inter_With_Time(this@TournamentActivity)
         val isHighlights = intent.getBooleanExtra("IS_HIGHLIGHTS_MODE", false)
-        when (val original = item.originalObject) {
+        val targetIntent = when (val original = item.originalObject) {
             is EventEntity -> {
-                val intent = Intent(this, LinksActivity::class.java).apply {
+                Intent(this, LinksActivity::class.java).apply {
                     putExtra("MATCH_TITLE", original.eventName)
                     putExtra("TOURNAMENT", item.subtitle)
                     putExtra("EVENT_ID", original.realEventId)
@@ -134,17 +143,22 @@ class TournamentActivity : AppCompatActivity() {
                     putExtra("START_TIME", original.startTime)
                     putExtra("IS_HIGHLIGHTS_MODE", isHighlights)
                 }
-                startActivity(intent)
             }
             is TournamentEntity -> {
-                val intent = Intent(this, EventActivity::class.java).apply {
+              Intent(this, EventActivity::class.java).apply {
                     putExtra("TOURNAMENT_ID", original.id)
                     putExtra("TOURNAMENT_NAME", original.name)
                     putExtra("TOURNAMENT_THUMB_URL", original.thumbUrl)
                     putExtra("IS_HIGHLIGHTS_MODE", isHighlights)
                 }
-                startActivity(intent)
             }
+            else -> null
+        }
+        if (targetIntent != null) {
+            AdsHelper.getInstance(this@TournamentActivity)
+                .showAd_Mob_X_Inter_With_Time(this@TournamentActivity) {
+                    startActivity(targetIntent)
+                }
         }
     }
 }

@@ -123,7 +123,6 @@ class EventAdapter(
         holder.statusSub.text = item.description ?: ""
 
         holder.container.setOnClickListener {
-            AdsHelper.getInstance(it.context).showAd_Mob_X_Inter_With_Time((it.context as Activity))
             val intent = Intent(it.context, LinksActivity::class.java).apply {
                 putExtra("MATCH_TITLE", item.eventName)
                 putExtra("TOURNAMENT", tournamentName)
@@ -131,8 +130,14 @@ class EventAdapter(
                 putExtra("EVENT_THUMB_URL", item.eventThumbUrl ?: tournamentThumbUrl)
                 putExtra("IS_HIGHLIGHTS_MODE", isHighlightsMode)
             }
-            it.context.startActivity(intent)
-        }
+            val act = it.context as? Activity
+            if (act != null) {
+                AdsHelper.getInstance(it.context).showAd_Mob_X_Inter_With_Time(act) {
+                    it.context.startActivity(intent)
+                }
+            } else {
+                it.context.startActivity(intent)
+            }        }
         
         holder.btnAction.setOnClickListener {
             holder.container.performClick()

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 
-public class AppSPGetSet {
+public class AdsSPGetSet {
 
 
     public void setAddFirstTimeSP(Context context, boolean value) {
