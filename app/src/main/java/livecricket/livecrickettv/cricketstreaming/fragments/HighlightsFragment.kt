@@ -177,7 +177,7 @@ class HighlightsFragment : Fragment() {
                 val intent = Intent(context, LinksActivity::class.java).apply {
                     putExtra("MATCH_TITLE", original.eventName)
                     putExtra("TOURNAMENT", item.subtitle)
-                    putExtra("EVENT_ID", original.id)
+                    putExtra("EVENT_ID", original.realEventId)
                     putExtra("EVENT_THUMB_URL", original.eventThumbUrl)
                     putExtra("IS_HIGHLIGHTS_MODE", true)
                 }

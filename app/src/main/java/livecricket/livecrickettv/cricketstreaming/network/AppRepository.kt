@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import livecricket.livecrickettv.cricketstreaming.BuildConfig
 import livecricket.livecrickettv.cricketstreaming.database.*
+import livecricket.livecrickettv.cricketstreaming.linksSync.LiveSyncManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -121,6 +122,7 @@ class AppRepository @Inject constructor(
                                         eventEntities.add(
                                             EventEntity(
                                                 id = eventWrapper.id,
+                                                realEventId = event.id,
                                                 eventName = event.eventName,
                                                 eventSlug = event.eventSlug,
                                                 eventThumbUrl = event.eventThumbUrl,
@@ -153,7 +155,7 @@ class AppRepository @Inject constructor(
                                                         viewCount = highlight.viewCount,
                                                         isVisible = highlight.isVisible,
                                                         publishedAt = highlight.publishedAt,
-                                                        eventId = eventWrapper.id
+                                                        eventId = event.id
                                                     )
                                                 )
                                             }
@@ -176,7 +178,7 @@ class AppRepository @Inject constructor(
                                                         refererHeader = link.refererHeader,
                                                         originHeader = link.originHeader,
                                                         userAgentHeader = link.userAgentHeader,
-                                                        eventId = eventWrapper.id
+                                                        eventId = event.id
                                                     )
                                                 )
                                             }
@@ -280,5 +282,79 @@ class AppRepository @Inject constructor(
 
     fun getHighlightsForEventFlow(eventId: Int): Flow<List<HighlightEntity>> {
         return appDao.getHighlightsForEventFlow(eventId)
+    }
+
+    suspend fun getPendingSyncForEvent(eventId: Int): PendingEventSyncEntity? {
+        return appDao.getPendingSyncForEvent(eventId)
+    }
+
+    suspend fun getLastSyncTimestamp(eventId: Int): Long? {
+        return appDao.getLastSyncTimestamp(eventId)
+    }
+
+    suspend fun insertOrUpdatePendingSync(pendingSync: PendingEventSyncEntity) {
+        appDao.insertOrUpdatePendingSync(pendingSync)
+    }
+    /**
+     * Performs a targeted synchronization for a single event's links.
+     * Uses in-flight deduplication via LiveSyncManager Mutex, encrypts sensitive fields,
+     * and performs atomic transactional replacement in Room DB.
+     */
+    suspend fun fetchAndSyncEventLinks(
+        eventId: Int,
+        startedToken: String?
+    ): Result<List<LinkEntity>> = LiveSyncManager.runWithDeduplication(eventId) {
+        try {
+            Log.d("AppRepository", "fetchAndSyncEventLinks: Starting targeted sync for eventId: $eventId (token: $startedToken)")
+            val response = apiService.getEventLinks( "Bearer ${BuildConfig.API_TOKEN}", id = eventId)
+
+
+            val eventData = response.data
+            if (eventData != null) {
+                val linkWrappers = eventData.links.orEmpty()
+                val activePackage = BuildConfig.APPLICATION_ID
+
+                val linkEntities = linkWrappers.mapNotNull { wrapper ->
+                    val link = wrapper.linksId ?: return@mapNotNull null
+
+                    // Filter visibility and excluded package names
+                    val isVisible = link.isVisible ?: true
+                    val excludedPackages = link.excludedAppPackageNames
+                    val isExcluded = !excludedPackages.isNullOrBlank() && excludedPackages.contains(activePackage)
+
+                    if (!isVisible || isExcluded) {
+                        return@mapNotNull null
+                    }
+
+                    LinkEntity(
+                        id = wrapper.id,
+                        linkName = link.linkName,
+                        linkUrl = link.linkUrl,
+                        linkType = link.linkType,
+                        mpdLink = link.mpdLink,
+                        mpdKey = link.mpdKey,
+                        linkImage = link.linkImage,
+                        isVisible = link.isVisible,
+                        priority = link.priority ?: 0,
+                        excludedAppPackageNames = link.excludedAppPackageNames,
+                        refererHeader = link.refererHeader,
+                        originHeader = link.originHeader,
+                        userAgentHeader = link.userAgentHeader,
+                        eventId = eventId
+                    )
+                }
+
+                // Atomic transactional replace
+                appDao.replaceEventLinksTransaction(eventId, linkEntities, startedToken)
+                Log.d("AppRepository", "fetchAndSyncEventLinks: Successfully replaced ${linkEntities.size} links for event $eventId")
+                Result.success(linkEntities)
+            } else {
+                Log.e("AppRepository", "fetchAndSyncEventLinks: Response data was null for event $eventId")
+                Result.failure(IllegalStateException("Event data not found on server"))
+            }
+        } catch (e: Exception) {
+            Log.e("AppRepository", "fetchAndSyncEventLinks: Failed for event $eventId - ${e.message}", e)
+            Result.failure(e)
+        }
     }
 }

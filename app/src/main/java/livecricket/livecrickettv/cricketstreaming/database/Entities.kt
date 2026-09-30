@@ -18,7 +18,7 @@ data class AppEntity(
     val newPackageName: String?,
     val licenseKey: String?,
     val productId: String?,
-    val socialMediaLinks: String?, // Store as JSON string
+    val socialMediaLinks: String?,
     val adsTimeCountDown: Int?
 )
 
@@ -58,7 +58,18 @@ data class StreamingEntity(
     val outsideUrlImageUrl: String?,
     val appId: Int
 )
+@Entity(tableName = "pending_event_sync")
+data class PendingEventSyncEntity(
+    @PrimaryKey val eventId: Int,
+    val syncToken: String,
+    val receivedAt: Long = System.currentTimeMillis()
+)
 
+@Entity(tableName = "event_sync_meta")
+data class EventSyncMetaEntity(
+    @PrimaryKey val eventId: Int,
+    val lastSyncTimestamp: Long
+)
 @Entity(tableName = "scores")
 data class ScoreEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
@@ -87,6 +98,7 @@ data class TournamentEntity(
 @Entity(tableName = "events")
 data class EventEntity(
     @PrimaryKey val id: Int,
+    val realEventId: Int,
     val eventName: String?,
     val eventSlug: String?,
     val eventThumbUrl: String?,

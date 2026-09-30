@@ -146,7 +146,38 @@ interface AppDao {
 
     @Query("SELECT * FROM apps LIMIT 1")
     suspend fun getApp(): AppEntity?
+    @Query("DELETE FROM links WHERE eventId = :eventId")
+    suspend fun deleteLinksForEvent(eventId: Int)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdatePendingSync(pendingSync: PendingEventSyncEntity)
+    @Query("SELECT * FROM pending_event_sync WHERE eventId = :eventId LIMIT 1")
+    suspend fun getPendingSyncForEvent(eventId: Int): PendingEventSyncEntity?
+
+    @Query("DELETE FROM pending_event_sync WHERE eventId = :eventId AND syncToken = :syncToken")
+    suspend fun deletePendingSyncIfMatching(eventId: Int, syncToken: String)
+
+    @Query("DELETE FROM pending_event_sync WHERE eventId = :eventId")
+    suspend fun deletePendingSyncForEvent(eventId: Int)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSyncMeta(meta: EventSyncMetaEntity)
+
+    @Query("SELECT lastSyncTimestamp FROM event_sync_meta WHERE eventId = :eventId LIMIT 1")
+    suspend fun getLastSyncTimestamp(eventId: Int): Long?
+
+    @Transaction
+    suspend fun replaceEventLinksTransaction(
+        eventId: Int,
+        newLinks: List<LinkEntity>,
+        startedToken: String?
+    ) {
+        deleteLinksForEvent(eventId)
+        if (newLinks.isNotEmpty()) {
+            insertLinks(newLinks)
+        }
+        insertSyncMeta(EventSyncMetaEntity(eventId = eventId, lastSyncTimestamp = System.currentTimeMillis()))
+        deletePendingSyncForEvent(eventId)
+    }
     @Transaction
     suspend fun deleteAll() {
         deleteAllApps()

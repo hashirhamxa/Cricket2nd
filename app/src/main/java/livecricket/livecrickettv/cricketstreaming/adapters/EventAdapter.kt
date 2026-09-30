@@ -127,7 +127,7 @@ class EventAdapter(
             val intent = Intent(it.context, LinksActivity::class.java).apply {
                 putExtra("MATCH_TITLE", item.eventName)
                 putExtra("TOURNAMENT", tournamentName)
-                putExtra("EVENT_ID", item.id)
+                putExtra("EVENT_ID", item.realEventId)
                 putExtra("EVENT_THUMB_URL", item.eventThumbUrl ?: tournamentThumbUrl)
                 putExtra("IS_HIGHLIGHTS_MODE", isHighlightsMode)
             }

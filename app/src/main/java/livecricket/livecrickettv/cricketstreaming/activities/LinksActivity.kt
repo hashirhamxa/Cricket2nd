@@ -46,7 +46,8 @@ class LinksActivity : AppCompatActivity() {
     lateinit var repository: AppRepository
 
     private val viewModel: LinksViewModel by viewModels()
-    
+    private var eventId: Int = -1
+
     private var isHighlightsMode = false
     private var showAdInExo = false
     private var bannerAdKey = ""
@@ -74,7 +75,7 @@ class LinksActivity : AppCompatActivity() {
             v.updatePadding(bottom = systemBars.bottom)
             insets
         }
-        val eventId = intent.getIntExtra("EVENT_ID", -1)
+        eventId = intent.getIntExtra("EVENT_ID", -1)
         val matchTitle = intent.getStringExtra("MATCH_TITLE") ?: "Match Details"
         val tournament = intent.getStringExtra("TOURNAMENT") ?: "Tournament"
         isHighlightsMode = intent.getBooleanExtra("IS_HIGHLIGHTS_MODE", false)
@@ -228,12 +229,21 @@ class LinksActivity : AppCompatActivity() {
                 viewModel.loadHighlights(eventId)
             } else {
                 viewModel.loadLinks(eventId)
+                viewModel.observeLiveSync(eventId)
                 handler.post(updateRunnable)
             }
         }
         updateHeroTime()
         loadBannerAd()
         loadAdSettings()
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        if (eventId != -1 && !isHighlightsMode) {
+            viewModel.checkStalenessAndRecover(eventId)
+        }
     }
 
     private fun loadAdSettings() {

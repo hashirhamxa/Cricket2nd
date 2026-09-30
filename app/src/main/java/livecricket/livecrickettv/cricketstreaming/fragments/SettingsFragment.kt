@@ -16,13 +16,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import livecricket.livecrickettv.cricketstreaming.R
-import livecricket.livecrickettv.cricketstreaming.models.SocialMediaLink
+import livecricket.livecrickettv.cricketstreaming.network.SocialMediaLink
 import livecricket.livecrickettv.cricketstreaming.viewmodels.SettingsViewModel
 
 @AndroidEntryPoint

@@ -182,7 +182,7 @@ class LiveFragment : Fragment() {
                 val intent = Intent(context, LinksActivity::class.java).apply {
                     putExtra("MATCH_TITLE", original.eventName)
                     putExtra("TOURNAMENT", item.subtitle)
-                    putExtra("EVENT_ID", original.id)
+                    putExtra("EVENT_ID", original.realEventId)
                     putExtra("EVENT_THUMB_URL", original.eventThumbUrl)
                     putExtra("START_TIME", original.startTime)
                     putExtra("IS_HIGHLIGHTS_MODE", false)

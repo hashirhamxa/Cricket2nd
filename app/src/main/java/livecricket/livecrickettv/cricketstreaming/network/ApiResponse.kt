@@ -1,4 +1,4 @@
-package livecricket.livecrickettv.cricketstreaming.models
+package livecricket.livecrickettv.cricketstreaming.network
 
 import com.google.gson.annotations.SerializedName
 
@@ -6,7 +6,10 @@ data class ApiResponse(
     @SerializedName("data")
     val data: List<AppData>
 )
-
+data class SingleEventResponse(
+    @SerializedName("data")
+    val data: Event?
+)
 data class AppData(
     @SerializedName("id") val id: Int,
     @SerializedName("package_name") val packageName: String?,
@@ -135,7 +138,7 @@ data class Event(
 
 data class HighlightWrapper(
     @SerializedName("id") val id: Int,
-    @SerializedName("events_id") val eventsId: Int,
+    @SerializedName("events_id") val eventsId: Any? = null,
     @SerializedName("highlights_id") val highlightsId: Highlight?
 )
 
@@ -152,7 +155,7 @@ data class Highlight(
 
 data class LinkWrapper(
     @SerializedName("id") val id: Int,
-    @SerializedName("events_id") val eventsId: Int,
+    @SerializedName("events_id") val eventsId: Any? = null,
     @SerializedName("links_id") val linksId: Link?
 )
 

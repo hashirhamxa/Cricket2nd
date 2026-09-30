@@ -16,7 +16,7 @@ import livecricket.livecrickettv.cricketstreaming.network.AppRepository
 import livecricket.livecrickettv.cricketstreaming.utilities.SplashPreloader
 import javax.inject.Inject
 import android.app.Application
-import livecricket.livecrickettv.cricketstreaming.models.SocialMediaLink
+import livecricket.livecrickettv.cricketstreaming.network.SocialMediaLink
 
 @HiltViewModel
 class MainViewModel @Inject constructor(

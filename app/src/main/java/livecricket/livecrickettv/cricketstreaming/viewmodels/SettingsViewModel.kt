@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import livecricket.livecrickettv.cricketstreaming.database.AppEntity
-import livecricket.livecrickettv.cricketstreaming.models.SocialMediaLink
+import livecricket.livecrickettv.cricketstreaming.network.SocialMediaLink
 import livecricket.livecrickettv.cricketstreaming.network.AppRepository
 import javax.inject.Inject
 

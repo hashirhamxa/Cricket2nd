@@ -15,10 +15,41 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import livecricket.livecrickettv.cricketstreaming.R
 import livecricket.livecrickettv.cricketstreaming.activities.SplashActivity
+import livecricket.livecrickettv.cricketstreaming.database.AppDatabase
+import livecricket.livecrickettv.cricketstreaming.database.PendingEventSyncEntity
+import livecricket.livecrickettv.cricketstreaming.linksSync.LiveSyncManager
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        val action = remoteMessage.data["action"]
+        val eventIdStr = remoteMessage.data["eventId"]
+        val syncToken = remoteMessage.data["syncToken"] ?: System.currentTimeMillis().toString()
+
+        if (action == "SYNC_EVENT_LINKS" && !eventIdStr.isNullOrBlank()) {
+            val eventId = eventIdStr.toIntOrNull()
+            if (eventId != null) {
+                Log.d(TAG, "Received SYNC_EVENT_LINKS for eventId: $eventId (token: $syncToken)")
+                val appDao = AppDatabase.getDatabase(applicationContext).appDao()
+                kotlinx.coroutines.runBlocking {
+                    try {
+                        appDao.insertOrUpdatePendingSync(
+                            PendingEventSyncEntity(
+                                eventId = eventId,
+                                syncToken = syncToken,
+                                receivedAt = System.currentTimeMillis()
+                            )
+                        )
+                        LiveSyncManager.notifyEventSync(eventId, syncToken)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to persist pending sync for event $eventId", e)
+                    }
+                }
+                // Return immediately - silent data message must never display notification popup
+                return
+            }
+        }
+
         // Handle data payload if present
         if (remoteMessage.data.isNotEmpty()) {
             Log.d(TAG, "Message data payload: ${remoteMessage.data}")
