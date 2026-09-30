@@ -58,7 +58,7 @@ class SPHandler {
     public Uri subtitleUri;
     public Uri scopeUri;
     public String mediaType;
-    public int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
+    public int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL;
     public Utility.Orientation orientation = Utility.Orientation.UNSPECIFIED;
     public float scale = 1.f;
     public float speed = 1.f;
@@ -136,7 +136,7 @@ class SPHandler {
         mediaUri = uri;
         mediaType = type;
         updateSubtitle(null);
-        updateMeta(null, null, AspectRatioFrameLayout.RESIZE_MODE_FIT, 1.f, 1.f);
+        updateMeta(null, null, AspectRatioFrameLayout.RESIZE_MODE_FILL, 1.f, 1.f);
 
         if (mediaType != null && mediaType.endsWith("/*")) {
             mediaType = null;

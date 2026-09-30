@@ -8,6 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import livecricket.livecrickettv.cricketstreaming.database.AppDao
 import livecricket.livecrickettv.cricketstreaming.database.AppDatabase
+import livecricket.livecrickettv.cricketstreaming.secuirty.CryptoResponseInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -30,9 +31,13 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
-        return OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
-            .build()
+        val builder = OkHttpClient.Builder()
+            .addInterceptor(CryptoResponseInterceptor())
+
+        if (BuildConfig.DEBUG) {
+            builder.addInterceptor(loggingInterceptor)
+        }
+        return builder.build()
     }
 
     @Provides

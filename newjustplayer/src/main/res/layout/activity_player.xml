@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:dtpv_controller="@id/youtube_overlay"
+        app:resize_mode="fill"
         app:show_subtitle_button="true"
         app:surface_type="texture_view" />
 

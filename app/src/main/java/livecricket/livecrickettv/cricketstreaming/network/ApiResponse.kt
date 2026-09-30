@@ -1,6 +1,7 @@
 package livecricket.livecrickettv.cricketstreaming.network
 
 import com.google.gson.annotations.SerializedName
+import livecricket.livecrickettv.cricketstreaming.secuirty.SecurePayloadEngine
 
 data class ApiResponse(
     @SerializedName("data")
@@ -76,6 +77,7 @@ data class Streaming(
     @SerializedName("outside_url_title") val outsideUrlTitle: String?,
     @SerializedName("outside_url_description") val outsideUrlDescription: String?,
     @SerializedName("outside_url_image_url") val outsideUrlImageUrl: String?,
+    @SerializedName("name") val name: String? = null,
     @SerializedName("Scores") val scores: List<Score>?,
     @SerializedName("tournaments") val tournaments: List<TournamentWrapper>?
 )
@@ -152,7 +154,9 @@ data class Highlight(
     @SerializedName("view_count") val viewCount: Int?,
     @SerializedName("is_visible") val isVisible: Boolean?,
     @SerializedName("published_at") val publishedAt: String?
-)
+){
+    fun getDecryptedUrl(): String? = SecurePayloadEngine.decodePayload(linkUrl)
+}
 
 data class LinkWrapper(
     @SerializedName("id") val id: Int,
@@ -173,5 +177,17 @@ data class Link(
     @SerializedName("excluded_app_package_names") val excludedAppPackageNames: String?,
     @SerializedName("referer_header") val refererHeader: String?,
     @SerializedName("origin_header") val originHeader: String?,
-    @SerializedName("user_agent_header") val userAgentHeader: String?
-)
+    @SerializedName("user_agent_header") val userAgentHeader: String?,
+    @SerializedName("show_copyright_blocker") val showCopyrightBlocker: Boolean? = false,
+    @SerializedName("copyright_blocker_position") val copyrightBlockerPosition: String? = null,
+    @SerializedName("copyright_blocker_size") val copyrightBlockerSize: String? = null,
+    @SerializedName("show_timer") val showTimer: Boolean? = false,
+    @SerializedName("show_timer_untill") val showTimerUntill: String? = null
+) {
+    fun getDecryptedUrl(): String? = SecurePayloadEngine.decodePayload(linkUrl)
+    fun getDecryptedMpdLink(): String? = SecurePayloadEngine.decodePayload(mpdLink)
+    fun getDecryptedMpdKey(): String? = SecurePayloadEngine.decodePayload(mpdKey)
+    fun getDecryptedReferer(): String? = SecurePayloadEngine.decodePayload(refererHeader)
+    fun getDecryptedOrigin(): String? = SecurePayloadEngine.decodePayload(originHeader)
+    fun getDecryptedUserAgent(): String? = SecurePayloadEngine.decodePayload(userAgentHeader)
+}

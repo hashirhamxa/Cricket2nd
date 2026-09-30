@@ -3,9 +3,12 @@ package livecricket.livecrickettv.cricketstreaming.network
 import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import livecricket.livecrickettv.cricketstreaming.BuildConfig
 import livecricket.livecrickettv.cricketstreaming.database.*
 import livecricket.livecrickettv.cricketstreaming.linksSync.LiveSyncManager
+import livecricket.livecrickettv.cricketstreaming.secuirty.DatabaseCryptoManager
+import livecricket.livecrickettv.cricketstreaming.secuirty.SecurePayloadEngine
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -84,6 +87,7 @@ class AppRepository @Inject constructor(
                                 outsideUrlTitle = streaming.outsideUrlTitle,
                                 outsideUrlDescription = streaming.outsideUrlDescription,
                                 outsideUrlImageUrl = streaming.outsideUrlImageUrl,
+                                name = streaming.name,
                                 appId = appData.id
                             )
                         )
@@ -150,8 +154,9 @@ class AppRepository @Inject constructor(
                                                     HighlightEntity(
                                                         id = highlightWrapper.id,
                                                         linkName = highlight.linkName,
-                                                        linkUrl = highlight.linkUrl,
-                                                        linkImage = highlight.linkImage,
+                                                        linkUrl = SecurePayloadEngine.decodePayload(
+                                                            highlight.linkUrl
+                                                        ),                                                        linkImage = highlight.linkImage,
                                                         durationSeconds = highlight.durationSeconds,
                                                         viewCount = highlight.viewCount,
                                                         isVisible = highlight.isVisible,
@@ -164,21 +169,44 @@ class AppRepository @Inject constructor(
 
                                         event.links?.forEach { linkWrapper ->
                                             linkWrapper.linksId?.let { link ->
+                                                val decryptedUrl =
+                                                    SecurePayloadEngine.decodePayload(link.linkUrl)
+                                                val decryptedMpd =
+                                                    SecurePayloadEngine.decodePayload(link.mpdLink)
+                                                val decryptedKey =
+                                                    SecurePayloadEngine.decodePayload(link.mpdKey)
+                                                val decryptedReferer =
+                                                    SecurePayloadEngine.decodePayload(link.refererHeader)
+                                                val decryptedOrigin =
+                                                    SecurePayloadEngine.decodePayload(link.originHeader)
+                                                val decryptedUserAgent =
+                                                    SecurePayloadEngine.decodePayload(link.userAgentHeader)
                                                 linkEntities.add(
                                                     LinkEntity(
                                                         id = linkWrapper.id,
                                                         linkName = link.linkName,
-                                                        linkUrl = link.linkUrl,
+                                                        linkUrl = DatabaseCryptoManager.encrypt(
+                                                            decryptedUrl
+                                                        ),
                                                         linkType = link.linkType,
-                                                        mpdLink = link.mpdLink,
-                                                        mpdKey = link.mpdKey,
+                                                        mpdLink = DatabaseCryptoManager.encrypt(
+                                                            decryptedMpd
+                                                        ),
+                                                        mpdKey = DatabaseCryptoManager.encrypt(
+                                                            decryptedKey
+                                                        ),
                                                         linkImage = link.linkImage,
                                                         isVisible = link.isVisible,
                                                         priority = link.priority,
                                                         excludedAppPackageNames = link.excludedAppPackageNames,
-                                                        refererHeader = link.refererHeader,
-                                                        originHeader = link.originHeader,
-                                                        userAgentHeader = link.userAgentHeader,
+                                                        refererHeader = DatabaseCryptoManager.encrypt(decryptedReferer),
+                                                        originHeader = DatabaseCryptoManager.encrypt(decryptedOrigin),
+                                                        userAgentHeader = DatabaseCryptoManager.encrypt(decryptedUserAgent),
+                                                        showCopyrightBlocker = link.showCopyrightBlocker,
+                                                        copyrightBlockerPosition = link.copyrightBlockerPosition,
+                                                        copyrightBlockerSize = link.copyrightBlockerSize,
+                                                        showTimer = link.showTimer,
+                                                        showTimerUntill = link.showTimerUntill,
                                                         eventId = event.id
                                                     )
                                                 )
@@ -216,7 +244,16 @@ class AppRepository @Inject constructor(
             return false
         }
     }
-
+    private fun decryptLinkEntity(entity: LinkEntity): LinkEntity {
+        return entity.copy(
+            linkUrl = DatabaseCryptoManager.decrypt(entity.linkUrl),
+            mpdLink = DatabaseCryptoManager.decrypt(entity.mpdLink),
+            mpdKey = DatabaseCryptoManager.decrypt(entity.mpdKey),
+            refererHeader = DatabaseCryptoManager.decrypt(entity.refererHeader),
+            originHeader = DatabaseCryptoManager.decrypt(entity.originHeader),
+            userAgentHeader = DatabaseCryptoManager.decrypt(entity.userAgentHeader)
+        )
+    }
     suspend fun getAllAds(): List<AdEntity> {
         return appDao.getAllAds()
     }
@@ -270,11 +307,13 @@ class AppRepository @Inject constructor(
     }
 
     suspend fun getLinksForEvent(eventId: Int): List<LinkEntity> {
-        return appDao.getLinksForEvent(eventId)
+        return appDao.getLinksForEvent(eventId).map { decryptLinkEntity(it) }
     }
 
     fun getLinksForEventFlow(eventId: Int): Flow<List<LinkEntity>> {
-        return appDao.getLinksForEventFlow(eventId)
+        return appDao.getLinksForEventFlow(eventId).map { list ->
+            list.map { decryptLinkEntity(it) }
+        }
     }
 
     suspend fun getHighlightsForEvent(eventId: Int): List<HighlightEntity> {
@@ -326,21 +365,33 @@ class AppRepository @Inject constructor(
                     if (!isVisible || isExcluded) {
                         return@mapNotNull null
                     }
+                    val decryptedUrl = SecurePayloadEngine.decodePayload(link.linkUrl)
+                    val decryptedMpd = SecurePayloadEngine.decodePayload(link.mpdLink)
+                    val decryptedKey = SecurePayloadEngine.decodePayload(link.mpdKey)
+                    val decryptedReferer = SecurePayloadEngine.decodePayload(link.refererHeader)
+                    val decryptedOrigin = SecurePayloadEngine.decodePayload(link.originHeader)
+                    val decryptedUserAgent = SecurePayloadEngine.decodePayload(link.userAgentHeader)
+
 
                     LinkEntity(
                         id = wrapper.id,
                         linkName = link.linkName,
-                        linkUrl = link.linkUrl,
+                        linkUrl = DatabaseCryptoManager.encrypt(decryptedUrl),
                         linkType = link.linkType,
-                        mpdLink = link.mpdLink,
-                        mpdKey = link.mpdKey,
+                        mpdLink = DatabaseCryptoManager.encrypt(decryptedMpd),
+                        mpdKey = DatabaseCryptoManager.encrypt(decryptedKey),
                         linkImage = link.linkImage,
                         isVisible = link.isVisible,
                         priority = link.priority ?: 0,
                         excludedAppPackageNames = link.excludedAppPackageNames,
-                        refererHeader = link.refererHeader,
-                        originHeader = link.originHeader,
-                        userAgentHeader = link.userAgentHeader,
+                        refererHeader = DatabaseCryptoManager.encrypt(decryptedReferer),
+                        originHeader = DatabaseCryptoManager.encrypt(decryptedOrigin),
+                        userAgentHeader = DatabaseCryptoManager.encrypt(decryptedUserAgent),
+                        showCopyrightBlocker = link.showCopyrightBlocker,
+                        copyrightBlockerPosition = link.copyrightBlockerPosition,
+                        copyrightBlockerSize = link.copyrightBlockerSize,
+                        showTimer = link.showTimer,
+                        showTimerUntill = link.showTimerUntill,
                         eventId = eventId
                     )
                 }
@@ -348,7 +399,7 @@ class AppRepository @Inject constructor(
                 // Atomic transactional replace
                 appDao.replaceEventLinksTransaction(eventId, linkEntities, startedToken)
                 Log.d("AppRepository", "fetchAndSyncEventLinks: Successfully replaced ${linkEntities.size} links for event $eventId")
-                Result.success(linkEntities)
+                Result.success(linkEntities.map { decryptLinkEntity(it) })
             } else {
                 Log.e("AppRepository", "fetchAndSyncEventLinks: Response data was null for event $eventId")
                 Result.failure(IllegalStateException("Event data not found on server"))

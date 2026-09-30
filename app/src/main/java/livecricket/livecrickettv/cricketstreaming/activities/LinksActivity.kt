@@ -357,6 +357,10 @@ class LinksActivity : AppCompatActivity() {
                     putExtra("refererHeader", link.refererHeader)
                     putExtra("originHeader", link.originHeader)
                     putExtra("userAgentHeader", link.userAgentHeader)
+                    putExtra("linkType", link.linkType)
+                    putExtra("show_copyright_blocker", link.showCopyrightBlocker ?: false)
+                    putExtra("copyright_blocker_position", link.copyrightBlockerPosition)
+                    putExtra("copyright_blocker_size", link.copyrightBlockerSize)
 
 
 

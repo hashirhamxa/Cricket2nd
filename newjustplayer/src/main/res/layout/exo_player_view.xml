@@ -55,7 +55,26 @@
 
     <FrameLayout android:id="@id/exo_overlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+
+        <!-- Copyright Blocker Frame Container (Inside exo_overlay so it sits below top controls) -->
+        <FrameLayout
+            android:id="@+id/copyright_blocker_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/img_copyright_blocker"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_copyright_blocker"
+                android:clipToOutline="true"
+                android:contentDescription="@null"
+                android:scaleType="centerCrop" />
+        </FrameLayout>
+
+    </FrameLayout>
 
     <com.brouken.player.dtpv.youtube.YTOverlay
         android:id="@+id/youtube_overlay"

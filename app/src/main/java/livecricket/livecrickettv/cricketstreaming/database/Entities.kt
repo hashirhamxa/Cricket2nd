@@ -56,6 +56,7 @@ data class StreamingEntity(
     val outsideUrlTitle: String?,
     val outsideUrlDescription: String?,
     val outsideUrlImageUrl: String?,
+    val name: String? = null,
     val appId: Int
 )
 @Entity(tableName = "pending_event_sync")
@@ -147,6 +148,11 @@ data class LinkEntity(
     val refererHeader: String?,
     val originHeader: String?,
     val userAgentHeader: String?,
+    val showCopyrightBlocker: Boolean? = false,
+    val copyrightBlockerPosition: String? = null,
+    val copyrightBlockerSize: String? = null,
+    val showTimer: Boolean? = false,
+    val showTimerUntill: String? = null,
     val eventId: Int
 )
 

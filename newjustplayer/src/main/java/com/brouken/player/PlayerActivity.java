@@ -22,6 +22,7 @@ import android.content.IntentFilter;
 import android.content.UriPermission;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
@@ -44,7 +45,9 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
@@ -117,11 +120,17 @@ import com.google.android.gms.ads.nativead.NativeAdView;
 import com.google.android.material.snackbar.Snackbar;
 import com.homesoft.exo.extractor.PlayerAviExtractorsFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -130,10 +139,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerActivity extends Activity {
-
     private PlayerListener playerListener;
     private BroadcastReceiver broadcastReceiver;
     private AudioManager audioManager;
@@ -184,7 +194,7 @@ public class PlayerActivity extends Activity {
     private ImageButton openBtn;
     //    private ImageButton piPBtn;
     private ImageButton aspectRatioBtn;
-    private ImageButton rotationBtn;
+    //  private ImageButton rotationBtn;
     private ImageButton exoSettingsBtn;
     private ImageButton exoPlayPauseBtn;
     private ProgressBar loadingProgressBar;
@@ -245,6 +255,7 @@ public class PlayerActivity extends Activity {
     //leo
     boolean isVideoLoop = false;
     String videoTitleForVideo;
+    String linkType;
     String mpdLink;
     String mpdKey;
     String refererHeader;
@@ -253,12 +264,25 @@ public class PlayerActivity extends Activity {
     RelativeLayout bannerAdLayout;
     private TextView slidingMessage;
 
+    // Copyright Blocker
+    private boolean showCopyrightBlocker = false;
+    private String copyrightBlockerPosition = null;
+    private String copyrightBlockerSize = null;
+    private FrameLayout copyrightBlockerContainer;
+    private ImageView imgCopyrightBlocker;
+    private final ExecutorService blurExecutor = Executors.newSingleThreadExecutor();
+    private int lastBlockerWidth = -1;
+    private int lastBlockerHeight = -1;
+    private boolean blockerBlurApplied = false;
+    private boolean firstFrameRendered = false;
+    private boolean blockerHasBeenShown = false;
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Rotate ASAP, before super/inflating to avoid glitches with activity launch animation
+        // Rotate ASAP to Landscape to avoid initial portrait launch or glitches
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         spHandler = new SPHandler(this);
-        Utility.setOrientation(this, spHandler.orientation);
 
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT == 28 && Build.MANUFACTURER.equalsIgnoreCase("xiaomi") &&
@@ -288,6 +312,17 @@ public class PlayerActivity extends Activity {
         }
 
         final Intent launchIntent = getIntent();
+        if (launchIntent != null) {
+            showCopyrightBlocker = launchIntent.getBooleanExtra("show_copyright_blocker", launchIntent.getBooleanExtra("showCopyrightBlocker", false));
+            copyrightBlockerPosition = launchIntent.getStringExtra("copyright_blocker_position");
+            if (copyrightBlockerPosition == null) {
+                copyrightBlockerPosition = launchIntent.getStringExtra("copyrightBlockerPosition");
+            }
+            copyrightBlockerSize = launchIntent.getStringExtra("copyright_blocker_size");
+            if (copyrightBlockerSize == null) {
+                copyrightBlockerSize = launchIntent.getStringExtra("copyrightBlockerSize");
+            }
+        }
         final String action = launchIntent.getAction();
         final String type = launchIntent.getType();
 
@@ -297,6 +332,7 @@ public class PlayerActivity extends Activity {
             String text = launchIntent.getStringExtra(Intent.EXTRA_TEXT);
             isVideoLoop = getIntent().getBooleanExtra("isVideoLoop", false);
             videoTitleForVideo = getIntent().getStringExtra("videoTittle");
+            linkType = getIntent().getStringExtra("linkType");
             mpdLink = getIntent().getStringExtra("mpdLink");
             mpdKey = getIntent().getStringExtra("mpdKey");
             refererHeader = getIntent().getStringExtra("refererHeader");
@@ -304,11 +340,28 @@ public class PlayerActivity extends Activity {
             userAgentHeader = getIntent().getStringExtra("userAgentHeader");
             String link = getIntent().getStringExtra("videoLink");
 
-            Log.e("leolog", "PlayerActivity isVideoLoop " + isVideoLoop);
-            Log.e("leolog", "PlayerActivity videoTittle " + videoTitleForVideo);
-
 
             if (link != null && !link.equals("null")) {
+                if (!link.startsWith("http://") && !link.startsWith("https://") && (link.startsWith("ey") || link.length() > 20)) {
+                    try {
+                        byte[] decoded = Base64.decode(link, Base64.DEFAULT);
+                        String jsonStr = new String(decoded, StandardCharsets.UTF_8);
+                        if (jsonStr.startsWith("{") && (jsonStr.contains("\"url\"") || jsonStr.contains("\"api\""))) {
+                            org.json.JSONObject obj = new org.json.JSONObject(jsonStr);
+                            String streamUrl = obj.optString("url", obj.optString("api", ""));
+                            String typeStr = obj.optString("type", "");
+                            String defStr = obj.optString("default_string", "");
+                            if (!streamUrl.isEmpty()) {
+                                if (!defStr.isEmpty()) {
+                                    String encodedKey = Base64.encodeToString(defStr.getBytes(StandardCharsets.UTF_8), Base64.URL_SAFE | Base64.NO_WRAP).trim();
+                                    String sep = streamUrl.contains("?") ? "&" : "?";
+                                    streamUrl = streamUrl + sep + "ls_b64=" + encodedKey;
+                                }
+                                link = streamUrl;
+                            }
+                        }
+                    } catch (Exception ignored) {}
+                }
                 final Uri parsedUri = Uri.parse(link);
                 if (parsedUri.isAbsolute()) {
                     spHandler.updateMedia(this, parsedUri, null);
@@ -382,8 +435,37 @@ public class PlayerActivity extends Activity {
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         customPlayerView = findViewById(R.id.video_view);
+        if (customPlayerView != null) {
+            customPlayerView.setResizeMode(androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL);
+            copyrightBlockerContainer = customPlayerView.findViewById(R.id.copyright_blocker_container);
+            imgCopyrightBlocker = customPlayerView.findViewById(R.id.img_copyright_blocker);
+        }
+
+        if (showCopyrightBlocker && copyrightBlockerContainer != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && imgCopyrightBlocker != null) {
+                imgCopyrightBlocker.setClipToOutline(true);
+            }
+        }
+
+        if (showCopyrightBlocker && customPlayerView != null) {
+            customPlayerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                           int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    int w = right - left;
+                    int h = bottom - top;
+                    if (w > 0 && h > 0) {
+                        updateCopyrightBlockerBounds(w, h);
+                    }
+                }
+            });
+        }
 
         topPanel = customPlayerView.findViewById(R.id.custom_player_top_panel);
+        if (topPanel != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            topPanel.setElevation(20f);
+            topPanel.setTranslationZ(20f);
+        }
         ImageButton backImageButton = customPlayerView.findViewById(R.id.custom_player_img_bck);
         videoTitleTxt = customPlayerView.findViewById(R.id.custom_player_tittle);
 
@@ -511,62 +593,30 @@ public class PlayerActivity extends Activity {
                 return true;
             });
         }
-        rotationBtn = new ImageButton(this, null, 0, androidx.media3.ui.R.style.ExoStyledControls_Button_Bottom);
-        rotationBtn.setContentDescription(getString(R.string.button_rotate));
-        updateButtonRotation();
-        rotationBtn.setOnClickListener(view -> {
-            Log.e("leolog exo", "rotationBtn " + spHandler.orientation);
-            spHandler.orientation = Utility.getNextOrientation(spHandler.orientation);
-            Utility.setOrientation(PlayerActivity.this, spHandler.orientation);
-            updateButtonRotation();
-            Utility.showText(customPlayerView, getString(spHandler.orientation.description), 2500);
-            resetPlayerHideCallbacks();
-            if (getString(spHandler.orientation.description).contains("Device orientation")) {
-                customPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
-                updatebuttonAspectRatioIcon();
-                resetPlayerHideCallbacks();
-            } else if (getString(spHandler.orientation.description).contains("Video orientation")) {
-                customPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
-                updatebuttonAspectRatioIcon();
-                resetPlayerHideCallbacks();
-            }
-        });
+//        rotationBtn = new ImageButton(this, null, 0, androidx.media3.ui.R.style.ExoStyledControls_Button_Bottom);
+//        rotationBtn.setContentDescription(getString(R.string.button_rotate));
+//        updateButtonRotation();
+//        rotationBtn.setOnClickListener(view -> {
+//            spHandler.orientation = Utility.getNextOrientation(spHandler.orientation);
+//            Utility.setOrientation(PlayerActivity.this, spHandler.orientation);
+//            updateButtonRotation();
+//            Utility.showText(customPlayerView, getString(spHandler.orientation.description), 2500);
+//            resetPlayerHideCallbacks();
+//            if (getString(spHandler.orientation.description).contains("Device orientation")) {
+//                customPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
+//                updatebuttonAspectRatioIcon();
+//                resetPlayerHideCallbacks();
+//            } else if (getString(spHandler.orientation.description).contains("Video orientation")) {
+//                customPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
+//                updatebuttonAspectRatioIcon();
+//                resetPlayerHideCallbacks();
+//            }
+//        });
 
         final int titleViewPaddingHorizontal = Utility.dpToPx(14);
         final int titleViewPaddingVertical = getResources().getDimensionPixelOffset(androidx.media3.ui.R.dimen.exo_styled_bottom_bar_time_padding);
 
 
-//        FrameLayout centerView = playerView.findViewById(R.id.exo_controls_background);
-//        titleView = new TextView(this);
-//        titleView.setBackgroundResource(R.color.ui_controls_background);
-//        titleView.setTextColor(Color.WHITE);
-//        titleView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-//        titleView.setPadding(titleViewPaddingHorizontal, titleViewPaddingVertical, titleViewPaddingHorizontal, titleViewPaddingVertical);
-//        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-//        titleView.setVisibility(View.GONE);
-//        titleView.setMaxLines(1);
-//        titleView.setEllipsize(TextUtils.TruncateAt.END);
-//        titleView.setTextDirection(View.TEXT_DIRECTION_LOCALE);
-//        centerView.addView(titleView);
-//
-//        titleView.setOnLongClickListener(view -> {
-//            // Prevent FileUriExposedException
-//            if (mSPHandler.mediaUri != null && ContentResolver.SCHEME_FILE.equals(mSPHandler.mediaUri.getScheme())) {
-//                return false;
-//            }
-//
-//            final Intent shareIntent = new Intent(Intent.ACTION_SEND);
-//            shareIntent.putExtra(Intent.EXTRA_STREAM, mSPHandler.mediaUri);
-//            if (mSPHandler.mediaType == null)
-//                shareIntent.setType("video/*");
-//            else
-//                shareIntent.setType(mSPHandler.mediaType);
-//            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//            // Start without intent chooser to allow any target to be set as default
-//            startActivity(shareIntent);
-//
-//            return true;
-//        });
 
         playerControlView = customPlayerView.findViewById(androidx.media3.ui.R.id.exo_controller);
         playerControlView.setOnApplyWindowInsetsListener((view, windowInsets) -> {
@@ -602,9 +652,6 @@ public class PlayerActivity extends Activity {
                         marginRight = 0;
                     }
                 }
-
-//                Utility.setViewParams(titleView, paddingLeft + titleViewPaddingHorizontal, titleViewPaddingVertical, paddingRight + titleViewPaddingHorizontal, titleViewPaddingVertical,
-//                        marginLeft, windowInsets.getSystemWindowInsetTop(), marginRight, 0);
                 Utility.setViewParams(topPanel, paddingLeft + titleViewPaddingHorizontal, titleViewPaddingVertical, paddingRight + titleViewPaddingHorizontal, titleViewPaddingVertical,
                         marginLeft, windowInsets.getSystemWindowInsetTop(), marginRight, 0);
 
@@ -698,9 +745,9 @@ public class PlayerActivity extends Activity {
         if (spHandler.repeatToggle) {
             controls.addView(exoRepeat);
         }
-        if (!isTvBox) {
-            controls.addView(rotationBtn);
-        }
+//        if (!isTvBox) {
+//            controls.addView(rotationBtn);
+//        }
         controls.addView(exoSettingsBtn);
         exoSettingsBtn.setVisibility(View.GONE);
 
@@ -881,9 +928,6 @@ public class PlayerActivity extends Activity {
                 isVideoLoop = getIntent().getBooleanExtra("isVideoLoop", false);
                 videoTitleForVideo = getIntent().getStringExtra("videoTittle");
                 String link = getIntent().getStringExtra("videoLink");
-
-                Log.e("leolog", "PlayerActivity isVideoLoop " + isVideoLoop);
-                Log.e("leolog", "PlayerActivity videoTittle " + videoTitleForVideo);
 
                 if (link != null) {
 //                    final Uri parsedUri = Uri.parse(text);
@@ -1298,7 +1342,6 @@ public class PlayerActivity extends Activity {
                         .setPreferredTextLanguage(spHandler.languageSubtitle)
                 );
         }
-        // https://github.com/google/ExoPlayer/issues/8571
         PlayerAviExtractorsFactory playerAviExtractorsFactory = new PlayerAviExtractorsFactory();
         playerAviExtractorsFactory.getDefaultExtractorsFactory()
                 .setTsExtractorFlags(DefaultTsPayloadReaderFactory.FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS)
@@ -1361,7 +1404,6 @@ public class PlayerActivity extends Activity {
             if (isNetworkUri) {
                 customTimeBar.setBufferedColor(DefaultTimeBar.DEFAULT_BUFFERED_COLOR);
             } else {
-                // https://github.com/google/ExoPlayer/issues/5765
                 customTimeBar.setBufferedColor(0x33FFFFFF);
             }
 
@@ -1374,39 +1416,52 @@ public class PlayerActivity extends Activity {
             }
             updatebuttonAspectRatioIcon();
 
+            // Build unified HttpDataSource with headers & timeouts
+            HashMap<String, String> headers = new HashMap<>();
+            if (refererHeader != null && !refererHeader.isEmpty()) headers.put("Referer", refererHeader);
+            if (originHeader != null && !originHeader.isEmpty()) headers.put("Origin", originHeader);
+
+            DefaultHttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory()
+                    .setDefaultRequestProperties(headers)
+                    .setAllowCrossProtocolRedirects(true)
+                    .setConnectTimeoutMs(20000)
+                    .setReadTimeoutMs(20000);
+
+            String effectiveUserAgent = (userAgentHeader != null && !userAgentHeader.isEmpty())
+                    ? userAgentHeader
+                    : "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
+            httpDataSourceFactory.setUserAgent(effectiveUserAgent);
+
             if (mpdLink == null || Objects.equals(mpdLink, "null")) {
-                if (refererHeader != null || originHeader != null || userAgentHeader != null) {
-                    HashMap<String, String> headers = new HashMap<>();
-                    if (refererHeader != null) headers.put("Referer", refererHeader);
-                    if (originHeader != null) headers.put("Origin", originHeader);
+                boolean isLs = "ls".equalsIgnoreCase(linkType) || (spHandler.mediaUri != null && (spHandler.mediaUri.toString().contains("ls_b64") || spHandler.mediaUri.toString().contains(":8089")));
+                Uri playbackUri = isLs ? resolveLsTokenIfPresent(spHandler.mediaUri) : spHandler.mediaUri;
+                String uriStr = playbackUri != null ? playbackUri.toString().toLowerCase() : "";
+                boolean isHls = "0".equals(linkType) || "stream".equalsIgnoreCase(linkType) || "hls".equalsIgnoreCase(linkType) || isLs
+                        || uriStr.contains(".m3u8") || uriStr.contains(".php") || uriStr.contains(".js") || uriStr.contains(".json") || uriStr.contains("=m3u8");
 
-                    DefaultHttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory()
-                            .setDefaultRequestProperties(headers)
-                            .setAllowCrossProtocolRedirects(true);
-                    
-                    if (userAgentHeader != null) {
-                        httpDataSourceFactory.setUserAgent(userAgentHeader);
-                    }
-
+                if (refererHeader != null || originHeader != null || userAgentHeader != null || isHls) {
                     MediaSource mediaSource;
-                    // Check if it's HLS or other
-                    if (spHandler.mediaUri.toString().contains(".m3u8")) {
+                    if (isHls) {
                         mediaSource = new HlsMediaSource.Factory(httpDataSourceFactory)
-                                .createMediaSource(MediaItem.fromUri(spHandler.mediaUri));
+                                .setAllowChunklessPreparation(false)
+                                .createMediaSource(new MediaItem.Builder()
+                                        .setUri(playbackUri)
+                                        .setMimeType(MimeTypes.APPLICATION_M3U8)
+                                        .build());
                     } else {
                         mediaSource = new DefaultMediaSourceFactory(httpDataSourceFactory)
-                                .createMediaSource(MediaItem.fromUri(spHandler.mediaUri));
+                                .createMediaSource(MediaItem.fromUri(playbackUri));
                     }
-                    exoPlayer.setMediaSource(mediaSource, spHandler.getPosition());
+                    exoPlayer.setMediaSource(mediaSource, isHls ? C.TIME_UNSET : spHandler.getPosition());
                 } else {
                     MediaItem.Builder mediaItemBuilder = new MediaItem.Builder()
-                            .setUri(spHandler.mediaUri)
+                            .setUri(playbackUri)
                             .setMimeType(spHandler.mediaType);
                     String title;
                     if (apiTitle != null) {
                         title = apiTitle;
                     } else {
-                        title = Utility.getFileName(PlayerActivity.this, spHandler.mediaUri);
+                        title = Utility.getFileName(PlayerActivity.this, playbackUri);
                     }
                     if (title != null) {
                         final MediaMetadata mediaMetadata = new MediaMetadata.Builder()
@@ -1424,13 +1479,13 @@ public class PlayerActivity extends Activity {
                     exoPlayer.setMediaItem(mediaItemBuilder.build(), spHandler.getPosition());
                 }
             } else {
-                if (mpdKey == null || Objects.equals(mpdKey, "null")) {
-                    DashMediaSource.Factory dashFactory = new DashMediaSource.Factory(new DefaultHttpDataSource.Factory());
-                    MediaSource mediaSource = dashFactory.createMediaSource(MediaItem.fromUri(mpdLink));
+                DashMediaSource.Factory dashMediaSourceFactory = new DashMediaSource.Factory(httpDataSourceFactory);
+                if (mpdKey == null || Objects.equals(mpdKey, "null") || !mpdKey.contains(":")) {
+                    MediaSource mediaSource = dashMediaSourceFactory.createMediaSource(MediaItem.fromUri(Uri.parse(mpdLink)));
                     exoPlayer.setMediaSource(mediaSource);
                 } else {
                     // Your MPD URL and Clear Key
-                    String[] parts = mpdKey.split(":");
+                    String[] parts = mpdKey.split(":", 2);
                     String KEY_ID_HEX = parts[0];
                     String CLEAR_KEY_HEX = parts[1];
                     String KEY_ID = hexToBase64UrlSafe(KEY_ID_HEX); // Must be URL-safe Base64
@@ -1442,9 +1497,7 @@ public class PlayerActivity extends Activity {
                             .setUuidAndExoMediaDrmProvider(drmSchemeUuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
                             .build(new ClearKeyMediaDrmCallback(KEY_ID, CLEAR_KEY));
                     // Build DASH media source
-                    DashMediaSource.Factory dashMediaSourceFactory = new DashMediaSource.Factory(
-                            new DefaultHttpDataSource.Factory())
-                            .setDrmSessionManagerProvider(mediaItem -> drmSessionManager);
+                    dashMediaSourceFactory.setDrmSessionManagerProvider(mediaItem -> drmSessionManager);
                     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(mpdLink));
                     DashMediaSource dashMediaSource = dashMediaSourceFactory.createMediaSource(mediaItem);
                     exoPlayer.setMediaSource(dashMediaSource);
@@ -1530,17 +1583,153 @@ public class PlayerActivity extends Activity {
     }
 
     public static String hexToBase64UrlSafe(String input) {
+        if (input == null) return "";
         // Base64 URL-safe regex: only A-Z a-z 0-9 _ -
         if (input.matches("^[A-Za-z0-9_-]{11,24}$")) {
             // Looks like Base64URL, return as is
             return input;
         }
-        // Otherwise treat as hex
-        byte[] bytes = new BigInteger(input, 16).toByteArray();
-        if (bytes.length > 0 && bytes[0] == 0) {
-            bytes = Arrays.copyOfRange(bytes, 1, bytes.length);
+        // Otherwise treat as hex (convert exactly 32 hex chars to 16 bytes)
+        String cleaned = input.replaceAll("[^0-9a-fA-F]", "");
+        while (cleaned.length() < 32) cleaned = "0" + cleaned;
+        if (cleaned.length() > 32) cleaned = cleaned.substring(cleaned.length() - 32);
+
+        byte[] bytes = new byte[16];
+        for (int i = 0; i < 32; i += 2) {
+            bytes[i / 2] = (byte) ((Character.digit(cleaned.charAt(i), 16) << 4)
+                    + Character.digit(cleaned.charAt(i + 1), 16));
         }
         return Base64.encodeToString(bytes, Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
+    }
+
+    private static volatile String sCachedPublicIp = null;
+    private static volatile long sIpFetchTimestamp = 0;
+
+    public static Uri resolveLsTokenIfPresent(Uri originalUri) {
+        if (originalUri == null) return null;
+
+        String lsKey = null;
+        String lsB64 = originalUri.getQueryParameter("ls_b64");
+        if (lsB64 != null && !lsB64.isEmpty()) {
+            try {
+                byte[] decoded = Base64.decode(lsB64, Base64.URL_SAFE | Base64.DEFAULT);
+                lsKey = new String(decoded, StandardCharsets.UTF_8);
+            } catch (Exception ignored) {}
+        }
+
+        if (lsKey == null || lsKey.isEmpty()) {
+            String uriStr = originalUri.toString();
+            if (uriStr.contains("ls_key=")) {
+                int start = uriStr.indexOf("ls_key=") + 7;
+                int end = uriStr.indexOf("&", start);
+                if (end == -1) end = uriStr.length();
+                lsKey = uriStr.substring(start, end);
+            }
+        }
+
+        // If no dynamic key is found, return original URI as-is
+        if (lsKey == null || lsKey.isEmpty()) {
+            return originalUri;
+        }
+
+        try {
+            Uri.Builder builder = originalUri.buildUpon().clearQuery();
+            for (String paramName : originalUri.getQueryParameterNames()) {
+                if (!"ls_key".equals(paramName) && !"ls_b64".equals(paramName) && !"token".equals(paramName)) {
+                    for (String val : originalUri.getQueryParameters(paramName)) {
+                        builder.appendQueryParameter(paramName, val);
+                    }
+                }
+            }
+            Uri baseUri = builder.build();
+            String baseUrl = baseUri.toString();
+
+            String path = baseUri.getPath();
+            String channelId = "";
+            if (path != null) {
+                String[] segments = path.split("/");
+                for (int i = segments.length - 1; i >= 0; i--) {
+                    if (!segments[i].isEmpty() && !segments[i].contains(".")) {
+                        channelId = segments[i];
+                        break;
+                    }
+                }
+            }
+            if (channelId.isEmpty()) {
+                String[] urlParts = baseUrl.split("/");
+                if (urlParts.length >= 2) {
+                    channelId = urlParts[urlParts.length - 2];
+                }
+            }
+
+            long now = System.currentTimeMillis();
+            if (sCachedPublicIp == null || (now - sIpFetchTimestamp) > 10 * 60 * 1000) {
+                android.os.StrictMode.ThreadPolicy oldPolicy = android.os.StrictMode.getThreadPolicy();
+                try {
+                    android.os.StrictMode.setThreadPolicy(new android.os.StrictMode.ThreadPolicy.Builder().permitAll().build());
+                    String ip = fetchPublicIp();
+                    if (ip != null && !ip.trim().isEmpty()) {
+                        sCachedPublicIp = ip.trim();
+                        sIpFetchTimestamp = now;
+                    }
+                } finally {
+                    android.os.StrictMode.setThreadPolicy(oldPolicy);
+                }
+            }
+
+            String clientIp = sCachedPublicIp != null ? sCachedPublicIp : "127.0.0.1";
+            long nowSec = System.currentTimeMillis() / 1000L;
+            long expireSec = nowSec + 77L;
+
+            String payload = channelId + lsKey + nowSec + clientIp;
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = md.digest(payload.getBytes(StandardCharsets.ISO_8859_1));
+
+            StringBuilder hexSb = new StringBuilder();
+            for (byte b : hashBytes) {
+                int high = (b >>> 4) & 15;
+                hexSb.append((char) (high < 10 ? high + '0' : high - 10 + 'a'));
+                int low = b & 15;
+                hexSb.append((char) (low < 10 ? low + '0' : low - 10 + 'a'));
+            }
+            String tokenHex = hexSb.toString();
+            String tokenParam = tokenHex + "-" + expireSec + "-" + nowSec;
+            String sep = baseUrl.contains("?") ? "&" : "?";
+            String signedUrl = baseUrl + sep + "token=" + tokenParam;
+
+            return Uri.parse(signedUrl);
+        } catch (Exception e) {
+            return originalUri;
+        }
+    }
+
+    private static String fetchPublicIp() {
+        String[] ipServices = new String[] {
+                "https://api4.ipify.org",
+                "https://ip-api.streamingucms.com/",
+                "https://ipv4.icanhazip.com",
+                "https://ifconfig.me/ip",
+                "https://api.ipify.org"
+        };
+        for (String service : ipServices) {
+            try {
+                URL url = new URL(service);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(3000);
+                conn.setReadTimeout(3000);
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+                if (conn.getResponseCode() == 200) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                        String ip = reader.readLine();
+                        if (ip != null && !ip.trim().isEmpty()) {
+                            return ip.trim();
+                        }
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+        return null;
     }
 
     private void savePlayerValues() {
@@ -1669,31 +1858,13 @@ public class PlayerActivity extends Activity {
                 if (videoLoading) {
                     videoLoading = false;
 
-                    if (spHandler.orientation == Utility.Orientation.UNSPECIFIED) {
-                        Log.e("leolog exo", "onPlaybackStateChanged spHandler.orientation == Utility.Orientation.UNSPECIFIED");
-                        spHandler.orientation = Utility.getNextOrientation(spHandler.orientation);
-                        Log.e("leolog exo", "onPlaybackStateChanged spHandler.orientation " + spHandler.orientation);
-                        Utility.setOrientation(PlayerActivity.this, spHandler.orientation);
-                    }
-
                     final Format format = exoPlayer.getVideoFormat();
 
                     if (format != null) {
-                        if (!isTvBox && spHandler.orientation == Utility.Orientation.VIDEO) {
-                            if (Utility.isPortrait(format)) {
-                                Log.e("leolog exo", "onPlaybackStateChanged SCREEN_ORIENTATION_SENSOR_PORTRAIT");
-                                PlayerActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-                            } else {
-                                PlayerActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-                                Log.e("leolog exo", "onPlaybackStateChanged SCREEN_ORIENTATION_SENSOR_LANDSCAPE");
-
-                                customPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
-                                updatebuttonAspectRatioIcon();
-                                resetPlayerHideCallbacks();
-                            }
-                            updateButtonRotation();
-                        }
-
+                        customPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
+                        updatebuttonAspectRatioIcon();
+                        resetPlayerHideCallbacks();
+                        updateButtonRotation();
                         updateVideoSubtitleViewMargin(format);
                     }
 
@@ -1790,6 +1961,32 @@ public class PlayerActivity extends Activity {
                 } else {
                     errorToShow = exoPlaybackException;
                 }
+            }
+        }
+
+        @Override
+        public void onRenderedFirstFrame() {
+            firstFrameRendered = true;
+            blockerHasBeenShown = true;
+            if (showCopyrightBlocker) {
+                runOnUiThread(() -> {
+                    if (customPlayerView != null) {
+                        updateCopyrightBlockerBounds(customPlayerView.getWidth(), customPlayerView.getHeight());
+                        applyCopyrightBlockerBlur(false);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onVideoSizeChanged(androidx.media3.common.VideoSize videoSize) {
+            if (showCopyrightBlocker && firstFrameRendered) {
+                runOnUiThread(() -> {
+                    if (customPlayerView != null) {
+                        updateCopyrightBlockerBounds(customPlayerView.getWidth(), customPlayerView.getHeight());
+                        applyCopyrightBlockerBlur(true);
+                    }
+                });
             }
         }
     }
@@ -2127,6 +2324,10 @@ public class PlayerActivity extends Activity {
         updateVideoSubtitleViewMargin();
 
         updateButtonRotation();
+
+        if (showCopyrightBlocker && customPlayerView != null) {
+            updateCopyrightBlockerBounds(customPlayerView.getWidth(), customPlayerView.getHeight());
+        }
     }
 
     void showErrorMessage(ExoPlaybackException error) {
@@ -2203,7 +2404,7 @@ public class PlayerActivity extends Activity {
 
             if (captioningManager.isEnabled()) {
                 // Do not apply embedded style as currently the only supported color style is PrimaryColour
-                // https://github.com/google/ExoPlayer/issues/8435#issuecomment-762449001
+                // Embedded style config
                 // This may result in poorly visible text (depending on user's selected edgeColor)
                 // The same can happen with style provided using setStyle but enabling CaptioningManager should be a way to change the behavior
                 subtitleView.setApplyEmbeddedStyles(false);
@@ -2379,7 +2580,7 @@ public class PlayerActivity extends Activity {
 //        final Format format = exoPlayer.getVideoFormat();
 //
 //        if (format != null) {
-//            // https://github.com/google/ExoPlayer/issues/8611
+//            // Test/disable on Android 11+
 //            // TODO: Test/disable on Android 11+
 //            final View videoSurfaceView = customPlayerView.getVideoSurfaceView();
 //            if (videoSurfaceView instanceof SurfaceView) {
@@ -2556,23 +2757,23 @@ public class PlayerActivity extends Activity {
             e.printStackTrace();
         }
 
-        if (spHandler.orientation == Utility.Orientation.VIDEO) {
-            if (auto) {
-                rotationBtn.setImageResource(R.drawable.ic_screen_lock_rotation_24dp);
-            } else if (portrait) {
-                rotationBtn.setImageResource(R.drawable.ic_screen_lock_portrait_24dp);
-            } else {
-                rotationBtn.setImageResource(R.drawable.ic_screen_lock_landscape_24dp);
-            }
-        } else {
-            if (auto) {
-                rotationBtn.setImageResource(R.drawable.ic_screen_rotation_24dp);
-            } else if (portrait) {
-                rotationBtn.setImageResource(R.drawable.ic_screen_portrait_24dp);
-            } else {
-                rotationBtn.setImageResource(R.drawable.ic_screen_landscape_24dp);
-            }
-        }
+//        if (spHandler.orientation == Utility.Orientation.VIDEO) {
+//            if (auto) {
+//                rotationBtn.setImageResource(R.drawable.ic_screen_lock_rotation_24dp);
+//            } else if (portrait) {
+//                rotationBtn.setImageResource(R.drawable.ic_screen_lock_portrait_24dp);
+//            } else {
+//                rotationBtn.setImageResource(R.drawable.ic_screen_lock_landscape_24dp);
+//            }
+//        } else {
+//            if (auto) {
+//                rotationBtn.setImageResource(R.drawable.ic_screen_rotation_24dp);
+//            } else if (portrait) {
+//                rotationBtn.setImageResource(R.drawable.ic_screen_portrait_24dp);
+//            } else {
+//                rotationBtn.setImageResource(R.drawable.ic_screen_landscape_24dp);
+//            }
+//        }
     }
 
     //leo for ad
@@ -2664,4 +2865,383 @@ public class PlayerActivity extends Activity {
         // Return the adaptive AdSize
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(activity, adWidth);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (blurExecutor != null && !blurExecutor.isShutdown()) {
+            blurExecutor.shutdown();
+        }
+    }
+
+    private void updateCopyrightBlockerBounds(int viewWidth, int viewHeight) {
+        if (!showCopyrightBlocker || copyrightBlockerContainer == null || viewWidth <= 0 || viewHeight <= 0) {
+            if (copyrightBlockerContainer != null) {
+                copyrightBlockerContainer.setVisibility(View.GONE);
+            }
+            return;
+        }
+
+        // Do NOT show blocker on initial black screen before first video frame is rendered
+        if (!firstFrameRendered && !blockerHasBeenShown) {
+            copyrightBlockerContainer.setVisibility(View.GONE);
+            return;
+        }
+
+        // Restrict copyright blocker to Landscape mode ONLY; hide completely in Portrait
+        boolean isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
+                || viewWidth > viewHeight;
+
+        if (!isLandscape) {
+            copyrightBlockerContainer.setVisibility(View.GONE);
+            return;
+        }
+
+        boolean sizeChanged = (viewWidth != lastBlockerWidth || viewHeight != lastBlockerHeight);
+        if (!sizeChanged && blockerBlurApplied && copyrightBlockerContainer.getVisibility() == View.VISIBLE) {
+            return; // Prevent touch/click control toggles from re-triggering blur or layout calculations
+        }
+
+        try {
+            if (sizeChanged) {
+                blockerBlurApplied = false; // Re-evaluate blur for new orientation/size
+            }
+            lastBlockerWidth = viewWidth;
+            lastBlockerHeight = viewHeight;
+
+            float posX = 0f, posY = 0f, posW = 0f, posH = 0f;
+            if (copyrightBlockerPosition != null && copyrightBlockerPosition.contains(",")) {
+                String[] parts = copyrightBlockerPosition.split(",");
+                if (parts.length >= 2) {
+                    posX = Float.parseFloat(parts[0].trim());
+                    posY = Float.parseFloat(parts[1].trim());
+                }
+            }
+            if (copyrightBlockerSize != null && copyrightBlockerSize.contains(",")) {
+                String[] parts = copyrightBlockerSize.split(",");
+                if (parts.length >= 2) {
+                    posW = Float.parseFloat(parts[0].trim());
+                    posH = Float.parseFloat(parts[1].trim());
+                }
+            }
+
+            if (posW <= 0f || posH <= 0f) {
+                copyrightBlockerContainer.setVisibility(View.GONE);
+                return;
+            }
+
+            // Reference Landscape Dimensions (Standard 1080p Stream Space: 1920x1080)
+            float refWidth = 1920.0f;
+            float refHeight = 1080.0f;
+            if (posX > 1920f) refWidth = Math.max(1920.0f, posX + posW);
+            if (posY > 1080f) refHeight = Math.max(1080.0f, posY + posH);
+
+            // Calculate relative normalized fractions (0.0 to 1.0)
+            float normX = posX / refWidth;
+            float normY = posY / refHeight;
+            float normW = posW / refWidth;
+            float normH = posH / refHeight;
+
+            // Scale proportionally to current landscape view dimensions
+            int targetW = Math.max(10, Math.round(normW * viewWidth));
+            int targetH = Math.max(10, Math.round(normH * viewHeight));
+            int targetX = Math.round(normX * viewWidth);
+            int targetY = Math.round(normY * viewHeight);
+
+            // Clamp to stay 100% inside video bounds
+            targetX = Math.max(0, Math.min(targetX, viewWidth - targetW));
+            targetY = Math.max(0, Math.min(targetY, viewHeight - targetH));
+
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) copyrightBlockerContainer.getLayoutParams();
+            if (params != null) {
+                params.width = targetW;
+                params.height = targetH;
+                params.leftMargin = targetX;
+                params.topMargin = targetY;
+                copyrightBlockerContainer.setLayoutParams(params);
+            }
+
+            // Once set in Landscape, keep blocker VISIBLE permanently across seeking/buffering
+            copyrightBlockerContainer.setVisibility(View.VISIBLE);
+            if (imgCopyrightBlocker != null) {
+                imgCopyrightBlocker.setAlpha(1.0f);
+            }
+
+            // Apply frame blur if player is active
+            if (exoPlayer != null && (exoPlayer.isPlaying() || exoPlayer.getPlaybackState() == Player.STATE_READY)) {
+                applyCopyrightBlockerBlur(false);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void applyCopyrightBlockerBlur(boolean force) {
+        if (!showCopyrightBlocker || imgCopyrightBlocker == null) return;
+        if (blockerBlurApplied && !force) return;
+
+        if (imgCopyrightBlocker != null) {
+            imgCopyrightBlocker.setAlpha(1.0f);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                imgCopyrightBlocker.setRenderEffect(
+                        android.graphics.RenderEffect.createBlurEffect(50f, 50f, android.graphics.Shader.TileMode.CLAMP)
+                );
+                blockerBlurApplied = true;
+            } catch (Exception ignored) {}
+        }
+
+        blurExecutor.execute(() -> {
+            try {
+                if (customPlayerView == null) return;
+                View surfaceView = customPlayerView.getVideoSurfaceView();
+                if (surfaceView instanceof TextureView) {
+                    final TextureView textureView = (TextureView) surfaceView;
+                    if (textureView.isAvailable()) {
+                        final Bitmap fullFrame = textureView.getBitmap();
+                        if (fullFrame != null) {
+                            int frameW = fullFrame.getWidth();
+                            int frameH = fullFrame.getHeight();
+
+                            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) copyrightBlockerContainer.getLayoutParams();
+                            int containerW = customPlayerView.getWidth();
+                            int containerH = customPlayerView.getHeight();
+
+                            if (containerW > 0 && containerH > 0 && params != null) {
+                                float scaleX = (float) frameW / containerW;
+                                float scaleY = (float) frameH / containerH;
+
+                                int cropX = Math.max(0, Math.round(params.leftMargin * scaleX));
+                                int cropY = Math.max(0, Math.round(params.topMargin * scaleY));
+                                int cropW = Math.min(frameW - cropX, Math.max(1, Math.round(params.width * scaleX)));
+                                int cropH = Math.min(frameH - cropY, Math.max(1, Math.round(params.height * scaleY)));
+
+                                if (cropW > 0 && cropH > 0 && (cropX + cropW <= frameW) && (cropY + cropH <= frameH)) {
+                                    Bitmap cropped = Bitmap.createBitmap(fullFrame, cropX, cropY, cropW, cropH);
+                                    Bitmap firstPass = fastStackBlur(cropped, 25, 4);
+                                    final Bitmap blurred = fastStackBlur(firstPass, 25, 1);
+
+                                    runOnUiThread(() -> {
+                                        if (alive && imgCopyrightBlocker != null) {
+                                            imgCopyrightBlocker.setImageBitmap(blurred);
+                                            imgCopyrightBlocker.setAlpha(1.0f);
+                                            blockerBlurApplied = true;
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private static Bitmap fastStackBlur(Bitmap sentBitmap, int radius, int scale) {
+        if (sentBitmap == null) return null;
+        try {
+            int width = Math.max(1, sentBitmap.getWidth() / scale);
+            int height = Math.max(1, sentBitmap.getHeight() / scale);
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(sentBitmap, width, height, false);
+            Bitmap bitmap = scaledBitmap.copy(scaledBitmap.getConfig(), true);
+
+            if (radius < 1) return bitmap;
+
+            int w = bitmap.getWidth();
+            int h = bitmap.getHeight();
+            int[] pix = new int[w * h];
+            bitmap.getPixels(pix, 0, w, 0, 0, w, h);
+
+            int wm = w - 1;
+            int hm = h - 1;
+            int wh = w * h;
+            int div = radius + radius + 1;
+
+            int[] r = new int[wh];
+            int[] g = new int[wh];
+            int[] b = new int[wh];
+            int rsum, gsum, bsum, x, y, i, p, yp, yi, yw;
+            int[] vmin = new int[Math.max(w, h)];
+
+            int divsum = (div + 1) >> 1;
+            divsum *= divsum;
+            int[] dv = new int[256 * divsum];
+            for (i = 0; i < 256 * divsum; i++) {
+                dv[i] = (i / divsum);
+            }
+
+            yw = yi = 0;
+            int[][] stack = new int[div][3];
+            int stackpointer;
+            int stackstart;
+            int[] sir;
+            int rbs;
+            int r1 = radius + 1;
+            int routsum, goutsum, boutsum;
+            int rinsum, ginsum, binsum;
+
+            for (y = 0; y < h; y++) {
+                rinsum = ginsum = binsum = routsum = goutsum = boutsum = rsum = gsum = bsum = 0;
+                for (i = -radius; i <= radius; i++) {
+                    p = pix[yi + Math.min(wm, Math.max(i, 0))];
+                    sir = stack[i + radius];
+                    sir[0] = (p & 0xff0000) >> 16;
+                    sir[1] = (p & 0x00ff00) >> 8;
+                    sir[2] = (p & 0x0000ff);
+                    rbs = r1 - Math.abs(i);
+                    rsum += sir[0] * rbs;
+                    gsum += sir[1] * rbs;
+                    bsum += sir[2] * rbs;
+                    if (i > 0) {
+                        rinsum += sir[0];
+                        ginsum += sir[1];
+                        binsum += sir[2];
+                    } else {
+                        routsum += sir[0];
+                        goutsum += sir[1];
+                        boutsum += sir[2];
+                    }
+                }
+                stackpointer = radius;
+
+                for (x = 0; x < w; x++) {
+                    r[yi] = dv[rsum];
+                    g[yi] = dv[gsum];
+                    b[yi] = dv[bsum];
+
+                    rsum -= routsum;
+                    gsum -= goutsum;
+                    bsum -= boutsum;
+
+                    stackstart = stackpointer - radius + div;
+                    sir = stack[stackstart % div];
+
+                    routsum -= sir[0];
+                    goutsum -= sir[1];
+                    boutsum -= sir[2];
+
+                    if (y == 0) {
+                        vmin[x] = Math.min(x + radius + 1, wm);
+                    }
+                    p = pix[yw + vmin[x]];
+
+                    sir[0] = (p & 0xff0000) >> 16;
+                    sir[1] = (p & 0x00ff00) >> 8;
+                    sir[2] = (p & 0x0000ff);
+
+                    rinsum += sir[0];
+                    ginsum += sir[1];
+                    binsum += sir[2];
+
+                    rsum += rinsum;
+                    gsum += ginsum;
+                    bsum += binsum;
+
+                    stackpointer = (stackpointer + 1) % div;
+                    sir = stack[stackpointer % div];
+
+                    routsum -= sir[0];
+                    goutsum -= sir[1];
+                    boutsum -= sir[2];
+
+                    rinsum -= sir[0];
+                    ginsum -= sir[1];
+                    binsum -= sir[2];
+
+                    yi++;
+                }
+                yw += w;
+            }
+            for (x = 0; x < w; x++) {
+                rinsum = ginsum = binsum = routsum = goutsum = boutsum = rsum = gsum = bsum = 0;
+                yp = -radius * w;
+                for (i = -radius; i <= radius; i++) {
+                    yi = Math.max(0, yp) + x;
+
+                    sir = stack[i + radius];
+
+                    sir[0] = r[yi];
+                    sir[1] = g[yi];
+                    sir[2] = b[yi];
+
+                    rbs = r1 - Math.abs(i);
+
+                    rsum += r[yi] * rbs;
+                    gsum += g[yi] * rbs;
+                    bsum += b[yi] * rbs;
+
+                    if (i > 0) {
+                        rinsum += sir[0];
+                        ginsum += sir[1];
+                        binsum += sir[2];
+                    } else {
+                        routsum += sir[0];
+                        goutsum += sir[1];
+                        boutsum += sir[2];
+                    }
+
+                    if (i < hm) {
+                        yp += w;
+                    }
+                }
+                yi = x;
+                stackpointer = radius;
+                for (y = 0; y < h; y++) {
+                    pix[yi] = (0xff000000 & pix[yi]) | (dv[rsum] << 16) | (dv[gsum] << 8) | dv[bsum];
+
+                    rsum -= routsum;
+                    gsum -= goutsum;
+                    bsum -= boutsum;
+
+                    stackstart = stackpointer - radius + div;
+                    sir = stack[stackstart % div];
+
+                    routsum -= sir[0];
+                    goutsum -= sir[1];
+                    boutsum -= sir[2];
+
+                    if (x == 0) {
+                        vmin[y] = Math.min(y + r1, hm) * w;
+                    }
+                    p = x + vmin[y];
+
+                    sir[0] = r[p];
+                    sir[1] = g[p];
+                    sir[2] = b[p];
+
+                    rinsum += sir[0];
+                    ginsum += sir[1];
+                    binsum += sir[2];
+
+                    rsum += rinsum;
+                    gsum += ginsum;
+                    bsum += binsum;
+
+                    stackpointer = (stackpointer + 1) % div;
+                    sir = stack[stackpointer % div];
+
+                    routsum -= sir[0];
+                    goutsum -= sir[1];
+                    boutsum -= sir[2];
+
+                    rinsum -= sir[0];
+                    ginsum -= sir[1];
+                    binsum -= sir[2];
+
+                    yi += w;
+                }
+            }
+
+            bitmap.setPixels(pix, 0, w, 0, 0, w, h);
+            return bitmap;
+        } catch (Exception e) {
+            return sentBitmap;
+        }
+    }
+
 }
