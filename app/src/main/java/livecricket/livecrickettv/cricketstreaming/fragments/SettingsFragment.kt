@@ -91,8 +91,8 @@ class SettingsFragment : Fragment() {
         view.findViewById<View>(R.id.btn_rate).setOnClickListener { openPlayStore() }
         view.findViewById<View>(R.id.btn_privacy).setOnClickListener {
             val adsHandler = AdsHelper.getInstance(context)
-            if (adsHandler.isPrivacyOptionsRequired(this)) {
-                adsHandler.showPrivacyOptionsForm(this) { formError ->
+            if (adsHandler.isPrivacyOptionsRequired(context)) {
+                adsHandler.showPrivacyOptionsForm(activity) { formError ->
                     if (formError != null) {
                         openUrl("https://thebicodes.com/CricPulse/privacypolicy")
                     }

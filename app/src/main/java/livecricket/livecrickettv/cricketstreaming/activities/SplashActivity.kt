@@ -112,7 +112,7 @@ class SplashActivity : AppCompatActivity() {
             if (!success) {
                 android.util.Log.e("SplashActivity", "fetchConfigAndProceed: API failed with error: $error")
             } else {
-                android.util.Log.d("SplashActivity", "fetchConfigAndProceed: API success")
+                android.util.Log.e("SplashActivity", "fetchConfigAndProceed: API success")
             }
         }
 
