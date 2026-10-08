@@ -157,8 +157,8 @@ class LinksActivity : AppCompatActivity() {
                                 )
                             }.toMutableList()
 
-                            if (streaming != null && !streaming.newAppOutsideUrl.isNullOrEmpty()) {
-                                val promoChannel = Channel(
+                            if (streaming != null && streaming.showAppPromotionInList == true && !streaming.newAppOutsideUrl.isNullOrEmpty()) {
+                                 val promoChannel = Channel(
                                     name = streaming.outsideUrlTitle ?: "New App Available",
                                     quality = "",
                                     isPromotion = true,
@@ -202,7 +202,7 @@ class LinksActivity : AppCompatActivity() {
                                 )
                             }.toMutableList()
 
-                            if (streaming != null && !streaming.newAppOutsideUrl.isNullOrEmpty()) {
+                            if (streaming != null && streaming.showAppPromotionInList == true && !streaming.newAppOutsideUrl.isNullOrEmpty()) {
                                 val promoChannel = Channel(
                                     name = streaming.outsideUrlTitle ?: "New App Available",
                                     quality = "",

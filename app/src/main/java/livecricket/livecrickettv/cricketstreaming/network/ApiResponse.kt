@@ -78,6 +78,7 @@ data class Streaming(
     @SerializedName("outside_url_description") val outsideUrlDescription: String?,
     @SerializedName("outside_url_image_url") val outsideUrlImageUrl: String?,
     @SerializedName("name") val name: String? = null,
+    @SerializedName("show_app_promotion_in_list") val showAppPromotionInList: Boolean? = false,
     @SerializedName("Scores") val scores: List<Score>?,
     @SerializedName("tournaments") val tournaments: List<TournamentWrapper>?
 )

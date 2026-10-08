@@ -88,6 +88,7 @@ class AppRepository @Inject constructor(
                                 outsideUrlDescription = streaming.outsideUrlDescription,
                                 outsideUrlImageUrl = streaming.outsideUrlImageUrl,
                                 name = streaming.name,
+                                showAppPromotionInList = streaming.showAppPromotionInList,
                                 appId = appData.id
                             )
                         )

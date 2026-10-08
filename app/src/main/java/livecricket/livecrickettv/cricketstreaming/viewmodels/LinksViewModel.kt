@@ -61,7 +61,10 @@ class LinksViewModel @Inject constructor(
                     _isRefreshing.value = false
                 }
             } else {
-                repository.fetchAndSyncEventLinks(eventId, null)
+                val configJob = launch { repository.fetchAndSaveConfig { _, _ -> } }
+                val linksJob = launch { repository.fetchAndSyncEventLinks(eventId, null) }
+                configJob.join()
+                linksJob.join()
                 _isRefreshing.value = false
             }
         }
