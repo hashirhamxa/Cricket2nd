@@ -38,7 +38,6 @@ import livecricket.livecrickettv.cricketstreaming.utilities.Utils;
 public class AppOpenManager implements Application.ActivityLifecycleCallbacks, DefaultLifecycleObserver {
     private static final String LOG_TAG = "AppOpenManager";
     private static final long AD_EXPIRATION_MS = 4 * 3600 * 1000L; // 4 hours
-
     private final Application myApplication;
     private final AppRepository repository;
     private AppOpenAd appOpenAd = null;

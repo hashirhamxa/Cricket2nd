@@ -82,6 +82,7 @@ import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.ExoPlayer;
@@ -1287,6 +1288,8 @@ public class PlayerActivity extends Activity {
         }
     }
 
+    private int reconnectRetryCount = 0;
+
     private void handleVideoSubtitles(Uri uri) {
         // Convert subtitles to UTF-8 if necessary
         SubtitleUtility.clearCache(this);
@@ -1295,6 +1298,8 @@ public class PlayerActivity extends Activity {
     }
 
     public void initPlayer() {
+        reconnectRetryCount = 0;
+        frameRendered = false;
         boolean isNetworkUri = Utility.isSupportedNetworkUri(spHandler.mediaUri);
         haveMedia = spHandler.mediaUri != null;
 
@@ -1350,8 +1355,19 @@ public class PlayerActivity extends Activity {
                 .setExtensionRendererMode(spHandler.decoderPriority)
                 .setMapDV7ToHevc(spHandler.mapDV7ToHevc);
 
+        DefaultLoadControl loadControl = new DefaultLoadControl.Builder()
+                .setBufferDurationsMs(
+                        15000, // minBufferMs
+                        50000, // maxBufferMs
+                        500,   // bufferForPlaybackMs (start playback faster with 0.5s buffer)
+                        1000   // bufferForPlaybackAfterRebufferMs
+                )
+                .setPrioritizeTimeOverSizeThresholds(true)
+                .build();
+
         ExoPlayer.Builder playerBuilder = new ExoPlayer.Builder(this, renderersFactory)
                 .setTrackSelector(defaultTrackSelector)
+                .setLoadControl(loadControl)
                 .setMediaSourceFactory(new DefaultMediaSourceFactory(this, playerAviExtractorsFactory));
 
         if (haveMedia && isNetworkUri) {
@@ -1433,55 +1449,21 @@ public class PlayerActivity extends Activity {
             httpDataSourceFactory.setUserAgent(effectiveUserAgent);
 
             if (mpdLink == null || Objects.equals(mpdLink, "null")) {
-                boolean isLs = "ls".equalsIgnoreCase(linkType) || (spHandler.mediaUri != null && (spHandler.mediaUri.toString().contains("ls_b64") || spHandler.mediaUri.toString().contains(":8089")));
-                Uri playbackUri = isLs ? resolveLsTokenIfPresent(spHandler.mediaUri) : spHandler.mediaUri;
-                String uriStr = playbackUri != null ? playbackUri.toString().toLowerCase() : "";
-                boolean isHls = "0".equals(linkType) || "stream".equalsIgnoreCase(linkType) || "hls".equalsIgnoreCase(linkType) || isLs
-                        || uriStr.contains(".m3u8") || uriStr.contains(".php") || uriStr.contains(".js") || uriStr.contains(".json") || uriStr.contains("=m3u8");
-
-                if (refererHeader != null || originHeader != null || userAgentHeader != null || isHls) {
-                    MediaSource mediaSource;
-                    if (isHls) {
-                        mediaSource = new HlsMediaSource.Factory(httpDataSourceFactory)
-                                .setAllowChunklessPreparation(false)
-                                .createMediaSource(new MediaItem.Builder()
-                                        .setUri(playbackUri)
-                                        .setMimeType(MimeTypes.APPLICATION_M3U8)
-                                        .build());
-                    } else {
-                        mediaSource = new DefaultMediaSourceFactory(httpDataSourceFactory)
-                                .createMediaSource(MediaItem.fromUri(playbackUri));
-                    }
-                    exoPlayer.setMediaSource(mediaSource, isHls ? C.TIME_UNSET : spHandler.getPosition());
-                } else {
-                    MediaItem.Builder mediaItemBuilder = new MediaItem.Builder()
-                            .setUri(playbackUri)
-                            .setMimeType(spHandler.mediaType);
-                    String title;
-                    if (apiTitle != null) {
-                        title = apiTitle;
-                    } else {
-                        title = Utility.getFileName(PlayerActivity.this, playbackUri);
-                    }
-                    if (title != null) {
-                        final MediaMetadata mediaMetadata = new MediaMetadata.Builder()
-                                .setTitle(title)
-                                .setDisplayTitle(title)
-                                .build();
-                        mediaItemBuilder.setMediaMetadata(mediaMetadata);
-                    }
-                    if (apiAccess && apiSubs.size() > 0) {
-                        mediaItemBuilder.setSubtitleConfigurations(apiSubs);
-                    } else if (spHandler.subtitleUri != null && Utility.fileExists(this, spHandler.subtitleUri)) {
-                        MediaItem.SubtitleConfiguration subtitle = SubtitleUtility.buildSubtitle(this, spHandler.subtitleUri, null, true);
-                        mediaItemBuilder.setSubtitleConfigurations(Collections.singletonList(subtitle));
-                    }
-                    exoPlayer.setMediaItem(mediaItemBuilder.build(), spHandler.getPosition());
-                }
+                resolveUriAndPreparePlayerAsync(httpDataSourceFactory, playerAviExtractorsFactory);
             } else {
                 DashMediaSource.Factory dashMediaSourceFactory = new DashMediaSource.Factory(httpDataSourceFactory);
+
+                MediaItem mediaItem = new MediaItem.Builder()
+                        .setUri(Uri.parse(mpdLink))
+                        .setLiveConfiguration(new MediaItem.LiveConfiguration.Builder()
+                                .setTargetOffsetMs(3000)
+                                .setMinOffsetMs(1000)
+                                .setMaxOffsetMs(10000)
+                                .build())
+                        .build();
+
                 if (mpdKey == null || Objects.equals(mpdKey, "null") || !mpdKey.contains(":")) {
-                    MediaSource mediaSource = dashMediaSourceFactory.createMediaSource(MediaItem.fromUri(Uri.parse(mpdLink)));
+                    MediaSource mediaSource = dashMediaSourceFactory.createMediaSource(mediaItem);
                     exoPlayer.setMediaSource(mediaSource);
                 } else {
                     // Your MPD URL and Clear Key
@@ -1497,13 +1479,94 @@ public class PlayerActivity extends Activity {
                             .setUuidAndExoMediaDrmProvider(drmSchemeUuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
                             .build(new ClearKeyMediaDrmCallback(KEY_ID, CLEAR_KEY));
                     // Build DASH media source
-                    dashMediaSourceFactory.setDrmSessionManagerProvider(mediaItem -> drmSessionManager);
-                    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(mpdLink));
+                    dashMediaSourceFactory.setDrmSessionManagerProvider(mItem -> drmSessionManager);
                     DashMediaSource dashMediaSource = dashMediaSourceFactory.createMediaSource(mediaItem);
                     exoPlayer.setMediaSource(dashMediaSource);
                 }
+                completePlayerInitialization();
+            }
+        } else {
+            customPlayerView.showController();
+            completePlayerInitialization();
+        }
+    }
+
+    private void resolveUriAndPreparePlayerAsync(DefaultHttpDataSource.Factory httpDataSourceFactory, PlayerAviExtractorsFactory playerAviExtractorsFactory) {
+        new Thread(() -> {
+            boolean isLs = "ls".equalsIgnoreCase(linkType) || (spHandler.mediaUri != null && (spHandler.mediaUri.toString().contains("ls_b64") || spHandler.mediaUri.toString().contains(":8089")));
+
+            HashMap<String, String> outHeaders = new HashMap<>();
+            Uri resolvedEmbed = resolveEmbedUrlIfPresent(spHandler.mediaUri, userAgentHeader, refererHeader, outHeaders);
+
+            Uri playbackUri;
+            if (isLs) {
+                playbackUri = resolveLsTokenIfPresent(resolvedEmbed);
+            } else {
+                playbackUri = resolvedEmbed;
             }
 
+            runOnUiThread(() -> {
+                finishPlayerPreparation(playbackUri, outHeaders, httpDataSourceFactory, playerAviExtractorsFactory, isLs);
+                completePlayerInitialization();
+            });
+        }).start();
+    }
+
+    private void finishPlayerPreparation(Uri playbackUri, HashMap<String, String> outHeaders, DefaultHttpDataSource.Factory httpDataSourceFactory, PlayerAviExtractorsFactory playerAviExtractorsFactory, boolean isLs) {
+        if (outHeaders.containsKey("Referer")) {
+            HashMap<String, String> currentHeaders = new HashMap<>();
+            if (refererHeader != null && !refererHeader.isEmpty()) currentHeaders.put("Referer", refererHeader);
+            if (originHeader != null && !originHeader.isEmpty()) currentHeaders.put("Origin", originHeader);
+            currentHeaders.put("Referer", outHeaders.get("Referer"));
+            httpDataSourceFactory.setDefaultRequestProperties(currentHeaders);
+        }
+
+        String uriStr = playbackUri != null ? playbackUri.toString().toLowerCase() : "";
+        boolean isHls = "0".equals(linkType) || "stream".equalsIgnoreCase(linkType) || "hls".equalsIgnoreCase(linkType) || isLs
+                || uriStr.contains(".m3u8") || uriStr.contains(".php") || uriStr.contains(".js") || uriStr.contains(".json") || uriStr.contains("=m3u8");
+
+        if (refererHeader != null || originHeader != null || userAgentHeader != null || isHls || outHeaders.containsKey("Referer")) {
+            MediaSource mediaSource;
+            if (isHls) {
+                mediaSource = new DefaultMediaSourceFactory(httpDataSourceFactory, playerAviExtractorsFactory)
+                        .createMediaSource(new MediaItem.Builder()
+                                .setUri(playbackUri)
+                                .setMimeType(MimeTypes.APPLICATION_M3U8)
+                                .build());
+            } else {
+                mediaSource = new DefaultMediaSourceFactory(httpDataSourceFactory)
+                        .createMediaSource(MediaItem.fromUri(playbackUri));
+            }
+            exoPlayer.setMediaSource(mediaSource, isHls ? C.TIME_UNSET : spHandler.getPosition());
+        } else {
+            MediaItem.Builder mediaItemBuilder = new MediaItem.Builder()
+                    .setUri(playbackUri)
+                    .setMimeType(spHandler.mediaType);
+            String title;
+            if (apiTitle != null) {
+                title = apiTitle;
+            } else {
+                title = Utility.getFileName(PlayerActivity.this, playbackUri);
+            }
+            if (title != null) {
+                final MediaMetadata mediaMetadata = new MediaMetadata.Builder()
+                        .setTitle(title)
+                        .setDisplayTitle(title)
+                        .build();
+                mediaItemBuilder.setMediaMetadata(mediaMetadata);
+            }
+            if (apiAccess && apiSubs.size() > 0) {
+                mediaItemBuilder.setSubtitleConfigurations(apiSubs);
+            } else if (spHandler.subtitleUri != null && Utility.fileExists(this, spHandler.subtitleUri)) {
+                MediaItem.SubtitleConfiguration subtitle = SubtitleUtility.buildSubtitle(this, spHandler.subtitleUri, null, true);
+                mediaItemBuilder.setSubtitleConfigurations(Collections.singletonList(subtitle));
+            }
+            exoPlayer.setMediaItem(mediaItemBuilder.build(), spHandler.getPosition());
+        }
+    }
+
+    private void completePlayerInitialization() {
+        if (haveMedia) {
             if (loudnessEnhancer != null) {
                 loudnessEnhancer.release();
             }
@@ -1522,13 +1585,6 @@ public class PlayerActivity extends Activity {
             if (spHandler.getPosition() == 0L || apiAccess) {
                 play = true;
             }
-
-//            if (apiTitle != null) {
-//                titleView.setText(apiTitle);
-//            } else {
-//                titleView.setText(Utility.getFileName(this, mSPHandler.mediaUri));
-//            }
-//            titleView.setVisibility(View.VISIBLE);
 
             if (videoTitleForVideo != null) {
                 videoTitleTxt.setText(videoTitleForVideo);
@@ -1559,20 +1615,18 @@ public class PlayerActivity extends Activity {
             Utility.markChapters(this, spHandler.mediaUri, playerControlView);
 
             exoPlayer.setHandleAudioBecomingNoisy(!isTvBox);
-//            mediaSession.setActive(true);
-        } else {
-            customPlayerView.showController();
         }
 
         exoPlayer.addListener(playerListener);
-        exoPlayer.prepare();
 
-        if (restorePlayState) {
+        if (restorePlayState || play) {
             restorePlayState = false;
             customPlayerView.showController();
             customPlayerView.setControllerShowTimeoutMs(PlayerActivity.CONTROLLER_TIMEOUT);
             exoPlayer.setPlayWhenReady(true);
         }
+
+        exoPlayer.prepare();
 
 
         //leo
@@ -1605,6 +1659,87 @@ public class PlayerActivity extends Activity {
     private static volatile String sCachedPublicIp = null;
     private static volatile long sIpFetchTimestamp = 0;
 
+    public static Uri resolveEmbedUrlIfPresent(Uri uri, String userAgent, String referer, HashMap<String, String> outHeaders) {
+        if (uri == null) return null;
+        String urlStr = uri.toString();
+        if (!urlStr.contains(".php") && !urlStr.contains("embed") && !urlStr.contains("iframe")) {
+            return uri;
+        }
+        try {
+            URL url = new URL(urlStr);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            if (userAgent != null && !userAgent.isEmpty()) conn.setRequestProperty("User-Agent", userAgent);
+            if (referer != null && !referer.isEmpty()) conn.setRequestProperty("Referer", referer);
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(10000);
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+                String html = response.toString();
+                // look for source src="..."
+                java.util.regex.Matcher m = java.util.regex.Pattern.compile("source.*?src=[\"'](.*?)[\"']").matcher(html);
+                if (m.find()) {
+                    String src = m.group(1);
+                    if (src.startsWith("//")) src = "https:" + src;
+                    else if (src.startsWith("/")) {
+                        src = url.getProtocol() + "://" + url.getHost() + src;
+                    }
+                    if (outHeaders != null) {
+                        outHeaders.put("Referer", urlStr);
+                    }
+                    return Uri.parse(src);
+                }
+                // look for iframe
+                m = java.util.regex.Pattern.compile("iframe.*?src=[\"'](.*?)[\"']").matcher(html);
+                if (m.find()) {
+                    String src = m.group(1);
+                    if (src.startsWith("//")) src = "https:" + src;
+                    else if (src.startsWith("/")) {
+                        src = url.getProtocol() + "://" + url.getHost() + src;
+                    }
+                    return resolveEmbedUrlIfPresent(Uri.parse(src), userAgent, urlStr, outHeaders);
+                }
+                // look for window.atob or base64 m3u8
+                m = java.util.regex.Pattern.compile("atob\\(['\"](.*?)['\"]\\)").matcher(html);
+                if (m.find()) {
+                    try {
+                        String dec = new String(Base64.decode(m.group(1), Base64.DEFAULT));
+                        if (dec.contains(".m3u8")) {
+                            if (outHeaders != null) {
+                                outHeaders.put("Referer", urlStr);
+                            }
+                            return Uri.parse(dec);
+                        }
+                    } catch (Exception e) {}
+                }
+                // generic m3u8
+                m = java.util.regex.Pattern.compile("[\"']([^\"']*?\\.m3u8.*?)[\"']").matcher(html);
+                if (m.find()) {
+                    String src = m.group(1);
+                    if (src.startsWith("//")) src = "https:" + src;
+                    else if (src.startsWith("/") && src.length() > 1) {
+                        src = url.getProtocol() + "://" + url.getHost() + src;
+                    }
+                    if (outHeaders != null) {
+                        outHeaders.put("Referer", urlStr);
+                    }
+                    return Uri.parse(src);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return uri;
+    }
+
     public static Uri resolveLsTokenIfPresent(Uri originalUri) {
         if (originalUri == null) return null;
 
@@ -1624,6 +1759,9 @@ public class PlayerActivity extends Activity {
                 int end = uriStr.indexOf("&", start);
                 if (end == -1) end = uriStr.length();
                 lsKey = uriStr.substring(start, end);
+            }
+            if ((lsKey == null || lsKey.isEmpty()) && (uriStr.contains(":8089") || uriStr.contains("tracks-v1a1"))) {
+                lsKey = "N8x7Y%m+6n";
             }
         }
 
@@ -1664,22 +1802,16 @@ public class PlayerActivity extends Activity {
 
             long now = System.currentTimeMillis();
             if (sCachedPublicIp == null || (now - sIpFetchTimestamp) > 10 * 60 * 1000) {
-                android.os.StrictMode.ThreadPolicy oldPolicy = android.os.StrictMode.getThreadPolicy();
-                try {
-                    android.os.StrictMode.setThreadPolicy(new android.os.StrictMode.ThreadPolicy.Builder().permitAll().build());
-                    String ip = fetchPublicIp();
-                    if (ip != null && !ip.trim().isEmpty()) {
-                        sCachedPublicIp = ip.trim();
-                        sIpFetchTimestamp = now;
-                    }
-                } finally {
-                    android.os.StrictMode.setThreadPolicy(oldPolicy);
+                String ip = fetchPublicIp();
+                if (ip != null && !ip.trim().isEmpty()) {
+                    sCachedPublicIp = ip.trim();
+                    sIpFetchTimestamp = now;
                 }
             }
 
             String clientIp = sCachedPublicIp != null ? sCachedPublicIp : "127.0.0.1";
             long nowSec = System.currentTimeMillis() / 1000L;
-            long expireSec = nowSec + 77L;
+            long expireSec = nowSec + 86400L;
 
             String payload = channelId + lsKey + nowSec + clientIp;
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -1935,6 +2067,7 @@ public class PlayerActivity extends Activity {
                 updateVideoLoading(false);
 
             } else if (state == Player.STATE_ENDED) {
+                updateVideoLoading(false);
                 playbackFinished = true;
 //                Toast.makeText(PlayerActivity.this, "Video Ended! Retrying...", Toast.LENGTH_SHORT).show();
                 dispatchPlayPause();
@@ -1947,27 +2080,23 @@ public class PlayerActivity extends Activity {
         @Override
         public void onPlayerError(PlaybackException error) {
             updateVideoLoading(false);
-            if (error instanceof ExoPlaybackException) {
-                final ExoPlaybackException exoPlaybackException = (ExoPlaybackException) error;
-                if (exoPlaybackException.type == ExoPlaybackException.TYPE_SOURCE) {
-                    //leo
-                    showSlidingMessage("Video cannot be played. Please try another link or check your internet connection.");
-                    //
-                    releasePlayer(false);
-                    return;
-                }
-                if (controllerVisible && controllerVisibleFully) {
-                    showErrorMessage(exoPlaybackException);
-                } else {
-                    errorToShow = exoPlaybackException;
-                }
+            boolean isNetwork = Utility.isSupportedNetworkUri(spHandler.mediaUri);
+            if (haveMedia && isNetwork && frameRendered && reconnectRetryCount < 2 && exoPlayer != null) {
+                reconnectRetryCount++;
+                initPlayer();
+                return;
             }
+            reconnectRetryCount = 0;
+            updateVideoLoading(false);
+            showSlidingMessage("Video cannot be played. Please try another link or check your internet connection.");
+            customPlayerView.showController();
         }
 
         @Override
         public void onRenderedFirstFrame() {
             firstFrameRendered = true;
             blockerHasBeenShown = true;
+            updateVideoLoading(false);
             if (showCopyrightBlocker) {
                 runOnUiThread(() -> {
                     if (customPlayerView != null) {

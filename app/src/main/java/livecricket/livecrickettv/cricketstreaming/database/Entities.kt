@@ -57,7 +57,7 @@ data class StreamingEntity(
     val outsideUrlDescription: String?,
     val outsideUrlImageUrl: String?,
     val name: String? = null,
-    
+
     val showAppPromotionInList: Boolean? = false,
     val appId: Int
 )
