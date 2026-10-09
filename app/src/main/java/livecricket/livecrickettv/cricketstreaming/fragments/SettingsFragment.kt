@@ -101,9 +101,9 @@ class SettingsFragment : Fragment() {
                 openUrl("https://thebicodes.com/CricPulse/privacypolicy")
             }
         }
-        view.findViewById<View>(R.id.btn_more_apps).setOnClickListener {
-            openDeveloperPage()
-        }
+//        view.findViewById<View>(R.id.btn_more_apps).setOnClickListener {
+//            openDeveloperPage()
+//        }
         view.findViewById<View>(R.id.btn_about).setOnClickListener {
             openUrl("https://www.thebicodes.com/")
         }
@@ -131,15 +131,15 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun openDeveloperPage() {
-        // You can replace this with your actual developer ID or account URL
-        val developerName = "New+Gen+Developers" // Example
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://search?q=pub:$developerName")))
-        } catch (e: Exception) {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/developer?id=$developerName")))
-        }
-    }
+//    private fun openDeveloperPage() {
+//        // You can replace this with your actual developer ID or account URL
+//        val developerName = "New+Gen+Developers" // Example
+//        try {
+//            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://search?q=pub:$developerName")))
+//        } catch (e: Exception) {
+//            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/developer?id=$developerName")))
+//        }
+//    }
 
     private fun openUrl(url: String) {
         try {
